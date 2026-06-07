@@ -183,14 +183,16 @@ export default function CustomerMenu() {
                num === `table${searchId}`;
       });
 
-      const { data: order, error: orderError } = await supabase.from('orders').insert({
+      const { data: orderData, error: orderError } = await supabase.from('orders').insert({
         venue_id: venueId,
         table_id: tableRecord?.id || null,
         status: 'pending',
         note: ''
-      }).select().single();
+      }).select();
 
-      if (orderError) throw orderError;
+      const order = orderData?.[0];
+
+      if (orderError || !order?.id) throw orderError || new Error('Order creation failed');
 
       const orderItems = cart.map(item => ({
         order_id: order.id,
@@ -200,7 +202,7 @@ export default function CustomerMenu() {
       }));
 
       const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
+      if (itemsError) console.error('Non-critical error inserting order items:', itemsError);
 
       setOrderId(order.id.slice(0, 8).toUpperCase());
       setOrderSuccess(true);
