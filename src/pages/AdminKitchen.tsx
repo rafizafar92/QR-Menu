@@ -20,7 +20,7 @@ export default function AdminKitchen() {
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Live Clock Effect
+  // Live Clock
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -28,10 +28,10 @@ export default function AdminKitchen() {
     return () => clearInterval(timer);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (silent = false) => {
     if (!user?.venueId) return;
     
-    setLoading(true);
+    if (!silent) setLoading(true);
     const { data } = await supabase
       .from('orders')
       .select('*, table:tables(table_number), items:order_items(*, menu_item:menu_items(name))')
@@ -60,7 +60,7 @@ export default function AdminKitchen() {
       }));
       setOrders(mappedOrders);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   };
 
   useEffect(() => {
@@ -73,7 +73,22 @@ export default function AdminKitchen() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'orders', filter: `venue_id=eq.${user.venueId}` },
-        () => fetchData()
+        (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            const updatedOrder = payload.new as any;
+            setOrders(prev => {
+              // Remove if moved to a terminal status (completed/cancelled)
+              if (!['confirmed', 'preparing', 'ready'].includes(updatedOrder.status)) {
+                return prev.filter(o => o.id !== updatedOrder.id);
+              }
+              // Update status locally to avoid "blinking" re-fetch
+              return prev.map(o => o.id === updatedOrder.id ? { ...o, status: updatedOrder.status } : o);
+            });
+          } else {
+            // For INSERTS we need joined data (items), so we fetch silently
+            fetchData(true);
+          }
+        }
       )
       .subscribe();
 
@@ -92,8 +107,7 @@ export default function AdminKitchen() {
       alert('Failed to update status');
       return;
     }
-    
-    fetchData();
+    // Local state will be updated by the realtime listener
   };
 
   const formatTimeAgo = (isoString: string) => {
@@ -108,29 +122,29 @@ export default function AdminKitchen() {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="bg-[#1E293B] rounded-3xl border border-slate-700/50 overflow-hidden shadow-2xl flex flex-col"
+      className="bg-[#1E293B] rounded-2xl border border-slate-700/50 overflow-hidden shadow-xl flex flex-col"
     >
-      <div className="p-5 flex flex-col gap-4 flex-1">
+      <div className="p-3.5 flex flex-col gap-3 flex-1">
         <div className="flex justify-between items-start">
-          <div className="bg-slate-900/50 text-white px-4 py-2 rounded-2xl text-xl font-black border border-slate-700">
+          <div className="bg-slate-900/50 text-white px-3 py-1.5 rounded-xl text-lg font-black border border-slate-700">
             {order.tableId.includes('Table') ? order.tableId : `Table ${order.tableId}`}
           </div>
           <div className="text-right">
             <span className="text-xs font-bold text-slate-500 block uppercase tracking-tighter">Wait Time</span>
-            <span className={`text-sm font-black ${parseInt(formatTimeAgo(order.createdAt)) > 15 ? 'text-rose-500' : 'text-slate-300'}`}>
+            <span className={`text-xs font-black ${parseInt(formatTimeAgo(order.createdAt)) > 15 ? 'text-rose-500' : 'text-slate-300'}`}>
               {formatTimeAgo(order.createdAt)}
             </span>
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           {order.items.map((item: any, idx: number) => (
-            <div key={idx} className="flex items-start gap-4">
-              <span className="text-3xl font-black text-white bg-slate-800 w-12 h-12 flex items-center justify-center rounded-xl border border-slate-700">
+            <div key={idx} className="flex items-start gap-3">
+              <span className="text-lg font-black text-white bg-slate-800 w-8 h-8 flex items-center justify-center rounded-lg border border-slate-700">
                 {item.quantity}
               </span>
-              <div className="flex-1 pt-1">
-                <span className="text-2xl font-bold text-slate-100 leading-tight block">{item.menuItemName}</span>
+              <div className="flex-1 pt-0.5">
+                <span className="text-lg font-bold text-slate-100 leading-tight block">{item.menuItemName}</span>
               </div>
             </div>
           ))}
@@ -146,10 +160,44 @@ export default function AdminKitchen() {
 
       <button
         onClick={() => updateStatus(order.id, nextStatus)}
-        className={`w-full ${accentColor} text-white font-black py-6 text-2xl flex items-center justify-center gap-3 transition-all active:scale-95 hover:brightness-110 cursor-pointer`}
+        className={`w-full ${accentColor} text-white font-black py-5 text-xl flex items-center justify-center gap-3 transition-all active:scale-95 hover:brightness-110 cursor-pointer`}
       >
-        <Icon size={28} />
+        <Icon size={24} />
         {nextLabel}
+      </button>
+    </motion.div>
+  );
+
+  const ReadyOrderCard = ({ order }: { order: Order }) => (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      className="bg-[#1E293B] rounded-2xl border border-slate-700/50 overflow-hidden shadow-lg flex items-center p-3 gap-4"
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-center mb-1">
+          <div className="bg-slate-900/50 text-white px-2 py-0.5 rounded-lg text-xs font-black border border-slate-700">
+            {order.tableId.includes('Table') ? order.tableId : `Table ${order.tableId}`}
+          </div>
+          <span className="text-[10px] font-black text-slate-500 uppercase">{formatTimeAgo(order.createdAt)}</span>
+        </div>
+        <div className="space-y-0.5">
+          {order.items.map((item: any, idx: number) => (
+            <div key={idx} className="flex items-center gap-2">
+              <span className="text-xs font-black text-indigo-400">{item.quantity}x</span>
+              <span className="text-sm font-bold text-slate-200 truncate">{item.menuItemName}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <button
+        onClick={() => updateStatus(order.id, 'completed')}
+        className="bg-emerald-600 text-white font-black py-3 px-6 rounded-xl text-sm flex items-center justify-center gap-2 transition-all active:scale-95 hover:brightness-110 cursor-pointer h-full"
+      >
+        <Check size={18} />
+        <span>SERVED</span>
       </button>
     </motion.div>
   );
@@ -228,10 +276,10 @@ export default function AdminKitchen() {
             <span className="flex items-center gap-3"><CheckCircle2 size={28} /> Ready to Serve</span>
             <span className="bg-emerald-500/10 px-3 py-1 rounded-full text-sm">{orders.filter(o => o.status === 'ready').length}</span>
           </h2>
-          <div className="flex-1 overflow-y-auto space-y-6 scrollbar-none pb-12">
+          <div className="flex-1 overflow-y-auto space-y-3 scrollbar-none pb-12">
             {orders.filter(o => o.status === 'ready').length > 0 ? (
               orders.filter(o => o.status === 'ready').map(order => (
-                <OrderCard key={order.id} order={order} nextStatus="completed" nextLabel="SERVED" icon={Check} accentColor="bg-emerald-600" />
+                <ReadyOrderCard key={order.id} order={order} />
               ))
             ) : (
               <EmptyState message="Nothing Ready" />
