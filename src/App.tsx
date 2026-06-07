@@ -5,6 +5,7 @@ import AdminRegister from './pages/AdminRegister';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminMenu from './pages/AdminMenu';
 import AdminTables from './pages/AdminTables';
+import AdminKitchen from './pages/AdminKitchen';
 import { AuthProvider } from './lib/auth';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import { 
@@ -154,6 +155,7 @@ export default function App() {
           
           <Route element={<AdminProtectedRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/kitchen" element={<AdminKitchen />} />
             <Route path="/admin/menu" element={<AdminMenu />} />
             <Route path="/admin/tables" element={<AdminTables />} />
           </Route>

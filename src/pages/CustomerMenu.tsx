@@ -18,7 +18,8 @@ import {
   Cake,
   GlassWater,
   SlidersHorizontal,
-  Sparkles
+  Sparkles,
+  ChevronRight
 } from 'lucide-react';
 import { MenuItem, Venue } from '../types';
 import { supabase } from '../lib/supabase';
