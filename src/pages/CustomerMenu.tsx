@@ -145,7 +145,6 @@ export default function CustomerMenu() {
       return [...prev, { item, quantity: 1, notes }];
     });
     setActiveItemDetails(null);
-    setIsCartOpen(true);
   };
 
   const updateQuantity = (itemId: string, delta: number) => {
