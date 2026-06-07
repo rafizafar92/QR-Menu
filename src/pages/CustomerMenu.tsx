@@ -208,9 +208,9 @@ export default function CustomerMenu() {
       setOrderSuccess(true);
       setCart([]);
       setIsCartOpen(false);
-    } catch (err) {
-      console.error(err);
-      alert('Order submission failed. Please try again.');
+    } catch (err: any) {
+      console.error('Full error:', err);
+      alert('Error details: ' + (err?.message || err?.details || JSON.stringify(err)));
     } finally {
       setIsOrdering(false);
     }
