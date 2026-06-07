@@ -107,6 +107,11 @@ export default function AdminDashboard() {
     setOrders(prev => 
       prev.map(ord => ord.id === orderId ? { ...ord, status: newStatus } : ord)
     );
+
+    // Automatically trigger receipt print when payment is confirmed
+    if (newStatus === 'confirmed') {
+      setTimeout(() => window.print(), 500);
+    }
   };
 
   const filteredOrders = orders.filter(ord => {
@@ -428,6 +433,58 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </div>
 
+      </div>
+
+      {/* Thermal Receipt Print Area */}
+      <div id="receipt-print-area" className="hidden print:block font-mono text-center w-[300px] mx-auto p-4 text-black bg-white">
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media print {
+            body * { visibility: hidden; }
+            #receipt-print-area, #receipt-print-area * { visibility: visible; }
+            #receipt-print-area { 
+              position: absolute; 
+              left: 0; 
+              top: 0; 
+              width: 100%; 
+              max-width: 300px;
+              display: block !important;
+            }
+          }
+        ` }} />
+        <h2 className="text-lg font-black uppercase mb-1">{user?.venueName || 'Restaurant Receipt'}</h2>
+        <p className="text-[10px] mb-2">********************************</p>
+        <div className="text-left text-xs space-y-1 mb-3">
+          <p className="font-bold">ORDER: {selectedOrder?.id.toUpperCase()}</p>
+          <p>TABLE: {selectedOrder?.tableId}</p>
+          <p>DATE: {new Date().toLocaleString()}</p>
+        </div>
+        <p className="text-[10px] mb-2">--------------------------------</p>
+        <table className="w-full text-xs mb-2">
+          <thead>
+            <tr className="border-b border-black">
+              <th className="text-left pb-1">ITEM</th>
+              <th className="text-center pb-1">QTY</th>
+              <th className="text-right pb-1">PRICE</th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedOrder?.items.map((item, idx) => (
+              <tr key={idx}>
+                <td className="text-left py-1 truncate max-w-[120px]">{item.menuItemName}</td>
+                <td className="text-center">{item.quantity}</td>
+                <td className="text-right">${(item.price * item.quantity).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="text-[10px] mb-2">--------------------------------</p>
+        <div className="flex justify-between font-black text-sm border-t border-black pt-2">
+          <span>TOTAL PAID</span>
+          <span>${(selectedOrder ? selectedOrder.totalPrice * 1.08 : 0).toFixed(2)}</span>
+        </div>
+        <p className="text-[10px] mt-6">********************************</p>
+        <p className="text-sm font-black uppercase">THANK YOU!</p>
+        <p className="text-[10px] mt-1">POWERED BY MENUQR</p>
       </div>
 
     </AdminLayout>
