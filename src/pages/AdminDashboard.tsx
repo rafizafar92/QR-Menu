@@ -123,6 +123,8 @@ export default function AdminDashboard() {
         return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">● Pending</span>;
       case 'preparing':
         return <span className="bg-sky-500/10 text-sky-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-sky-500/20 flex items-center gap-1">● Preparing</span>;
+      case 'ready':
+        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Ready</span>;
       case 'completed':
         return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Completed</span>;
       case 'cancelled':

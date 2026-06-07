@@ -8,7 +8,8 @@ import {
   Menu, 
   X, 
   ArrowUpRight,
-  ExternalLink
+  ExternalLink,
+  ChefHat
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
@@ -44,6 +45,11 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
       path: '/admin/dashboard',
       icon: ClipboardList,
       badge: '2 New'
+    },
+    {
+      name: 'Kitchen',
+      path: '/admin/kitchen',
+      icon: ChefHat,
     },
     {
       name: 'Menu Manager',
