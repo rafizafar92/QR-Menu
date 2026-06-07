@@ -313,7 +313,13 @@ export default function CustomerMenu() {
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-black text-[#2C1810]">${item.price.toFixed(2)}</span>
-                    <button className="bg-[#2C1810] text-white p-1.5 rounded-xl">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(item);
+                      }}
+                      className="bg-[#2C1810] text-white p-1.5 rounded-xl transition-transform active:scale-90"
+                    >
                       <Plus size={16} />
                     </button>
                   </div>
@@ -372,11 +378,11 @@ export default function CustomerMenu() {
                   <div className="flex justify-end items-center mt-2">
                     {item.isAvailable ? (
                       <button
-                        onClick={() => {
-                          setActiveItemDetails(item);
-                          setActiveItemNotes('');
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(item);
                         }}
-                        className="bg-[#2C1810] text-white py-1.5 px-4 rounded-xl text-xs font-black"
+                        className="bg-[#2C1810] text-white py-1.5 px-4 rounded-xl text-xs font-black transition-transform active:scale-95"
                       >
                         Add
                       </button>
