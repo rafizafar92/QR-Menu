@@ -436,8 +436,12 @@ export default function AdminDashboard() {
       </div>
 
       {/* Thermal Receipt Print Area */}
-      <div id="receipt-print-area" className="hidden print:block font-mono text-center w-[300px] mx-auto p-4 text-black bg-white">
+      <div id="receipt-print-area" className="hidden print:block font-mono text-center w-[80mm] mx-auto p-0 text-black bg-white text-[12px]">
         <style dangerouslySetInnerHTML={{ __html: `
+          @page { 
+            size: 80mm auto; 
+            margin: 5mm; 
+          }
           @media print {
             body * { visibility: hidden; }
             #receipt-print-area, #receipt-print-area * { visibility: visible; }
@@ -445,24 +449,23 @@ export default function AdminDashboard() {
               position: absolute; 
               left: 0; 
               top: 0; 
-              width: 100%; 
-              max-width: 300px;
+              width: 80mm; 
               display: block !important;
             }
           }
         ` }} />
-        <h2 className="text-lg font-black uppercase mb-1">{user?.venueName || 'Restaurant Receipt'}</h2>
-        <p className="text-[10px] mb-2">********************************</p>
-        <div className="text-left text-xs space-y-1 mb-3">
+        <h2 className="font-black uppercase mb-1">{user?.venueName || 'Restaurant Receipt'}</h2>
+        <div className="border-b border-dashed border-black mb-2 w-full" />
+        <div className="text-left space-y-0.5 mb-3">
           <p className="font-bold">ORDER: {selectedOrder?.id.toUpperCase()}</p>
           <p>TABLE: {selectedOrder?.tableId}</p>
           <p>DATE: {new Date().toLocaleString()}</p>
         </div>
-        <p className="text-[10px] mb-2">--------------------------------</p>
-        <table className="w-full text-xs mb-2">
+        <div className="border-b border-dashed border-black mb-2 w-full" />
+        <table className="w-full mb-2">
           <thead>
-            <tr className="border-b border-black">
-              <th className="text-left pb-1">ITEM</th>
+            <tr className="border-b border-dashed border-black">
+              <th className="text-left pb-1 uppercase">Item</th>
               <th className="text-center pb-1">QTY</th>
               <th className="text-right pb-1">PRICE</th>
             </tr>
@@ -477,14 +480,14 @@ export default function AdminDashboard() {
             ))}
           </tbody>
         </table>
-        <p className="text-[10px] mb-2">--------------------------------</p>
-        <div className="flex justify-between font-black text-sm border-t border-black pt-2">
+        <div className="border-b border-dashed border-black mb-2 w-full" />
+        <div className="flex justify-between font-black pt-1">
           <span>TOTAL PAID</span>
           <span>${(selectedOrder ? selectedOrder.totalPrice * 1.08 : 0).toFixed(2)}</span>
         </div>
-        <p className="text-[10px] mt-6">********************************</p>
-        <p className="text-sm font-black uppercase">THANK YOU!</p>
-        <p className="text-[10px] mt-1">POWERED BY MENUQR</p>
+        <div className="border-b border-dashed border-black mt-6 mb-2 w-full" />
+        <p className="font-black uppercase">THANK YOU!</p>
+        <p className="text-[10px] mt-1 uppercase">Powered by MenuQR</p>
       </div>
 
     </AdminLayout>
