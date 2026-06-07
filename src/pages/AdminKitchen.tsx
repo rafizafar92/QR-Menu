@@ -12,7 +12,6 @@ import {
   Check,
   Inbox
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 
 export default function AdminKitchen() {
   const { user } = useAuth();
@@ -117,11 +116,7 @@ export default function AdminKitchen() {
   };
 
   const OrderCard = ({ order, nextStatus, nextLabel, icon: Icon, accentColor }: any) => (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
+    <div
       className="bg-[#1E293B] rounded-2xl border border-slate-700/50 overflow-hidden shadow-xl flex flex-col"
     >
       <div className="p-3.5 flex flex-col gap-3 flex-1">
@@ -165,15 +160,11 @@ export default function AdminKitchen() {
         <Icon size={24} />
         {nextLabel}
       </button>
-    </motion.div>
+    </div>
   );
 
   const ReadyOrderCard = ({ order }: { order: Order }) => (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
+    <div
       className="bg-[#1E293B] rounded-2xl border border-slate-700/50 overflow-hidden shadow-lg flex items-center p-3 gap-4"
     >
       <div className="flex-1 min-w-0">
@@ -199,7 +190,7 @@ export default function AdminKitchen() {
         <Check size={18} />
         <span>SERVED</span>
       </button>
-    </motion.div>
+    </div>
   );
 
   const EmptyState = ({ message }: { message: string }) => (
