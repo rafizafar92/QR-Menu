@@ -436,22 +436,12 @@ export default function AdminDashboard() {
       </div>
 
       {/* Thermal Receipt Print Area */}
-      <div id="receipt-print-area" className="hidden print:block font-mono text-center w-[80mm] mx-auto p-0 text-black bg-white text-[12px]">
+      <div id="receipt-print" className="hidden font-mono text-center w-[80mm] mx-auto p-0 text-black bg-white text-[12px]">
         <style dangerouslySetInnerHTML={{ __html: `
-          @page { 
-            size: 80mm auto; 
-            margin: 5mm; 
-          }
           @media print {
-            body * { visibility: hidden; }
-            #receipt-print-area, #receipt-print-area * { visibility: visible; }
-            #receipt-print-area { 
-              position: absolute; 
-              left: 0; 
-              top: 0; 
-              width: 80mm; 
-              display: block !important;
-            }
+            body > * { display: none !important; }
+            #receipt-print { display: block !important; }
+            @page { size: 80mm auto; margin: 5mm; }
           }
         ` }} />
         <h2 className="font-black uppercase mb-1">{user?.venueName || 'Restaurant Receipt'}</h2>
