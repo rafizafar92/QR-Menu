@@ -26,7 +26,7 @@ export default function AdminKitchen() {
       .from('orders')
       .select('*, table:tables(table_number), items:order_items(*, menu_item:menu_items(name))')
       .eq('venue_id', user.venueId)
-      .in('status', ['pending', 'preparing', 'ready'])
+      .in('status', ['confirmed', 'preparing', 'ready'])
       .order('created_at', { ascending: true });
 
     if (data) {
@@ -147,10 +147,10 @@ export default function AdminKitchen() {
         {/* New Orders */}
         <div className="bg-slate-100/50 rounded-3xl p-6 flex flex-col gap-6">
           <h2 className="text-2xl font-black flex items-center gap-3 uppercase text-amber-500">
-            <Clock size={32} /> New Orders ({orders.filter(o => o.status === 'pending').length})
+            <Clock size={32} /> New Orders ({orders.filter(o => o.status === 'confirmed').length})
           </h2>
           <div className="flex-1 overflow-y-auto space-y-6 scrollbar-none">
-            {orders.filter(o => o.status === 'pending').map(order => (
+            {orders.filter(o => o.status === 'confirmed').map(order => (
               <OrderCard key={order.id} order={order} nextStatus="preparing" nextLabel="ACCEPT" icon={ChefHat} buttonColor="bg-amber-500" />
             ))}
           </div>

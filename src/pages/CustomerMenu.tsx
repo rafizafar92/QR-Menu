@@ -19,7 +19,8 @@ import {
   GlassWater,
   SlidersHorizontal,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Banknote
 } from 'lucide-react';
 import { MenuItem, Venue } from '../types';
 import { supabase } from '../lib/supabase';
@@ -185,7 +186,7 @@ export default function CustomerMenu() {
       const { data: orderData, error: orderError } = await supabase.from('orders').insert({
         venue_id: venueId,
         table_id: tableRecord?.id || null,
-        status: 'pending',
+        status: 'pending_payment',
         note: ''
       }).select();
 
@@ -418,7 +419,7 @@ export default function CustomerMenu() {
               <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-4">
                 <Check className="w-8 h-8" />
               </div>
-              <h2 className="text-xl font-bold text-slate-900">Order Placed Successfully!</h2>
+              <h2 className="text-xl font-bold text-slate-900">Order Received!</h2>
               <p className="text-xs text-slate-400 mt-1">Ticket: <span className="font-mono font-bold text-slate-700">{orderId}</span></p>
               
               <div className="bg-slate-50 rounded-lg p-3 my-4 text-left border border-slate-100 text-xs">
@@ -431,7 +432,13 @@ export default function CustomerMenu() {
                   <span>Destination:</span>
                   <span className="font-semibold text-indigo-600">{tableDisplay}</span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2 text-center">Your order has been sent to the kitchen. It is currently being processed by the staff.</p>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6 flex flex-col items-center gap-2">
+                <Banknote className="w-6 h-6 text-amber-600" />
+                <p className="text-xs font-bold text-amber-900 leading-snug">
+                  Please pay at the cashier to confirm your order. Thank you!
+                </p>
               </div>
 
               <button

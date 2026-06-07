@@ -91,7 +91,7 @@ export default function AdminDashboard() {
       .filter(o => o.status === 'completed')
       .reduce((sum, o) => sum + o.totalPrice, 0),
     activeTables: activeTablesCount,
-    pendingCount: orders.filter(o => o.status === 'pending').length,
+    pendingCount: orders.filter(o => o.status === 'pending_payment').length,
     preparingCount: orders.filter(o => o.status === 'preparing').length,
   };
 
@@ -119,8 +119,10 @@ export default function AdminDashboard() {
   // Status color pill helper
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
-      case 'pending':
-        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">● Pending</span>;
+      case 'pending_payment':
+        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">● Awaiting Payment</span>;
+      case 'confirmed':
+        return <span className="bg-indigo-500/10 text-indigo-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-indigo-500/20 flex items-center gap-1">● Confirmed</span>;
       case 'preparing':
         return <span className="bg-sky-500/10 text-sky-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-sky-500/20 flex items-center gap-1">● Preparing</span>;
       case 'ready':
@@ -205,7 +207,7 @@ export default function AdminDashboard() {
           
           {/* Status Buttons row */}
           <div className="flex gap-2 bg-slate-100 p-1 rounded-xl">
-            {(['all', 'pending', 'preparing', 'completed', 'cancelled'] as const).map(filter => (
+            {(['all', 'pending_payment', 'confirmed', 'preparing', 'completed', 'cancelled'] as const).map(filter => (
               <button
                 key={filter}
                 id={`filter-btn-${filter}`}
@@ -367,14 +369,25 @@ export default function AdminDashboard() {
 
                 {/* Actions workflows */}
                 <div className="space-y-2 pt-2">
-                  {selectedOrder.status === 'pending' && (
+                  {selectedOrder.status === 'pending_payment' && (
+                    <button
+                      id="btn-action-confirm-payment"
+                      onClick={() => updateOrderStatus(selectedOrder.id, 'confirmed')}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      <span>Confirm Payment</span>
+                    </button>
+                  )}
+
+                  {selectedOrder.status === 'confirmed' && (
                     <button
                       id="btn-action-start-cooking"
                       onClick={() => updateOrderStatus(selectedOrder.id, 'preparing')}
                       className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
                     >
                       <UtensilsCrossed className="w-4 h-4" />
-                      <span>Accept Ticket & Start Cooking</span>
+                      <span>Send to Kitchen</span>
                     </button>
                   )}
 
