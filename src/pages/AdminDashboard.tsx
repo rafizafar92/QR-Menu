@@ -96,6 +96,69 @@ export default function AdminDashboard() {
   };
 
   // Modify order status dynamically in memory
+  const handlePrintReceipt = (order: Order) => {
+    const venueName = user?.venueName || 'Restaurant Receipt';
+    const totalWithTax = (order.totalPrice * 1.08).toFixed(2);
+    const itemsHtml = order.items.map(item => `
+      <tr>
+        <td style="text-align: left; padding: 4px 0;">${item.menuItemName}</td>
+        <td style="text-align: center;">${item.quantity}</td>
+        <td style="text-align: right;">$${(item.price * item.quantity).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const printWindow = window.open('', '_blank', 'width=350,height=600');
+    if (!printWindow) return alert('Pop-up blocked! Please allow pop-ups to print receipts.');
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Receipt ${order.id.toUpperCase()}</title>
+          <style>
+            body { font-family: monospace; width: 280px; margin: 0 auto; font-size: 12px; line-height: 1.4; }
+            .center { text-align: center; }
+            .bold { font-weight: bold; }
+            .divider { border-bottom: 1px dashed black; margin: 10px 0; }
+            table { width: 100%; border-collapse: collapse; }
+            @page { size: 80mm auto; margin: 5mm; }
+          </style>
+        </head>
+        <body>
+          <div class="center bold" style="font-size: 16px;">${venueName}</div>
+          <div class="divider"></div>
+          <div class="bold">ORDER: ${order.id.toUpperCase()}</div>
+          <div>TABLE: ${order.tableId}</div>
+          <div>DATE: ${new Date().toLocaleString()}</div>
+          <div class="divider"></div>
+          <table>
+            <thead>
+              <tr style="border-bottom: 1px dashed black;">
+                <th align="left">ITEM</th>
+                <th align="center">QTY</th>
+                <th align="right">PRICE</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+          <div class="divider"></div>
+          <div class="bold" style="display: flex; justify-content: space-between; font-size: 14px;">
+            <span>TOTAL PAID</span>
+            <span>$${totalWithTax}</span>
+          </div>
+          <div class="divider" style="margin-top: 20px;"></div>
+          <div class="center bold">THANK YOU!</div>
+          <div class="center" style="font-size: 10px; margin-top: 5px;">Powered by MenuQR</div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
+
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     const { error } = await supabase
       .from('orders')
@@ -104,13 +167,15 @@ export default function AdminDashboard() {
 
     if (error) return alert('Failed to update status');
 
-    setOrders(prev => 
-      prev.map(ord => ord.id === orderId ? { ...ord, status: newStatus } : ord)
+    const updatedOrders = orders.map(ord => 
+      ord.id === orderId ? { ...ord, status: newStatus } : ord
     );
+    setOrders(updatedOrders);
 
     // Automatically trigger receipt print when payment is confirmed
     if (newStatus === 'confirmed') {
-      setTimeout(() => window.print(), 500);
+      const orderToPrint = updatedOrders.find(o => o.id === orderId);
+      if (orderToPrint) handlePrintReceipt(orderToPrint);
     }
   };
 
@@ -433,51 +498,6 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </div>
 
-      </div>
-
-      {/* Thermal Receipt Print Area */}
-      <div id="receipt-print" className="hidden font-mono text-center w-[80mm] mx-auto p-0 text-black bg-white text-[12px]">
-        <style dangerouslySetInnerHTML={{ __html: `
-          @media print {
-            body > * { display: none !important; }
-            #receipt-print { display: block !important; }
-            @page { size: 80mm auto; margin: 5mm; }
-          }
-        ` }} />
-        <h2 className="font-black uppercase mb-1">{user?.venueName || 'Restaurant Receipt'}</h2>
-        <div className="border-b border-dashed border-black mb-2 w-full" />
-        <div className="text-left space-y-0.5 mb-3">
-          <p className="font-bold">ORDER: {selectedOrder?.id.toUpperCase()}</p>
-          <p>TABLE: {selectedOrder?.tableId}</p>
-          <p>DATE: {new Date().toLocaleString()}</p>
-        </div>
-        <div className="border-b border-dashed border-black mb-2 w-full" />
-        <table className="w-full mb-2">
-          <thead>
-            <tr className="border-b border-dashed border-black">
-              <th className="text-left pb-1 uppercase">Item</th>
-              <th className="text-center pb-1">QTY</th>
-              <th className="text-right pb-1">PRICE</th>
-            </tr>
-          </thead>
-          <tbody>
-            {selectedOrder?.items.map((item, idx) => (
-              <tr key={idx}>
-                <td className="text-left py-1 truncate max-w-[120px]">{item.menuItemName}</td>
-                <td className="text-center">{item.quantity}</td>
-                <td className="text-right">${(item.price * item.quantity).toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="border-b border-dashed border-black mb-2 w-full" />
-        <div className="flex justify-between font-black pt-1">
-          <span>TOTAL PAID</span>
-          <span>${(selectedOrder ? selectedOrder.totalPrice * 1.08 : 0).toFixed(2)}</span>
-        </div>
-        <div className="border-b border-dashed border-black mt-6 mb-2 w-full" />
-        <p className="font-black uppercase">THANK YOU!</p>
-        <p className="text-[10px] mt-1 uppercase">Powered by MenuQR</p>
       </div>
 
     </AdminLayout>
