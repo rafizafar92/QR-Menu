@@ -9,7 +9,8 @@ import {
   X, 
   ArrowUpRight,
   ExternalLink,
-  ChefHat
+  ChefHat,
+  Settings
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
@@ -60,6 +61,11 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
       name: 'Tables & QR Codes',
       path: '/admin/tables',
       icon: QrCode,
+    },
+    {
+      name: 'Settings',
+      path: '/admin/settings',
+      icon: Settings,
     }
   ];
 
