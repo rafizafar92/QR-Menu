@@ -11,7 +11,9 @@ import {
   Sparkles,
   Utensils,
   Check,
-  Search
+  Search,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -34,6 +36,34 @@ export default function AdminMenu() {
   const [imageUrl, setImageUrl] = useState('');
   const [isAvailable, setIsAvailable] = useState(true);
   const [formSuccess, setFormSuccess] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!e.target.files || e.target.files.length === 0) return;
+      
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.venueId}/${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('menu-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('menu-images')
+        .getPublicUrl(fileName);
+
+      setImageUrl(data.publicUrl);
+    } catch (error: any) {
+      alert('Error uploading image: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (!user?.venueId) {
@@ -392,15 +422,29 @@ export default function AdminMenu() {
                   </div>
 
                   <div>
-                    <label htmlFor="food-img" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Image Link URL (Optional)</label>
-                    <input
-                      id="food-img"
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
-                    />
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Product Image</label>
+                    <div className="flex items-center gap-3">
+                      {imageUrl ? (
+                        <img src={imageUrl} className="w-12 h-12 rounded-lg object-cover border border-slate-200 bg-slate-50" alt="Preview" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-300">
+                          <ImageIcon size={20} />
+                        </div>
+                      )}
+                      <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-lg py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <Upload size={14} className="text-slate-400" />
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          {uploading ? 'Uploading...' : 'Upload Image'}
+                        </span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleImageUpload} 
+                          className="hidden" 
+                          disabled={uploading}
+                        />
+                      </label>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 pt-1">

@@ -367,7 +367,7 @@ export default function CustomerMenu() {
                   <img 
                     src={item.imageUrl} 
                     alt={item.name}
-                    className="w-28 h-28 rounded-2xl object-cover bg-slate-100 flex-shrink-0"
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover bg-slate-50 flex-shrink-0 shadow-sm"
                   />
                 )}
                 <div className="flex-1 min-w-0 flex flex-col justify-between">
