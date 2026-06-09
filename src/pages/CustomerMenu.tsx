@@ -95,13 +95,16 @@ export default function CustomerMenu() {
     fetchData();
   }, [venueId, tableId]);
 
+  // Update browser tab title dynamically
+  useEffect(() => {
+    if (venue?.name) {
+      document.title = `${venue.name} - MenuQR`;
+    } else {
+      document.title = 'MenuQR'; // Default title if venue name is not available
+    }
+  }, [venue?.name]);
+
   // Human descriptive names
-  const venueName = venue?.name || 'Loading...';
-  const tableDisplay = activeTable?.table_number || (
-    tableId 
-      ? (tableId.toLowerCase().startsWith('table') ? tableId : `Table ${tableId.replace(/\D/g, '') || tableId}`) 
-      : 'Table Seat'
-  );
 
   // Filter items
   // Cart operations
@@ -218,6 +221,14 @@ export default function CustomerMenu() {
 
   if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400">Loading Menu...</div>;
 
+  // Human descriptive names (now that loading is complete and venue is available)
+  const venueName = venue?.name || 'Venue Not Found';
+  const tableDisplay = activeTable?.table_number || (
+    tableId 
+      ? (tableId.toLowerCase().startsWith('table') ? tableId : `Table ${tableId.replace(/\D/g, '') || tableId}`) 
+      : 'Table Seat'
+  );
+
   return (
     <div className="min-h-screen bg-[#F5F0E8] font-sans text-[#2C1810] pb-32 relative">
       {/* Premium Header */}
@@ -228,7 +239,7 @@ export default function CustomerMenu() {
             alt={venueName} 
             className="w-12 h-12 rounded-full border-2 border-[#2C1810] object-cover shadow-sm"
           />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="text-lg font-bold leading-tight truncate">{venueName}</h1>
             <p className="text-[10px] text-[#2C1810]/60 line-clamp-1">{venue?.description || 'Premium Coffee & Bakery'}</p>
           </div>
