@@ -68,26 +68,16 @@ export default function AdminKitchen() {
     fetchData();
 
     const channel = supabase
-      .channel('kitchen-orders')
+      .channel('kitchen-realtime')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'orders', filter: `venue_id=eq.${user.venueId}` },
-        (payload) => {
-          if (payload.eventType === 'UPDATE') {
-            const updatedOrder = payload.new as any;
-            setOrders(prev => {
-              // Remove if moved to a terminal status (completed/cancelled)
-              if (!['confirmed', 'preparing', 'ready'].includes(updatedOrder.status)) {
-                return prev.filter(o => o.id !== updatedOrder.id);
-              }
-              // Update status locally to avoid "blinking" re-fetch
-              return prev.map(o => o.id === updatedOrder.id ? { ...o, status: updatedOrder.status } : o);
-            });
-          } else {
-            // For INSERTS we need joined data (items), so we fetch silently
-            fetchData(true);
-          }
-        }
+        { event: 'INSERT', schema: 'public', table: 'orders', filter: `venue_id=eq.${user.venueId}` },
+        () => fetchData(true)
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `venue_id=eq.${user.venueId}` },
+        () => fetchData(true)
       )
       .subscribe();
 
