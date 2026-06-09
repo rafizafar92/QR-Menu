@@ -14,7 +14,7 @@ import {
   Copy, 
   Check, 
   ExternalLink,
-  Smartphone,
+  Utensils,
   Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -328,49 +328,81 @@ export default function AdminTables() {
 
                 {/* Print Flyer Artwork Design simulation / Desktop Table Tent view */}
                 <div className="flex flex-col items-center justify-center bg-slate-50 rounded-2xl p-6 border-2 border-dashed border-slate-200 relative overflow-hidden group">
-                  
-                  {/* Outer Flyer leaf */}
-                  <div 
-                    ref={cardRef}
-                    id="tent-card-preview" 
-                    className="w-full max-w-[240px] bg-white rounded-xl shadow-md border border-slate-100 p-5 text-center flex flex-col justify-between items-center space-y-4 relative"
-                  >
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-slate-100 rounded-full" />
 
-                    <div>
-                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest block">Welcome to</span>
-                      <strong className="text-xs text-slate-800 font-black block mt-0.5">{venue?.name || 'Our Venue'}</strong>
+                  {/* Outer Flyer leaf */}
+                  <div
+                    ref={cardRef}
+                    id="tent-card-preview"
+                    style={{
+                      width: '85mm',
+                      height: '120mm',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '16px',
+                      padding: '40px 30px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      textAlign: 'center',
+                      boxSizing: 'border-box',
+                      border: '1px solid #f1f5f9',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                      fontFamily: 'system-ui, -apple-system, sans-serif'
+                    }}
+                  >
+                    {/* Top Section: Branding */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      {venue?.logoUrl ? (
+                        <img
+                          src={venue.logoUrl}
+                          alt="Logo"
+                          style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0', marginBottom: '12px' }}
+                        />
+                      ) : (
+                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px', color: '#94a3b8' }}>
+                          <Utensils size={24} />
+                        </div>
+                      )}
+                      <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#1e293b', margin: 0, fontFamily: 'serif', letterSpacing: '-0.01em' }}>
+                        {venue?.name || 'Our Venue'}
+                      </h2>
                     </div>
 
-                    {/* QR canvas */}
-                    <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg shadow-2xs relative">
+                    {/* Divider */}
+                    <div style={{ width: '40px', height: '1.5px', backgroundColor: '#e2e8f0' }} />
+
+                    {/* Middle: QR Code */}
+                    <div style={{ padding: '15px', backgroundColor: '#ffffff', border: '1px solid #f1f5f9', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
                       {targetUrl ? (
-                        <QRCodeCanvas 
+                        <QRCodeCanvas
                           id="qr-canvas"
-                          value={targetUrl} 
-                          size={135}
+                          value={targetUrl}
+                          size={160}
                           level="H"
                           includeMargin={false}
                         />
                       ) : (
-                        <div className="w-24 h-24 flex items-center justify-center text-slate-300">
-                          <QrCode className="w-8 h-8" />
+                        <div style={{ width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
+                          <QrCode size={48} />
                         </div>
                       )}
                     </div>
 
-                    <div className="space-y-1">
-                      <span className="text-[14px] leading-none font-black text-slate-900 block uppercase tracking-tight">
-                        {selectedTable.tableNumber}
-                      </span>
-                      <span className="text-[9px] text-slate-400 leading-normal block px-2">
-                        Scan the code, browse our catalog, and post your order instantly!
-                      </span>
+                    {/* Divider */}
+                    <div style={{ width: '40px', height: '1.5px', backgroundColor: '#e2e8f0' }} />
+
+                    {/* Bottom: Table Information */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '4px' }}>Table</span>
+                      <h1 style={{ fontSize: '48px', fontWeight: '900', color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>
+                        {selectedTable.tableNumber.replace(/\D/g, '') || selectedTable.tableNumber}
+                      </h1>
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: '#64748b' }}>Scan to Order</span>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-50 w-full flex items-center justify-center gap-1 text-[8px] text-slate-400 font-bold uppercase tracking-wider">
-                      <Smartphone className="w-3 h-3 text-indigo-500" />
-                      <span>Powered by MenuQR App</span>
+                    {/* Footer */}
+                    <div style={{ fontSize: '9px', fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Powered by MenuQR
                     </div>
                   </div>
 
