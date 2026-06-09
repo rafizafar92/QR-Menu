@@ -1,47 +1,52 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
 import { Order, OrderStatus } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 import { 
   DollarSign, 
-  Users, 
-  UtensilsCrossed, 
+  ShoppingBag,
+  CreditCard,
+  Utensils,
   Clock, 
   ChevronRight, 
-  CheckCircle2, 
-  AlertCircle,
+  Plus,
+  ChefHat,
+  Table as TableIcon,
   TrendingUp,
-  PackageCheck
+  PackageCheck,
+  ArrowUpRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTablesCount, setActiveTablesCount] = useState(0);
-  const [activeFilter, setActiveFilter] = useState<OrderStatus | 'all'>('all');
-  const [selectedOrderId, setSelectedOrderId] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    todayOrders: 0,
+    todayRevenue: 0,
+    activeTables: 0,
+    pendingPayments: 0
+  });
+  const [popularItems, setPopularItems] = useState<{ name: string; count: number }[]>([]);
 
   useEffect(() => {
     if (!user?.venueId) return;
 
     const fetchData = async () => {
       setLoading(true);
-      // Fetch tables count
-      const { count } = await supabase
-        .from('tables')
-        .select('*', { count: 'exact', head: true })
-        .eq('venue_id', user.venueId);
-      setActiveTablesCount(count || 0);
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
 
-      // Fetch orders with items
+      // Fetch last 100 orders to calculate today's KPIs and show recent activity
       const { data } = await supabase
         .from('orders')
         .select('*, table:tables(table_number), items:order_items(*, menu_item:menu_items(name))')
         .eq('venue_id', user.venueId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(100);
 
       if (data) {
         const mappedOrders: Order[] = data.map((o: any) => ({
@@ -63,7 +68,34 @@ export default function AdminDashboard() {
           }))
         }));
         setOrders(mappedOrders);
-        if (mappedOrders.length > 0 && !selectedOrderId) setSelectedOrderId(mappedOrders[0].id);
+
+        // Calculate Stats
+        const todayOrdersList = mappedOrders.filter(o => new Date(o.createdAt) >= startOfDay);
+        
+        const todayRevenue = todayOrdersList
+          .filter(o => o.status === 'completed')
+          .reduce((sum, o) => sum + o.totalPrice, 0);
+
+        const activeTables = new Set(
+          mappedOrders
+            .filter(o => ['pending_payment', 'confirmed', 'preparing'].includes(o.status))
+            .map(o => o.tableId)
+        ).size;
+
+        const pendingPayments = mappedOrders.filter(o => o.status === 'pending_payment').length;
+
+        setStats({ todayOrders: todayOrdersList.length, todayRevenue, activeTables, pendingPayments });
+
+        // Calculate Popular Items (Today)
+        const itemCounts: Record<string, { name: string; count: number }> = {};
+        todayOrdersList.forEach(order => {
+          order.items.forEach(item => {
+            if (!itemCounts[item.menuItemId]) itemCounts[item.menuItemId] = { name: item.menuItemName, count: 0 };
+            itemCounts[item.menuItemId].count += item.quantity;
+          });
+        });
+
+        setPopularItems(Object.values(itemCounts).sort((a, b) => b.count - a.count).slice(0, 3));
       }
       setLoading(false);
     };
@@ -84,16 +116,6 @@ export default function AdminDashboard() {
       supabase.removeChannel(channel);
     };
   }, [user?.venueId]);
-
-  // Calculate high level metrics
-  const stats = {
-    grossSales: orders
-      .filter(o => o.status === 'completed')
-      .reduce((sum, o) => sum + o.totalPrice, 0),
-    activeTables: activeTablesCount,
-    pendingCount: orders.filter(o => o.status === 'pending_payment').length,
-    preparingCount: orders.filter(o => o.status === 'preparing').length,
-  };
 
   // Modify order status dynamically in memory
   const handlePrintReceipt = (order: Order) => {
@@ -179,12 +201,11 @@ export default function AdminDashboard() {
     }
   };
 
-  const filteredOrders = orders.filter(ord => {
-    if (activeFilter === 'all') return true;
-    return ord.status === activeFilter;
-  });
-
-  const selectedOrder = orders.find(o => o.id === selectedOrderId);
+  const formatTimeAgo = (isoString: string) => {
+    const diff = Math.floor((new Date().getTime() - new Date(isoString).getTime()) / 60000);
+    if (diff < 1) return 'Just now';
+    return `${diff}m ago`;
+  };
 
   // Status color pill helper
   const getStatusBadge = (status: OrderStatus) => {
@@ -210,296 +231,148 @@ export default function AdminDashboard() {
     return timeValue.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  if (loading && orders.length === 0) {
+    return <AdminLayout title="Dashboard" subtitle="Loading..."><div className="h-96 flex items-center justify-center text-slate-400 font-bold">Warming up the kitchen...</div></AdminLayout>;
+  }
+
   return (
     <AdminLayout 
-      title="Incoming Orders Console" 
-      subtitle="Monitor live guest kitchen orders and manage ticket workflows in real-time."
+      title="Venue Overview" 
+      subtitle="Real-time KPI tracking and service management."
     >
       
-      {/* 1. Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        
-        <div id="stat-sales" className="bg-white p-5 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Today's Sales</span>
-            <span className="text-2xl font-black text-slate-900 mt-1 block">${stats.grossSales.toFixed(2)}</span>
-            <span className="text-[10px] text-indigo-600 font-medium flex items-center gap-1 mt-1">
-              <TrendingUp className="w-3 h-3" /> +12% from lunch ticket average
-            </span>
+      {/* 4 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {[
+          { label: "Today's Orders", value: stats.todayOrders, icon: ShoppingBag, color: 'bg-amber-500', text: 'text-amber-600' },
+          { label: "Today's Revenue", value: `$${stats.todayRevenue.toFixed(2)}`, icon: DollarSign, color: 'bg-emerald-500', text: 'text-emerald-600' },
+          { label: "Active Tables", value: stats.activeTables, icon: Utensils, color: 'bg-indigo-500', text: 'text-indigo-600' },
+          { label: "Pending Payments", value: stats.pendingPayments, icon: CreditCard, color: 'bg-rose-500', text: 'text-rose-600' }
+        ].map((kpi, idx) => (
+          <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between transition-transform hover:scale-[1.02]">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">{kpi.label}</span>
+              <span className="text-3xl font-black text-slate-900">{kpi.value}</span>
+            </div>
+            <div className={`w-12 h-12 rounded-2xl ${kpi.color} flex items-center justify-center text-white shadow-lg shadow-current/20`}>
+              <kpi.icon size={24} />
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
-            <DollarSign className="w-5 h-5 text-indigo-600" />
-          </div>
-        </div>
-
-        <div id="stat-tables" className="bg-white p-5 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Connected Tables</span>
-            <span className="text-2xl font-black text-slate-900 mt-1 block">{stats.activeTables} Areas</span>
-            <span className="text-[10px] text-slate-400 block mt-1.5 font-medium">Self-order enabled via QR</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
-            <Users className="w-5 h-5 text-indigo-500" />
-          </div>
-        </div>
-
-        <div id="stat-pending" className="bg-white p-5 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Pending Queue</span>
-            <span className={`text-2xl font-black mt-1 block ${stats.pendingCount > 0 ? 'text-amber-500' : 'text-slate-900'}`}>
-              {stats.pendingCount} Tickets
-            </span>
-            <span className="text-[10px] text-slate-400 block mt-1.5 font-medium">Needs immediate acceptance</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
-            <Clock className="w-5 h-5 text-amber-500 animate-pulse" />
-          </div>
-        </div>
-
-        <div id="stat-preparing" className="bg-white p-5 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">In Production</span>
-            <span className="text-2xl font-black text-slate-900 mt-1 block">{stats.preparingCount} Kitchen</span>
-            <span className="text-[10px] text-slate-400 block mt-1.5 font-medium">Being prepared by culinary</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
-            <UtensilsCrossed className="w-5 h-5 text-sky-500" />
-          </div>
-        </div>
-
+        ))}
       </div>
 
-      {/* 2. Management Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Ticket List side */}
-        <div className="lg:col-span-2 space-y-4">
-          
-          {/* Status Buttons row */}
-          <div className="flex gap-2 bg-slate-100 p-1 rounded-xl">
-            {(['all', 'pending_payment', 'confirmed', 'preparing', 'completed', 'cancelled'] as const).map(filter => (
-              <button
-                key={filter}
-                id={`filter-btn-${filter}`}
-                onClick={() => setActiveFilter(filter)}
-                className={`flex-1 py-1.5 text-xs font-bold capitalize rounded-lg transition-all ${
-                  activeFilter === filter 
-                    ? 'bg-white text-slate-950 shadow-xs' 
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          {/* Ticket Listing */}
-          <div className="space-y-3">
-            {filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-                <PackageCheck className="w-12 h-12 stroke-1 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-slate-600">No tickets in this section today</p>
-                <p className="text-xs text-slate-400 mt-1">Order submissions from customer tables will trigger notification streams instantly.</p>
-              </div>
-            ) : (
-              filteredOrders.map(order => {
-                const isSelected = order.id === selectedOrderId;
-                return (
-                  <motion.div
-                    layout
-                    key={order.id}
-                    id={`order-row-${order.id}`}
-                    onClick={() => setSelectedOrderId(order.id)}
-                    className={`bg-white rounded-xl border p-4 cursor-pointer transition-all flex gap-4 ${
-                      isSelected 
-                        ? 'border-indigo-500 ring-1 ring-indigo-500/20 bg-indigo-50/5' 
-                        : 'border-slate-200 hover:border-slate-300 hover:shadow-2xs'
-                    }`}
-                  >
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-extrabold text-slate-700 flex-shrink-0">
-                      T{order.tableId.replace(/\D/g, '') || order.tableId}
+        {/* Recent Activity */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-3xs overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
+                <Clock className="text-indigo-500" size={20} />
+                Recent Activity
+              </h3>
+            </div>
+            <div className="divide-y divide-slate-50">
+              {orders.slice(0, 5).map(order => (
+                <div key={order.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-600">
+                      T{order.tableId.replace(/\D/g, '') || 'W'}
                     </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <span className="font-bold text-slate-950 block text-sm">
-                            Order {order.id.toUpperCase()}
-                          </span>
-                          <span className="text-[11px] text-slate-400 block font-medium">
-                            Placed at {formatTime(order.createdAt)} • {order.items.reduce((sum, i) => sum + i.quantity, 0)} Items
-                          </span>
-                        </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900 text-sm">Order #{order.id.slice(0, 5).toUpperCase()}</span>
                         {getStatusBadge(order.status)}
                       </div>
-
-                      {/* Snippet of food items */}
-                      <p className="text-xs text-slate-500 mt-2 line-clamp-1">
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-1">
                         {order.items.map(i => `${i.quantity}x ${i.menuItemName}`).join(', ')}
                       </p>
-
-                      {order.notes && (
-                        <div className="mt-2 bg-slate-50 border border-slate-100 rounded-md p-2 text-[11px] text-slate-500 font-medium truncate">
-                          💡 Notes: {order.notes}
-                        </div>
-                      )}
                     </div>
-
-                    <div className="flex items-center text-slate-400">
-                      <ChevronRight className="w-5 h-5" />
-                    </div>
-                  </motion.div>
-                );
-              })
-            )}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">{formatTimeAgo(order.createdAt)}</span>
+                    {order.status === 'pending_payment' && (
+                      <button
+                        onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg shadow-emerald-600/20"
+                      >
+                        CONFIRM PAYMENT
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {orders.length === 0 && (
+                <div className="p-12 text-center text-slate-400 text-sm font-medium">No activity recorded yet.</div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Selected Order Detailed side panel widget */}
-        <div className="lg:col-span-1">
-          <AnimatePresence mode="wait">
-            {selectedOrder ? (
-              <motion.div
-                key={selectedOrder.id}
-                initial={{ opacity: 0, x: 8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8 }}
-                id="order-detail-panel"
-                className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sticky top-8 space-y-6"
-              >
-                <div className="border-b border-slate-100 pb-4">
-                  <div className="flex justify-between items-start pb-2">
-                    <h3 className="font-extrabold text-slate-900 text-base">Selected Ticket Details</h3>
-                    {getStatusBadge(selectedOrder.status)}
+        <div className="space-y-8">
+          {/* Popular Items Today */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-3xs p-6">
+            <h3 className="font-black text-slate-900 text-lg mb-6 flex items-center gap-2">
+              <TrendingUp className="text-emerald-500" size={20} />
+              Today's Popular
+            </h3>
+            <div className="space-y-4">
+              {popularItems.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[10px] font-black text-slate-400">
+                      {idx + 1}
+                    </span>
+                    <span className="text-sm font-bold text-slate-700">{item.name}</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs text-slate-500 font-medium mt-1">
-                    <span>Ticket ID: <strong className="text-slate-700 font-mono">{selectedOrder.id.toUpperCase()}</strong></span>
-                    <span>Received: {formatTime(selectedOrder.createdAt)}</span>
-                  </div>
-                </div>
-
-                {/* Destination area */}
-                <div className="bg-slate-50 rounded-xl p-3 flex justify-between items-center text-xs border border-slate-100">
-                  <span className="font-semibold text-slate-500">Service Destination:</span>
-                  <span className="font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100">
-                    Table {selectedOrder.tableId.replace(/\D/g, '') || selectedOrder.tableId}
+                  <span className="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-1 rounded-md uppercase">
+                    {item.count} Sold
                   </span>
                 </div>
+              ))}
+              {popularItems.length === 0 && (
+                <div className="text-center py-4 text-slate-400 text-xs italic">No items sold today yet.</div>
+              )}
+            </div>
+          </div>
 
-                {/* Items Bills listing */}
-                <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ordered Foods</h4>
-                  <div className="space-y-3">
-                    {selectedOrder.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-xs pb-2 border-b border-slate-50">
-                        <div className="min-w-0 pr-2">
-                          <span className="font-bold text-slate-900">{item.quantity}x</span>{' '}
-                          <span className="font-semibold text-slate-700">{item.menuItemName}</span>
-                          {item.notes && (
-                            <span className="block text-[11px] text-slate-400 italic font-medium">
-                              Note: "{item.notes}"
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-bold text-slate-700 whitespace-nowrap">
-                          ${(item.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+          {/* Quick Actions */}
+          <div className="bg-slate-900 rounded-3xl p-6 shadow-xl shadow-slate-900/20">
+            <h3 className="font-black text-white text-lg mb-6 flex items-center gap-2">
+              <ArrowUpRight className="text-indigo-400" size={20} />
+              Quick Actions
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              <Link 
+                to="/admin/menu" 
+                className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
+              >
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                  <Plus size={20} />
                 </div>
-
-                {/* Notes if any */}
-                {selectedOrder.notes && (
-                  <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-3.5 space-y-1">
-                    <span className="text-[10px] font-bold text-amber-600 tracking-wider uppercase block flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> Dining Notes
-                    </span>
-                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      "{selectedOrder.notes}"
-                    </p>
-                  </div>
-                )}
-
-                {/* Bill Sum */}
-                <div className="border-t border-slate-100 pt-4 text-xs space-y-1.5 font-medium text-slate-500">
-                  <div className="flex justify-between">
-                    <span>Menu Price (Subtotal)</span>
-                    <span>${selectedOrder.totalPrice.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Kitchen Tax & Service (8%)</span>
-                    <span>${(selectedOrder.totalPrice * 0.08).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between font-black text-slate-900 border-t border-slate-100 pt-2 text-sm">
-                    <span>Total Bill</span>
-                    <span>${(selectedOrder.totalPrice * 1.08).toFixed(2)}</span>
-                  </div>
+                <span className="text-sm font-bold">Add Menu Item</span>
+              </Link>
+              <Link 
+                to="/admin/tables" 
+                className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
+              >
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+                  <TableIcon size={20} />
                 </div>
-
-                {/* Actions workflows */}
-                <div className="space-y-2 pt-2">
-                  {selectedOrder.status === 'pending_payment' && (
-                    <button
-                      id="btn-action-confirm-payment"
-                      onClick={() => updateOrderStatus(selectedOrder.id, 'confirmed')}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <DollarSign className="w-4 h-4" />
-                      <span>Confirm Payment</span>
-                    </button>
-                  )}
-
-                  {selectedOrder.status === 'confirmed' && (
-                    <button
-                      id="btn-action-start-cooking"
-                      onClick={() => updateOrderStatus(selectedOrder.id, 'preparing')}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <UtensilsCrossed className="w-4 h-4" />
-                      <span>Send to Kitchen</span>
-                    </button>
-                  )}
-
-                  {selectedOrder.status === 'preparing' && (
-                    <button
-                      id="btn-action-complete"
-                      onClick={() => updateOrderStatus(selectedOrder.id, 'completed')}
-                      className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-indigo-400" />
-                      <span>Ready for Table Delivery</span>
-                    </button>
-                  )}
-
-                  {selectedOrder.status !== 'completed' && selectedOrder.status !== 'cancelled' && (
-                    <button
-                      id="btn-action-cancel"
-                      onClick={() => updateOrderStatus(selectedOrder.id, 'cancelled')}
-                      className="w-full text-rose-500 hover:bg-rose-50 border border-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors cursor-pointer"
-                    >
-                      Decline & Cancel Ticket
-                    </button>
-                  )}
-
-                  {(selectedOrder.status === 'completed' || selectedOrder.status === 'cancelled') && (
-                    <div className="text-center text-[11px] text-slate-400 p-2 border border-slate-100 rounded-lg bg-slate-50 font-medium">
-                      Ticket status modified successfully. Live databases will sync records instantly.
-                    </div>
-                  )}
+                <span className="text-sm font-bold">Add Table</span>
+              </Link>
+              <Link 
+                to="/admin/kitchen" 
+                className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                  <ChefHat size={20} />
                 </div>
-
-              </motion.div>
-            ) : (
-              <div className="bg-slate-100 border border-slate-200 rounded-2xl p-6 text-center text-slate-400 text-xs">
-                Select an entry in the incoming tickets list to inspect details.
-              </div>
-            )}
-          </AnimatePresence>
+                <span className="text-sm font-bold">View Kitchen</span>
+              </Link>
+            </div>
+          </div>
         </div>
-
       </div>
-
     </AdminLayout>
   );
 }
