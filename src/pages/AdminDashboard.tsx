@@ -32,6 +32,16 @@ export default function AdminDashboard() {
   });
   const [popularItems, setPopularItems] = useState<{ name: string; count: number }[]>([]);
 
+  const formatCurrency = (amount: number | string) => {
+    const value = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value).replace(/\s/g, ' ');
+  };
+
   useEffect(() => {
     if (!user?.venueId) return;
 
