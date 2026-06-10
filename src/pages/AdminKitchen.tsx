@@ -202,7 +202,7 @@ export default function AdminKitchen() {
             <h1 className="text-4xl font-black text-white tracking-tight">TAMPILAN DAPUR</h1>
             <div className="flex items-center gap-2 mt-1">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-emerald-500 text-xs font-black uppercase tracking-widest">Sistem Terhubung</span>
+              <span className="text-emerald-500 text-xs font-black uppercase tracking-widest">Sistem Online</span>
             </div>
           </div>
         </div>
