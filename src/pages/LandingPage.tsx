@@ -189,23 +189,23 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-12 lg:pt-20 pb-24">
+      <section className="max-w-7xl mx-auto px-6 pt-6 lg:pt-20 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 items-center">
           {/* Left Column */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-8"
+            className="space-y-6 lg:space-y-8 flex flex-col items-center text-center lg:items-start lg:text-left"
           >
             <div className="flex items-center gap-2 text-[#FF6B35] bg-[#FF6B35]/5 w-fit px-4 py-1.5 rounded-full border border-[#FF6B35]/10">
               <Star size={14} fill="currentColor" />
               <span className="text-xs font-black uppercase tracking-wider">Solusi No. 1 di Indonesia</span>
             </div>
             
-            <h1 className="text-5xl lg:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
               Upgrade Bisnis <br />
-              Kuliner Anda <br />
+              Kuliner Anda <br className="hidden sm:block" />
               <span className="text-[#FF6B35]">Tanpa Ribet.</span>
             </h1>
             
@@ -214,7 +214,7 @@ export default function LandingPage() {
               Dashboard Kasir, dan KDS terintegrasi. Pelanggan pesan, Anda cuan.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link to="/admin/register" className="flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group">
                 Mulai Sekarang
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -242,7 +242,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
-            className="relative flex items-center justify-center h-[600px]"
+            className="relative flex items-center justify-center h-auto lg:h-[600px] mt-8 lg:mt-0"
           >
             {/* Decoration Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#FF6B35]/5 rounded-full blur-[100px] -z-10" />
@@ -251,21 +251,23 @@ export default function LandingPage() {
             <motion.div 
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute left-0 top-[20%] z-30 hidden lg:block"
+              className="absolute left-0 top-[20%] z-30 hidden md:block"
             > 
               <CashierDashboardCard />
             </motion.div>
 
             {/* Main Phone Mockup */}
-            <div className="z-20 scale-110">
-              <PhoneMenuMockup />
+            <div className="z-20 flex justify-center w-full max-w-[260px] lg:max-w-none">
+              <div className="scale-90 lg:scale-110">
+                <PhoneMenuMockup />
+              </div>
             </div>
 
             {/* Floating Kitchen Card */}
             <motion.div 
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute right-0 bottom-[25%] z-30 hidden lg:block"
+              className="absolute right-0 bottom-[25%] z-30 hidden md:block"
             >
               <DashboardCardKitchen />
             </motion.div>
