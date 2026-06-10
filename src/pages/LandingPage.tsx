@@ -242,7 +242,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
-            className="relative flex items-center justify-center h-auto lg:h-[600px] mt-8 lg:mt-0"
+            className="relative flex flex-col lg:flex-row items-center justify-center h-auto lg:h-[600px] mt-8 lg:mt-0 gap-8 lg:gap-0"
           >
             {/* Decoration Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#FF6B35]/5 rounded-full blur-[100px] -z-10" />
@@ -251,13 +251,13 @@ export default function LandingPage() {
             <motion.div 
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute left-0 top-[20%] z-30 hidden md:block"
+              className="z-30 lg:absolute lg:left-0 lg:top-[20%] order-2 lg:order-none"
             > 
               <CashierDashboardCard />
             </motion.div>
 
             {/* Main Phone Mockup */}
-            <div className="z-20 flex justify-center w-full max-w-[260px] lg:max-w-none">
+            <div className="z-20 flex justify-center w-full max-w-[260px] lg:max-w-none order-1 lg:order-none">
               <div className="scale-90 lg:scale-110">
                 <PhoneMenuMockup />
               </div>
@@ -267,7 +267,7 @@ export default function LandingPage() {
             <motion.div 
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute right-0 bottom-[25%] z-30 hidden md:block"
+              className="z-30 lg:absolute lg:right-0 lg:bottom-[25%] order-3 lg:order-none"
             >
               <DashboardCardKitchen />
             </motion.div>
@@ -332,7 +332,7 @@ export default function LandingPage() {
 
             <div className="pt-10"> {/* This button is a CTA to register */}
               <Link to="/admin/register" className="inline-block bg-[#FF6B35] text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all mx-4 mb-8">
-                Mulai Gratis Sekarang
+                Mulai Gratis
               </Link>
             </div>
           </div>
