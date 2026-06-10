@@ -203,7 +203,7 @@ export default function LandingPage() {
               <span className="text-xs font-black uppercase tracking-wider">Solusi No. 1 di Indonesia</span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
+            <h1 className="text-[2.5rem] sm:text-5xl lg:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
               Upgrade Bisnis <br />
               Kuliner Anda <br className="hidden sm:block" />
               <span className="text-[#FF6B35]">Tanpa Ribet.</span>
@@ -214,12 +214,12 @@ export default function LandingPage() {
               Dashboard Kasir, dan KDS terintegrasi. Pelanggan pesan, Anda cuan.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Link to="/admin/register" className="flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group">
+            <div className="flex flex-row gap-3 lg:gap-4 w-full lg:w-auto">
+              <Link to="/admin/register" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group">
                 Mulai Sekarang
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-8 py-4 rounded-2xl font-bold text-lg hover:border-[#FF6B35] hover:text-[#FF6B35] transition-all">
+              <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:border-[#FF6B35] hover:text-[#FF6B35] transition-all">
                 <MessageCircle size={20} />
                 Tanya Sales
               </a>
