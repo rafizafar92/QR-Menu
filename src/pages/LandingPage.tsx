@@ -215,11 +215,11 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-row gap-3 lg:gap-4 w-full lg:w-auto">
-              <Link to="/admin/register" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group">
+              <Link to="/admin/register" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group whitespace-nowrap">
                 Mulai Sekarang
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:border-[#FF6B35] hover:text-[#FF6B35] transition-all">
+              <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:border-[#FF6B35] hover:text-[#FF6B35] transition-all whitespace-nowrap">
                 <MessageCircle size={20} />
                 Tanya Sales
               </a>
@@ -312,7 +312,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-[#FF6B35]/5 opacity-50" />
           
           <div className="relative z-10 max-w-3xl mx-auto space-y-10">
-            <h3 className="text-4xl lg:text-6xl font-black text-white leading-tight">
+            <h3 className="text-3xl lg:text-6xl font-black text-white leading-tight">
               Bergabung dengan ribuan <br /> 
               bisnis kuliner lainnya.
             </h3>
@@ -331,7 +331,7 @@ export default function LandingPage() {
             </div>
 
             <div className="pt-10"> {/* This button is a CTA to register */}
-              <Link to="/admin/register" className="bg-[#FF6B35] text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all">
+              <Link to="/admin/register" className="inline-block bg-[#FF6B35] text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all mx-4 mb-8">
                 Mulai Gratis Sekarang
               </Link>
             </div>
