@@ -31,9 +31,9 @@ export default function CustomerMenu() {
   // States
   const [venue, setVenue] = useState<Venue | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<string[]>(['All']);
+  const [categories, setCategories] = useState<string[]>(['Semua']);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [cart, setCart] = useState<Array<{ item: MenuItem; quantity: number; notes: string }>>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
@@ -77,7 +77,7 @@ export default function CustomerMenu() {
         }));
         setMenuItems(mapped);
         const cats = Array.from(new Set(mapped.map(i => i.category)));
-        setCategories(['All', ...cats]);
+        setCategories(['Semua', ...cats]);
       }
 
       // Resolve table info for display
@@ -114,7 +114,7 @@ export default function CustomerMenu() {
   // Cart operations
   const filteredItems = useMemo(() => {
     return menuItems.filter(item => {
-      const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+      const matchesCategory = selectedCategory === 'Semua' || item.category === selectedCategory;
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             item.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
@@ -122,7 +122,7 @@ export default function CustomerMenu() {
   }, [menuItems, selectedCategory, searchQuery]);
 
   const popularItems = useMemo(() => {
-    // Taking the first 4 available items as "Popular Picks" for design simulation
+    // Taking the first 4 available items as "Menu Populer" for design simulation
     return menuItems.filter(i => i.isAvailable).slice(0, 4);
   }, [menuItems]);
 
@@ -132,7 +132,7 @@ export default function CustomerMenu() {
     if (name.includes('bakery') || name.includes('pastries')) return <Croissant className="w-4 h-4" />;
     if (name.includes('dessert')) return <Cake className="w-4 h-4" />;
     if (name.includes('drink') || name.includes('beverage')) return <GlassWater className="w-4 h-4" />;
-    if (name === 'all') return <Sparkles className="w-4 h-4" />;
+    if (name === 'semua' || name === 'all') return <Sparkles className="w-4 h-4" />;
     return <Coffee className="w-4 h-4" />;
   };
 
@@ -223,7 +223,7 @@ export default function CustomerMenu() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400">Loading Menu...</div>;
+  if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400">Memuat Menu...</div>;
 
   // Human descriptive names (now that loading is complete and venue is available)
   const venueName = venue?.name || 'Venue Not Found';
@@ -277,7 +277,7 @@ export default function CustomerMenu() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search our menu..."
+            placeholder="Cari makanan, minuman favoritmu..."
             className="w-full bg-white border-none rounded-2xl pl-10 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-[#2C1810]/10 shadow-sm placeholder:text-[#2C1810]/30"
           />
         </div>
@@ -309,10 +309,10 @@ export default function CustomerMenu() {
       </div>
 
       {/* Popular Picks Horizontal Scroll */}
-      {popularItems.length > 0 && selectedCategory === 'All' && !searchQuery && (
+      {popularItems.length > 0 && selectedCategory === 'Semua' && !searchQuery && (
         <section className="mt-8 mb-4">
           <div className="px-6 flex justify-between items-end mb-4">
-            <h2 className="text-xl font-black italic">Popular Picks 🔥</h2>
+            <h2 className="text-xl font-black italic">Menu Populer 🔥</h2>
           </div>
           <div className="flex gap-4 overflow-x-auto px-6 pb-6 scrollbar-none">
             {popularItems.map(item => (
@@ -349,12 +349,12 @@ export default function CustomerMenu() {
 
       {/* All Menu Section */}
       <div className="max-w-3xl mx-auto px-6 mt-4">
-        <h2 className="text-xl font-black italic mb-6">All Menu</h2>
+        <h2 className="text-xl font-black italic mb-6">Lihat semua menu</h2>
         
         {filteredItems.length === 0 ? (
           <div className="bg-white rounded-[2rem] p-12 text-center shadow-sm">
             <Info className="w-10 h-10 text-[#2C1810]/20 mx-auto mb-3" />
-            <p className="text-[#2C1810]/60 font-medium text-sm">No items match your search</p>
+            <p className="text-[#2C1810]/60 font-medium text-sm">Menu tidak ditemukan</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -401,7 +401,7 @@ export default function CustomerMenu() {
                         }}
                         className="bg-[#2C1810] text-white py-1.5 px-4 rounded-xl text-xs font-black transition-transform active:scale-95"
                       >
-                        Add
+                        Tambah
                       </button>
                     ) : (
                       <span className="text-xs font-medium text-rose-500 flex items-center gap-1">
@@ -434,17 +434,17 @@ export default function CustomerMenu() {
               <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-4">
                 <Check className="w-8 h-8" />
               </div>
-              <h2 className="text-xl font-bold text-slate-900">Order Received!</h2>
-              <p className="text-xs text-slate-400 mt-1">Ticket: <span className="font-mono font-bold text-slate-700">{orderId}</span></p>
+              <h2 className="text-xl font-bold text-slate-900">Pesanan Berhasil!</h2>
+              <p className="text-xs text-slate-400 mt-1">Kode Antrian: <span className="font-mono font-bold text-slate-700">{orderId}</span></p>
               
               <div className="bg-slate-50 rounded-lg p-3 my-4 text-left border border-slate-100 text-xs">
-                <p className="font-semibold text-slate-700 mb-1">📋 Delivery details:</p>
+                <p className="font-semibold text-slate-700 mb-1">📋 Detail Pesanan:</p>
                 <div className="flex justify-between py-1 text-slate-600">
-                  <span>Merchant:</span>
+                  <span>Restoran:</span>
                   <span className="font-semibold">{venueName}</span>
                 </div>
                 <div className="flex justify-between py-1 text-slate-600">
-                  <span>Destination:</span>
+                  <span>Meja:</span>
                   <span className="font-semibold text-indigo-600">{tableDisplay}</span>
                 </div>
               </div>
@@ -452,7 +452,7 @@ export default function CustomerMenu() {
               <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6 flex flex-col items-center gap-2">
                 <Banknote className="w-6 h-6 text-amber-600" />
                 <p className="text-xs font-bold text-amber-900 leading-snug">
-                  Please pay at the cashier to confirm your order. Thank you!
+                  Silakan bayar ke kasir untuk memproses pesanan Anda. Terima kasih!
                 </p>
               </div>
 
@@ -461,7 +461,7 @@ export default function CustomerMenu() {
                 onClick={() => setOrderSuccess(false)}
                 className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-lg text-sm transition-all shadow-sm cursor-pointer"
               >
-                Okay, Perfect!
+                Oke, Terima Kasih!
               </button>
             </motion.div>
           </motion.div>
@@ -492,7 +492,7 @@ export default function CustomerMenu() {
             <div className="p-6 border-b border-[#2C1810]/5 flex justify-between items-center bg-[#2C1810] text-white">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-indigo-400" />
-                <h2 className="font-bold text-lg">My Tray</h2>
+                <h2 className="font-bold text-lg">Pesanan Saya</h2>
               </div>
               <button 
                 id="close-cart-btn"
@@ -504,7 +504,7 @@ export default function CustomerMenu() {
             </div>
 
             <div className="p-4 bg-white/50 text-[#2C1810]/60 text-[10px] font-bold uppercase tracking-widest flex justify-between">
-              <span>Ordering for: <strong>{tableDisplay}</strong></span>
+              <span>Memesan untuk: <strong>{tableDisplay}</strong></span>
               <span>{venueName}</span>
             </div>
 
@@ -548,7 +548,7 @@ export default function CustomerMenu() {
               {cart.length === 0 && (
                 <div className="text-center py-12 text-slate-400">
                   <ShoppingBag className="w-12 h-12 stroke-1 text-slate-300 mx-auto mb-3" />
-                  <p className="text-sm font-semibold">Your ordering tray is empty</p>
+                  <p className="text-sm font-semibold">Keranjang pesananmu kosong</p>
                   <p className="text-xs mt-1 max-w-xs mx-auto">Select fresh coffees and foods from the list to populate your tray.</p>
                 </div>
               )}
@@ -567,7 +567,7 @@ export default function CustomerMenu() {
                     <span>{formatPrice(cartTotal * 0.08)}</span>
                   </div>
                   <div className="flex justify-between font-black text-[#2C1810] border-t border-[#2C1810]/5 pt-3 text-sm">
-                    <span>Total Bill</span> {/* No currency here */}
+                    <span>Total Tagihan</span> {/* No currency here */}
                     <span>{formatPrice(cartTotal * 1.08)}</span>
                   </div>
                 </div>
@@ -580,10 +580,10 @@ export default function CustomerMenu() {
                   {isOrdering ? (
                     <>
                       <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                      <span>PLACING ORDER...</span>
+                      <span>Memproses...</span>
                     </>
                   ) : (
-                    <span>CONFIRM ORDER • {formatPrice(cartTotal * 1.08)}</span>
+                    <span>Pesan Sekarang • {formatPrice(cartTotal * 1.08)}</span>
                   )}
                 </button>
               </div>
@@ -638,7 +638,7 @@ export default function CustomerMenu() {
 
                 <div>
                   <label htmlFor="item-notes-input" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                    Order Notes (Optional)
+                    Catatan Pesanan (Opsional)
                   </label>
                   <textarea
                     id="item-notes-input"
@@ -656,14 +656,14 @@ export default function CustomerMenu() {
                     onClick={() => setActiveItemDetails(null)}
                     className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold py-2 rounded-xl text-xs transition-colors cursor-pointer"
                   >
-                    Cancel
+                    Batal
                   </button>
                   <button
                     id="btn-add-customizer-item"
                     onClick={() => addToCart(activeItemDetails, activeItemNotes)}
                     className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-xl text-xs transition-colors shadow-sm cursor-pointer"
                   >
-                    Add to Tray
+                    Tambah
                   </button>
                 </div>
               </div>
@@ -683,7 +683,7 @@ export default function CustomerMenu() {
               <span className="bg-white/20 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center">
                 {cartItemCount}
               </span>
-              <span className="text-xs uppercase tracking-widest">View Tray</span>
+              <span className="text-xs uppercase tracking-widest">Lihat Pesanan</span>
             </div>
             <div className="flex items-center gap-1.5"> {/* No currency here */}
               <span className="text-sm font-black">{formatPrice(cartTotal)}</span>
