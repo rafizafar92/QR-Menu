@@ -280,7 +280,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
 
               <div className="bg-white border border-slate-200 shadow-3xs px-4 py-2 rounded-xl flex items-center gap-3 self-start text-xs font-semibold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                <span className="text-slate-600">Live Supabase Connection</span>
+                <span className="text-slate-600">Sistem Online</span>
               </div>
             </div>
 
