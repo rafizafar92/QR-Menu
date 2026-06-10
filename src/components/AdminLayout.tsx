@@ -28,7 +28,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
   const { user, logout } = useAuth();
   const [venueLogo, setVenueLogo] = useState<string | null>(null);
   
-  const venueDisplayName = user?.venueName || 'MenuQR Admin';
+  const venueDisplayName = user?.venueName || 'Ordio Admin';
 
   useEffect(() => {
     if (!user?.venueId) return;
@@ -90,7 +90,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
               QR
             </span>
             <div>
-              <span className="text-slate-800 font-bold text-sm block">MenuQR Admin</span>
+              <span className="text-slate-800 font-bold text-sm block">Ordio Admin</span>
               <span className="text-[10px] text-slate-400 block">SaaS Dashboard</span>
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
             <span className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
               QR
             </span>
-            <span className="font-extrabold text-sm tracking-tight text-slate-800">MenuQR Admin</span>
+            <span className="font-extrabold text-sm tracking-tight text-slate-800">Ordio Admin</span>
           </div>
 
           <button

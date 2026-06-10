@@ -402,7 +402,7 @@ export default function AdminTables() {
 
                     {/* Footer */}
                     <div style={{ fontSize: '9px', fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Powered by MenuQR
+                      Powered by Ordio
                     </div>
                   </div>
 

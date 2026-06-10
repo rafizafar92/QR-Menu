@@ -41,7 +41,7 @@ export default function AdminLogin() {
           <KeyRound className="w-6 h-6" />
         </div>
         <h2 className="mt-4 text-center text-3xl font-black tracking-tight text-slate-900">
-          MenuQR Admin
+          Ordio Admin
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
           Sign in to manage Sweet Bite Café settings & live orders

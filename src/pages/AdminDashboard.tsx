@@ -119,7 +119,7 @@ export default function AdminDashboard() {
 
   // Modify order status dynamically in memory
   const handlePrintReceipt = (order: Order) => {
-    const venueName = user?.venueName || 'Restaurant Receipt';
+    const venueName = user?.venueName || 'Ordio Admin';
     const totalWithTax = (order.totalPrice * 1.08).toFixed(2);
     const itemsHtml = order.items.map(item => `
       <tr>
@@ -171,7 +171,7 @@ export default function AdminDashboard() {
           </div>
           <div class="divider" style="margin-top: 20px;"></div>
           <div class="center bold">THANK YOU!</div>
-          <div class="center" style="font-size: 10px; margin-top: 5px;">Powered by MenuQR</div>
+          <div class="center" style="font-size: 10px; margin-top: 5px;">Powered by Ordio</div>
         </body>
       </html>
     `);

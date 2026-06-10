@@ -98,9 +98,9 @@ export default function CustomerMenu() {
   // Update browser tab title dynamically
   useEffect(() => {
     if (venue?.name) {
-      document.title = `${venue.name} - MenuQR`;
+      document.title = `${venue.name} - Ordio`;
     } else {
-      document.title = 'MenuQR'; // Default title if venue name is not available
+      document.title = 'Ordio'; // Default title if venue name is not available
     }
   }, [venue?.name]);
 

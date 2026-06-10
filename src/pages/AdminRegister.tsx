@@ -47,7 +47,7 @@ export default function AdminRegister() {
           <KeyRound className="w-6 h-6" />
         </div>
         <h2 className="mt-4 text-center text-3xl font-black tracking-tight text-slate-900">
-          Create MenuQR Partner Account
+          Create Ordio Partner Account
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
           Launch your contactless digital dining menu in seconds

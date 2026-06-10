@@ -1,3 +1,4 @@
+import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminKitchen from './pages/AdminKitchen';
 import AdminMenu from './pages/AdminMenu';
@@ -61,7 +62,7 @@ function HomePortal() {
             <QrCode size={24} />
           </div>
           <div>
-            <span className="text-xl font-black text-white tracking-tight">MenuQR</span>
+            <span className="text-xl font-black text-white tracking-tight">Ordio</span>
             <span className="text-[10px] text-emerald-500 block font-bold uppercase tracking-widest leading-none mt-0.5">Indonesia</span>
           </div>
         </div>
@@ -390,10 +391,10 @@ function HomePortal() {
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-white/5 text-center flex flex-col items-center">
         <div className="flex items-center gap-2 mb-4 grayscale opacity-50">
           <QrCode className="text-white" size={24} />
-          <span className="text-lg font-black text-white tracking-tight">MenuQR</span>
+          <span className="text-lg font-black text-white tracking-tight">Ordio</span>
         </div>
         <p className="text-slate-500 text-xs font-medium mb-6">The modern operating system for the food industry.</p>
-        <p className="text-slate-600 text-[10px] uppercase font-bold tracking-widest">© 2026 MenuQR Inc. All rights reserved.</p>
+        <p className="text-slate-600 text-[10px] uppercase font-bold tracking-widest">© 2026 Ordio Inc. All rights reserved.</p>
       </footer>
     </div>
   );
@@ -402,7 +403,7 @@ function HomePortal() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePortal />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/menu/:venueId/:tableId" element={<CustomerMenu />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/register" element={<AdminRegister />} />
