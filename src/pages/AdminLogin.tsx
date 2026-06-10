@@ -41,10 +41,10 @@ export default function AdminLogin() {
           <KeyRound className="w-6 h-6" />
         </div>
         <h2 className="mt-4 text-center text-3xl font-black tracking-tight text-slate-900">
-          Ordio Admin
+          Masuk Admin Ordio
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
-          Sign in to manage Sweet Bite Café settings & live orders
+          Masuk untuk mengelola pengaturan dan pesanan restoran
         </p>
       </div>
 
@@ -63,7 +63,7 @@ export default function AdminLogin() {
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label htmlFor="admin-email" className="block text-xs font-bold text-slate-500 uppercase tracking-wide">
-                Email Address
+                Email
               </label>
               <div className="mt-1.5 relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -83,7 +83,7 @@ export default function AdminLogin() {
 
             <div>
               <label htmlFor="admin-password" className="block text-xs font-bold text-slate-500 uppercase tracking-wide">
-                Password
+                Kata Sandi
               </label>
               <div className="mt-1.5 relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -109,9 +109,9 @@ export default function AdminLogin() {
                   defaultChecked
                   className="rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
                 />
-                <span>Remember me</span>
+                <span>Ingat saya</span>
               </label>
-              <span className="text-slate-400 hover:text-slate-600 hover:underline cursor-pointer">忘了密码?</span>
+              <span className="text-slate-400 hover:text-slate-600 hover:underline cursor-pointer">Lupa Password?</span>
             </div>
 
             <button
@@ -123,15 +123,15 @@ export default function AdminLogin() {
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                'Secure Authentication Sign In'
+                'Masuk'
               )}
             </button>
           </form>
 
           <div className="mt-4 text-center text-xs">
-            <span className="text-slate-500">New merchant? </span>
+            <span className="text-slate-500">Mitra baru? </span>
             <Link to="/admin/register" className="text-indigo-600 font-bold hover:underline">
-              Create a free account
+              Buat akun gratis
             </Link>
           </div>
 

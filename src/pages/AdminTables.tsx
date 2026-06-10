@@ -153,9 +153,9 @@ export default function AdminTables() {
   };
 
   return (
-    <AdminLayout 
-      title="Tables & QR Generator" 
-      subtitle="Provision dining tables, generate dedicated self-order links, and export table-tent graphics."
+    <AdminLayout
+      title="Meja & Generator QR"
+      subtitle="Kelola meja makan dan buat kartu meja QR otomatis."
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -164,7 +164,7 @@ export default function AdminTables() {
           
           {/* List existing ones */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-3xs p-6 space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-sm">Provisioned Areas</h3>
+            <h3 className="font-extrabold text-slate-900 text-sm">Area Terdaftar</h3>
             
             <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
               {tables.map(table => {
@@ -214,18 +214,18 @@ export default function AdminTables() {
 
           {/* Create new table form */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-3xs p-6">
-            <h3 className="font-extrabold text-slate-900 text-sm mb-3">Add Dining Area</h3>
+            <h3 className="font-extrabold text-slate-900 text-sm mb-3">Tambah Meja</h3>
             
             {createSuccess && (
               <div className="mb-3 bg-indigo-50 text-indigo-700 text-xs font-semibold p-2 rounded-lg border border-indigo-100">
-                Created and compiled QR card successfully!
+                Meja dan kartu QR berhasil dibuat!
               </div>
             )}
 
             <form onSubmit={handleAddTable} className="space-y-3">
               <div>
                 <label htmlFor="table-number-input" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                  Table Reference / Number
+                  Nomor / Referensi Meja
                 </label>
                 <input
                   id="table-number-input"
@@ -244,7 +244,7 @@ export default function AdminTables() {
                 className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-lg text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Plus className="w-4 h-4" />
-                <span>Register & Provision</span>
+                <span>Daftarkan Meja</span>
               </button>
             </form>
           </div>
@@ -313,7 +313,7 @@ export default function AdminTables() {
                       className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex justify-center items-center gap-1.5 cursor-pointer"
                     >
                       <Printer className="w-4 h-4" />
-                      <span>Print Table Cards</span>
+                      <span>Cetak Kartu Meja</span>
                     </button>
                     <button
                       id="btn-download-action"
@@ -321,7 +321,7 @@ export default function AdminTables() {
                       className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-2.5 rounded-xl text-xs flex justify-center items-center gap-1.5 cursor-pointer"
                     >
                       <Download className="w-4 h-4" />
-                      <span>Download PNG</span>
+                      <span>Unduh PNG</span>
                     </button>
                   </div>
                 </div>
@@ -394,7 +394,7 @@ export default function AdminTables() {
                     {/* Bottom: Table Information */}
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '4px' }}>Table</span>
-                      <h1 style={{ fontSize: '48px', fontWeight: '900', color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>
+                      <h1 style={{ fontSize: '48px', fontWeight: '900', color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>Meja 
                         {selectedTable.tableNumber.replace(/\D/g, '') || selectedTable.tableNumber}
                       </h1>
                       <span style={{ fontSize: '14px', fontWeight: '600', color: '#64748b' }}>Scan to Order</span>

@@ -101,8 +101,8 @@ export default function AdminKitchen() {
 
   const formatTimeAgo = (isoString: string) => {
     const diff = Math.floor((new Date().getTime() - new Date(isoString).getTime()) / 60000);
-    if (diff < 1) return 'Just now';
-    return `${diff} min ago`;
+    if (diff < 1) return 'Baru saja';
+    return `${diff} menit lalu`;
   };
 
   const OrderCard = ({ order, nextStatus, nextLabel, icon: Icon, accentColor }: any) => (
@@ -115,7 +115,7 @@ export default function AdminKitchen() {
             {order.tableId.includes('Table') ? order.tableId : `Table ${order.tableId}`}
           </div>
           <div className="text-right">
-            <span className="text-xs font-bold text-slate-500 block uppercase tracking-tighter">Wait Time</span>
+            <span className="text-xs font-bold text-slate-500 block uppercase tracking-tighter">Waktu Tunggu</span>
             <span className={`text-xs font-black ${parseInt(formatTimeAgo(order.createdAt)) > 15 ? 'text-rose-500' : 'text-slate-300'}`}>
               {formatTimeAgo(order.createdAt)}
             </span>
@@ -137,7 +137,7 @@ export default function AdminKitchen() {
 
         {order.notes && (
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-amber-200">
-            <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Kitchen Note</p>
+            <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Catatan Dapur</p>
             <p className="text-lg font-bold italic">"{order.notes}"</p>
           </div>
         )}
@@ -178,7 +178,7 @@ export default function AdminKitchen() {
         className="bg-emerald-600 text-white font-black py-3 px-6 rounded-xl text-sm flex items-center justify-center gap-2 transition-all active:scale-95 hover:brightness-110 cursor-pointer h-full"
       >
         <Check size={18} />
-        <span>SERVED</span>
+        <span>SELESAI</span>
       </button>
     </div>
   );
@@ -199,16 +199,16 @@ export default function AdminKitchen() {
             <ChefHat size={32} />
           </div>
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tight">KITCHEN DISPLAY</h1>
+            <h1 className="text-4xl font-black text-white tracking-tight">TAMPILAN DAPUR</h1>
             <div className="flex items-center gap-2 mt-1">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-emerald-500 text-xs font-black uppercase tracking-widest">Live System Connected</span>
+              <span className="text-emerald-500 text-xs font-black uppercase tracking-widest">Sistem Terhubung</span>
             </div>
           </div>
         </div>
 
         <div className="bg-[#1E293B] px-8 py-4 rounded-3xl border border-slate-800 flex flex-col items-center">
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Station Time</span>
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Waktu Stasiun</span>
           <span className="text-3xl font-black text-white font-mono">
             {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </span>
@@ -220,13 +220,13 @@ export default function AdminKitchen() {
         {/* New Orders */}
         <div className="flex flex-col gap-6 overflow-hidden">
           <h2 className="text-2xl font-black flex items-center justify-between uppercase text-orange-500 px-2">
-            <span className="flex items-center gap-3"><Clock size={28} /> New Orders</span>
+            <span className="flex items-center gap-3"><Clock size={28} /> Pesanan Baru</span>
             <span className="bg-orange-500/10 px-3 py-1 rounded-full text-sm">{orders.filter(o => o.status === 'confirmed').length}</span>
           </h2>
           <div className="flex-1 overflow-y-auto space-y-6 scrollbar-none pb-12">
             {orders.filter(o => o.status === 'confirmed').length > 0 ? (
               orders.filter(o => o.status === 'confirmed').map(order => (
-                <OrderCard key={order.id} order={order} nextStatus="preparing" nextLabel="ACCEPT" icon={ChefHat} accentColor="bg-orange-600" />
+                <OrderCard key={order.id} order={order} nextStatus="preparing" nextLabel="TERIMA" icon={ChefHat} accentColor="bg-orange-600" />
               ))
             ) : (
               <EmptyState message="No New Tickets" />
@@ -237,13 +237,13 @@ export default function AdminKitchen() {
         {/* Preparing */}
         <div className="flex flex-col gap-6 overflow-hidden border-x border-slate-800/50 px-4">
           <h2 className="text-2xl font-black flex items-center justify-between uppercase text-blue-500 px-2">
-            <span className="flex items-center gap-3"><UtensilsCrossed size={28} /> Preparing</span>
+            <span className="flex items-center gap-3"><UtensilsCrossed size={28} /> Sedang Diproses</span>
             <span className="bg-blue-500/10 px-3 py-1 rounded-full text-sm">{orders.filter(o => o.status === 'preparing').length}</span>
           </h2>
           <div className="flex-1 overflow-y-auto space-y-6 scrollbar-none pb-12">
             {orders.filter(o => o.status === 'preparing').length > 0 ? (
               orders.filter(o => o.status === 'preparing').map(order => (
-                <OrderCard key={order.id} order={order} nextStatus="ready" nextLabel="READY" icon={ArrowRight} accentColor="bg-blue-600" />
+                <OrderCard key={order.id} order={order} nextStatus="ready" nextLabel="SIAP" icon={ArrowRight} accentColor="bg-blue-600" />
               ))
             ) : (
               <EmptyState message="Clean Rail" />
@@ -254,7 +254,7 @@ export default function AdminKitchen() {
         {/* Ready */}
         <div className="flex flex-col gap-6 overflow-hidden">
           <h2 className="text-2xl font-black flex items-center justify-between uppercase text-emerald-500 px-2">
-            <span className="flex items-center gap-3"><CheckCircle2 size={28} /> Ready to Serve</span>
+            <span className="flex items-center gap-3"><CheckCircle2 size={28} /> Siap Disajikan</span>
             <span className="bg-emerald-500/10 px-3 py-1 rounded-full text-sm">{orders.filter(o => o.status === 'ready').length}</span>
           </h2>
           <div className="flex-1 overflow-y-auto space-y-3 scrollbar-none pb-12">

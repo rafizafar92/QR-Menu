@@ -217,7 +217,7 @@ export default function AdminDashboard() {
     const diffInMins = Math.floor((now.getTime() - past.getTime()) / 60000);
     
     if (diffInMins < 1) return 'Just now';
-    if (diffInMins < 60) return `${diffInMins}m ago`;
+    if (diffInMins < 60) return `${diffInMins}m yang lalu`;
     const diffInHours = Math.floor(diffInMins / 60);
     if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
     const diffInDays = Math.floor(diffInHours / 24);
@@ -228,17 +228,17 @@ export default function AdminDashboard() {
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
       case 'pending_payment':
-        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">● Awaiting Payment</span>;
+        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">● Menunggu Pembayaran</span>;
       case 'confirmed':
-        return <span className="bg-indigo-500/10 text-indigo-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-indigo-500/20 flex items-center gap-1">● Confirmed</span>;
+        return <span className="bg-indigo-500/10 text-indigo-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-indigo-500/20 flex items-center gap-1">● Dikonfirmasi</span>;
       case 'preparing':
-        return <span className="bg-sky-500/10 text-sky-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-sky-500/20 flex items-center gap-1">● Preparing</span>;
+        return <span className="bg-sky-500/10 text-sky-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-sky-500/20 flex items-center gap-1">● Sedang Diproses</span>;
       case 'ready':
-        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Ready</span>;
+        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Siap</span>;
       case 'completed':
-        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Completed</span>;
+        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Selesai</span>;
       case 'cancelled':
-        return <span className="bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-rose-500/20 flex items-center gap-1">● Cancelled</span>;
+        return <span className="bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-rose-500/20 flex items-center gap-1">● Dibatalkan</span>;
     }
   };
 
@@ -253,18 +253,18 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout 
-      title="Venue Overview" 
-      subtitle="Real-time KPI tracking and service management."
+    <AdminLayout
+      title="Pesanan Masuk"
+      subtitle="Pelacakan KPI real-time dan manajemen layanan."
     >
       
       {/* 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: "Today's Orders", value: stats.todayOrders, icon: ShoppingBag, color: 'bg-amber-500', text: 'text-amber-600' },
-          { label: "Today's Revenue", value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: 'bg-emerald-500', text: 'text-emerald-600' },
-          { label: "Active Tables", value: stats.activeTables, icon: Utensils, color: 'bg-indigo-500', text: 'text-indigo-600' },
-          { label: "Pending Payments", value: stats.pendingPayments, icon: CreditCard, color: 'bg-rose-500', text: 'text-rose-600' }
+          { label: "Pesanan Hari Ini", value: stats.todayOrders, icon: ShoppingBag, color: 'bg-amber-500', text: 'text-amber-600' },
+          { label: "Pendapatan Hari Ini", value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: 'bg-emerald-500', text: 'text-emerald-600' },
+          { label: "Meja Aktif", value: stats.activeTables, icon: Utensils, color: 'bg-indigo-500', text: 'text-indigo-600' },
+          { label: "Menunggu Pembayaran", value: stats.pendingPayments, icon: CreditCard, color: 'bg-rose-500', text: 'text-rose-600' }
         ].map((kpi, idx) => (
           <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between transition-transform hover:scale-[1.02]">
             <div>
@@ -285,7 +285,7 @@ export default function AdminDashboard() {
             <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
               <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
                 <Clock className="text-indigo-500" size={20} />
-                Recent Activity
+                Aktivitas Terbaru
               </h3>
             </div>
             <div className="divide-y divide-slate-50">
@@ -316,7 +316,7 @@ export default function AdminDashboard() {
                         onClick={() => updateOrderStatus(order.id, 'confirmed')}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg shadow-emerald-600/20"
                       >
-                        CONFIRM PAYMENT
+                        KONFIRMASI PEMBAYARAN
                       </button>
                     )}
                   </div>
@@ -334,7 +334,7 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-3xl border border-slate-200 shadow-3xs p-6">
             <h3 className="font-black text-slate-900 text-lg mb-6 flex items-center gap-2">
               <TrendingUp className="text-emerald-500" size={20} />
-              Today's Popular
+              Terpopuler Hari Ini
             </h3>
             <div className="space-y-4">
               {popularItems.map((item, idx) => (
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
           <div className="bg-slate-900 rounded-3xl p-6 shadow-xl shadow-slate-900/20">
             <h3 className="font-black text-white text-lg mb-6 flex items-center gap-2">
               <ArrowUpRight className="text-indigo-400" size={20} />
-              Quick Actions
+              Aksi Cepat
             </h3>
             <div className="grid grid-cols-1 gap-3">
               <Link 
@@ -370,7 +370,7 @@ export default function AdminDashboard() {
                 <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
                   <Plus size={20} />
                 </div>
-                <span className="text-sm font-bold">Add Menu Item</span>
+                <span className="text-sm font-bold">Tambah Menu</span>
               </Link>
               <Link 
                 to="/admin/tables" 
@@ -379,7 +379,7 @@ export default function AdminDashboard() {
                 <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
                   <TableIcon size={20} />
                 </div>
-                <span className="text-sm font-bold">Add Table</span>
+                <span className="text-sm font-bold">Tambah Meja</span>
               </Link>
               <Link 
                 to="/admin/kitchen" 
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                   <ChefHat size={20} />
                 </div>
-                <span className="text-sm font-bold">View Kitchen</span>
+                <span className="text-sm font-bold">Lihat Dapur</span>
               </Link>
             </div>
           </div>

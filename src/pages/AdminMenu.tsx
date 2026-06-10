@@ -129,7 +129,7 @@ export default function AdminMenu() {
 
   // Delete item handler
   const deleteItem = async (itemId: string) => {
-    if (!confirm('Delete this item?')) return;
+    if (!confirm('Hapus item ini?')) return;
     const { error } = await supabase.from('menu_items').delete().eq('id', itemId);
     if (error) return alert('Delete failed');
     setItems(prev => prev.filter(it => it.id !== itemId));
@@ -186,8 +186,8 @@ export default function AdminMenu() {
   };
 
   return (
-    <AdminLayout 
-      title="Digital Menu Manager" 
+    <AdminLayout
+      title="Kelola Menu"
       subtitle="Modify available coffee and culinary treats, set real-time stock levels, and organize food catalog tags."
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -205,7 +205,7 @@ export default function AdminMenu() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search food item catalog title & category..."
+                placeholder="Cari item menu..."
                 className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all font-semibold"
               />
             </div>
@@ -218,7 +218,7 @@ export default function AdminMenu() {
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2 px-4 rounded-xl flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add New Item</span>
+                <span>Tambah Item</span>
               </button>
             </div>
           </div>
@@ -287,12 +287,12 @@ export default function AdminMenu() {
                       {item.isAvailable ? (
                         <>
                           <ToggleRight className="w-5 h-5 text-indigo-500" />
-                          <span>In Stock (Live)</span>
+                          <span>Tersedia</span>
                         </>
                       ) : (
                         <>
                           <ToggleLeft className="w-5 h-5 text-slate-300" />
-                          <span className="text-rose-500">Out of Stock</span>
+                          <span className="text-rose-500">Tidak Tersedia</span>
                         </>
                       )}
                     </button>
@@ -347,7 +347,7 @@ export default function AdminMenu() {
               <form onSubmit={handleAddItem} className="space-y-4 pt-2 border-t border-slate-100 animate-fadeIn">
                 <div className="flex justify-between items-center">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Write New Food Recipe
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Tambah Item Baru
                   </h4>
                   <button 
                     id="dismiss-form-btn-2"
@@ -355,7 +355,7 @@ export default function AdminMenu() {
                     onClick={() => setShowAddForm(false)} 
                     className="text-xs text-slate-400 hover:text-slate-600 font-bold underline"
                   >
-                    Hide Form
+                    Tutup
                   </button>
                 </div>
 
@@ -367,7 +367,7 @@ export default function AdminMenu() {
 
                 <div className="space-y-3">
                   <div>
-                    <label htmlFor="food-name" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Item Name *</label>
+                    <label htmlFor="food-name" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nama Item *</label>
                     <input
                       id="food-name"
                       type="text"
@@ -381,7 +381,7 @@ export default function AdminMenu() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="food-price" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Price ($ USD) *</label>
+                      <label htmlFor="food-price" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Harga (Rp) *</label>
                       <input
                         id="food-price"
                         type="number"
@@ -395,7 +395,7 @@ export default function AdminMenu() {
                     </div>
 
                     <div>
-                      <label htmlFor="food-category" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Category Tag</label>
+                      <label htmlFor="food-category" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
                       <select
                         id="food-category"
                         value={category}
@@ -410,7 +410,7 @@ export default function AdminMenu() {
                   </div>
 
                   <div>
-                    <label htmlFor="food-desc" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Description</label>
+                    <label htmlFor="food-desc" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Deskripsi</label>
                     <textarea
                       id="food-desc"
                       rows={2}
@@ -434,7 +434,7 @@ export default function AdminMenu() {
                       <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-lg py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
                         <Upload size={14} className="text-slate-400" />
                         <span className="text-[10px] font-black text-slate-500 uppercase">
-                          {uploading ? 'Uploading...' : 'Upload Image'}
+                          {uploading ? 'Mengunggah...' : 'Unggah Gambar'}
                         </span>
                         <input 
                           type="file" 
@@ -456,7 +456,7 @@ export default function AdminMenu() {
                       className="h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <label htmlFor="food-active" className="text-xs text-slate-600 font-bold select-none cursor-pointer">
-                      Publish to digital menus immediately (In Stock)
+                      Aktifkan di menu digital (Tersedia)
                     </label>
                   </div>
                 </div>
@@ -466,7 +466,7 @@ export default function AdminMenu() {
                   type="submit"
                   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-xs cursor-pointer"
                 >
-                  Confirm Recipe & Publish Catalog
+                  Simpan
                 </button>
               </form>
             ) : (

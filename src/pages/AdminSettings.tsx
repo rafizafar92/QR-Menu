@@ -115,8 +115,8 @@ export default function AdminSettings() {
   if (loading) return <AdminLayout title="Settings"><div className="p-8 text-center text-slate-400 font-bold">Loading configuration...</div></AdminLayout>;
 
   return (
-    <AdminLayout 
-      title="Store Settings" 
+    <AdminLayout
+      title="Pengaturan Toko"
       subtitle="Customize your venue branding, system preferences, and account security."
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
@@ -125,15 +125,15 @@ export default function AdminSettings() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-3xs p-6 space-y-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
             <Settings className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-extrabold text-slate-900">Branding</h3>
+            <h3 className="font-extrabold text-slate-900">Identitas Merek</h3>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Venue Name</label>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Tempat</label>
               <input type="text" value={venueData.name} onChange={(e) => setVenueData({...venueData, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:ring-1 focus:ring-indigo-500 outline-none" />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Description</label>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Deskripsi</label>
               <textarea rows={3} value={venueData.description} onChange={(e) => setVenueData({...venueData, description: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:ring-1 focus:ring-indigo-500 outline-none" />
             </div>
             <div>
@@ -143,7 +143,7 @@ export default function AdminSettings() {
           </div>
           <button onClick={handleSaveBranding} disabled={saving === 'branding'} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all">
             {success === 'branding' ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-            {saving === 'branding' ? 'Saving...' : success === 'branding' ? 'Branding Saved' : 'Save Branding'}
+            {saving === 'branding' ? 'Menyimpan...' : success === 'branding' ? 'Tersimpan' : 'Simpan'}
           </button>
         </div>
 
@@ -173,26 +173,26 @@ export default function AdminSettings() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-3xs p-6 space-y-6 lg:col-span-2">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
             <User className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-extrabold text-slate-900">Account Security</h3>
+            <h3 className="font-extrabold text-slate-900">Keamanan Akun</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
             <div className="space-y-4">
               <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Logged in as</span>
+                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Masuk sebagai</span>
                 <span className="text-sm font-bold text-slate-700">{user?.email}</span>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">New Password</label>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password Baru</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" title="Update your access password" className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 text-xs text-slate-800 focus:ring-1 focus:ring-indigo-500 outline-none" />
+                  <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Masukkan password baru" title="Update password akses" className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 text-xs text-slate-800 focus:ring-1 focus:ring-indigo-500 outline-none" />
                 </div>
               </div>
             </div>
             <div className="space-y-2">
               <button onClick={handleUpdatePassword} disabled={saving === 'password' || !newPassword} className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all">
                 {success === 'password' ? <Check className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                {saving === 'password' ? 'Updating...' : success === 'password' ? 'Password Updated' : 'Update Password'}
+                {saving === 'password' ? 'Memperbarui...' : success === 'password' ? 'Password Diperbarui' : 'Ubah Password'}
               </button>
               <div className="flex items-start gap-2 text-[10px] text-slate-400 font-medium px-1">
                 <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />

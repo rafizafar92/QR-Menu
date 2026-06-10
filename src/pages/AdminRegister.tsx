@@ -47,10 +47,10 @@ export default function AdminRegister() {
           <KeyRound className="w-6 h-6" />
         </div>
         <h2 className="mt-4 text-center text-3xl font-black tracking-tight text-slate-900">
-          Create Ordio Partner Account
+          Buat Akun Partner Ordio
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
-          Launch your contactless digital dining menu in seconds
+          Luncurkan menu digital restoran Anda dalam hitungan detik
         </p>
       </div>
 
@@ -69,7 +69,7 @@ export default function AdminRegister() {
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
               <label htmlFor="venue-name" className="block text-xs font-bold text-slate-500 uppercase tracking-wide">
-                Venue / Restaurant Name
+                Nama Restoran
               </label>
               <div className="mt-1.5 relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -89,7 +89,7 @@ export default function AdminRegister() {
 
             <div>
               <label htmlFor="admin-email" className="block text-xs font-bold text-slate-500 uppercase tracking-wide">
-                Partner Email Address
+                Email
               </label>
               <div className="mt-1.5 relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -109,7 +109,7 @@ export default function AdminRegister() {
 
             <div>
               <label htmlFor="admin-password" className="block text-xs font-bold text-slate-500 uppercase tracking-wide">
-                Access Password
+                Kata Sandi
               </label>
               <div className="mt-1.5 relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -137,15 +137,15 @@ export default function AdminRegister() {
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                'Create Merchant Workspace'
+                'Daftar'
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center text-xs">
-            <span className="text-slate-500">Already registered? </span>
+            <span className="text-slate-500">Sudah punya akun? </span>
             <Link to="/admin/login" className="text-indigo-600 font-bold hover:underline">
-              Sign In here
+              Masuk di sini
             </Link>
           </div>
         </motion.div>
