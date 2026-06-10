@@ -204,14 +204,12 @@ export default function LandingPage() {
             </div>
             
             <h1 className="text-[2.5rem] sm:text-5xl lg:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
-              Upgrade Bisnis <br />
-              Kuliner Anda <br className="hidden sm:block" />
-              <span className="text-[#FF6B35]">Tanpa Ribet.</span>
+              Menu QR, Kasir & Dapur <br />
+              Dalam <span className="text-[#FF6B35]">Satu Sistem.</span>
             </h1>
             
             <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
-              Tingkatkan omzet dan efisiensi operasional dengan sistem Menu QR, 
-              Dashboard Kasir, dan KDS terintegrasi. Pelanggan pesan, Anda cuan.
+              Terima pesanan lebih cepat, kurangi kesalahan order, dan tingkatkan efisiensi operasional restoran Anda.
             </p>
 
             <div className="flex flex-row gap-3 lg:gap-4 w-full lg:w-auto">
@@ -225,14 +223,10 @@ export default function LandingPage() {
               </a>
             </div>
 
-            <div className="pt-4 flex items-center gap-6">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-full border-4 border-[#FFF8F3] bg-slate-200" />
-                ))}
-              </div>
-              <p className="text-xs text-slate-500 font-medium">
-                <span className="text-slate-900 font-black">1.200+</span> Restoran telah bergabung
+            <div className="pt-4 flex items-center gap-2 text-slate-500">
+              <CheckCircle2 size={16} className="text-[#FF6B35]" />
+              <p className="text-xs font-medium">
+                Siap Digunakan Untuk Cafe, Restoran & Food Court
               </p>
             </div>
           </motion.div>
