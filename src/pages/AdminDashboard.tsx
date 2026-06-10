@@ -261,10 +261,10 @@ export default function AdminDashboard() {
       {/* 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: "Pesanan Hari Ini", value: stats.todayOrders, icon: ShoppingBag, color: 'bg-amber-500', text: 'text-amber-600' },
-          { label: "Pendapatan Hari Ini", value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: 'bg-emerald-500', text: 'text-emerald-600' },
-          { label: "Meja Aktif", value: stats.activeTables, icon: Utensils, color: 'bg-indigo-500', text: 'text-indigo-600' },
-          { label: "Menunggu Pembayaran", value: stats.pendingPayments, icon: CreditCard, color: 'bg-rose-500', text: 'text-rose-600' }
+          { label: "Pesanan Hari Ini", value: stats.todayOrders, icon: ShoppingBag, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' },
+          { label: "Pendapatan Hari Ini", value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' },
+          { label: "Meja Aktif", value: stats.activeTables, icon: Utensils, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' },
+          { label: "Menunggu Pembayaran", value: stats.pendingPayments, icon: CreditCard, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' }
         ].map((kpi, idx) => (
           <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between transition-transform hover:scale-[1.02]">
             <div>
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-3xl border border-slate-200 shadow-3xs overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
               <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
-                <Clock className="text-indigo-500" size={20} />
+                <Clock className="text-[#FF6B35]" size={20} />
                 Aktivitas Terbaru
               </h3>
             </div>
@@ -312,9 +312,9 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-4">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">{formatTimeAgo(order.createdAt)}</span>
                     {order.status === 'pending_payment' && (
-                      <button
+                      <button // Confirm Payment button
                         onClick={() => updateOrderStatus(order.id, 'confirmed')}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg shadow-emerald-600/20"
+                        className="bg-[#FF6B35] hover:bg-[#e85a24] text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg shadow-[#FF6B35]/20"
                       >
                         KONFIRMASI PEMBAYARAN
                       </button>
@@ -333,7 +333,7 @@ export default function AdminDashboard() {
           {/* Popular Items Today */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-3xs p-6">
             <h3 className="font-black text-slate-900 text-lg mb-6 flex items-center gap-2">
-              <TrendingUp className="text-emerald-500" size={20} />
+              <TrendingUp className="text-[#FF6B35]" size={20} />
               Terpopuler Hari Ini
             </h3>
             <div className="space-y-4">
@@ -345,7 +345,7 @@ export default function AdminDashboard() {
                     </span>
                     <span className="text-sm font-bold text-slate-700">{item.name}</span>
                   </div>
-                  <span className="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-1 rounded-md uppercase">
+                  <span className="bg-[#FF6B35]/10 text-[#FF6B35] text-[10px] font-black px-2 py-1 rounded-md uppercase">
                     {item.count} Sold
                   </span>
                 </div>
@@ -357,9 +357,9 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-slate-900 rounded-3xl p-6 shadow-xl shadow-slate-900/20">
+          <div className="bg-[#1A1A1A] rounded-3xl p-6 shadow-xl shadow-slate-950/20">
             <h3 className="font-black text-white text-lg mb-6 flex items-center gap-2">
-              <ArrowUpRight className="text-indigo-400" size={20} />
+              <ArrowUpRight className="text-[#FF6B35]" size={20} />
               Aksi Cepat
             </h3>
             <div className="grid grid-cols-1 gap-3">
@@ -367,7 +367,7 @@ export default function AdminDashboard() {
                 to="/admin/menu" 
                 className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
               >
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center text-[#FF6B35] group-hover:scale-110 transition-transform">
                   <Plus size={20} />
                 </div>
                 <span className="text-sm font-bold">Tambah Menu</span>
@@ -376,7 +376,7 @@ export default function AdminDashboard() {
                 to="/admin/tables" 
                 className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
               >
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center text-[#FF6B35] group-hover:scale-110 transition-transform">
                   <TableIcon size={20} />
                 </div>
                 <span className="text-sm font-bold">Tambah Meja</span>
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                 to="/admin/kitchen" 
                 className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
               >
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center text-[#FF6B35] group-hover:scale-110 transition-transform">
                   <ChefHat size={20} />
                 </div>
                 <span className="text-sm font-bold">Lihat Dapur</span>

@@ -83,22 +83,22 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
     <div className="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-800">
       
       {/* Desktop Sidebar (Sidebar element stays fixed) */}
-      <aside className="hidden md:flex md:w-64 md:flex-col bg-white text-slate-600 border-r border-slate-200 flex-shrink-0">
-        <div className="p-6 border-b border-slate-100 bg-white flex items-center justify-between">
+      <aside className="hidden md:flex md:w-64 md:flex-col bg-[#1A1A1A] text-slate-600 border-r border-slate-900 flex-shrink-0">
+        <div className="p-6 border-b border-slate-800 bg-[#1A1A1A] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-extrabold text-sm tracking-tighter">
+            <span className="w-8 h-8 rounded-lg bg-[#FF6B35] flex items-center justify-center text-white font-extrabold text-sm tracking-tighter">
               QR
             </span>
-            <div>
-              <span className="text-slate-800 font-bold text-sm block">Ordio Admin</span>
+            <div className="flex-1">
+              <span className="text-white font-bold text-sm block">Ordio Admin</span>
               <span className="text-[10px] text-slate-400 block">SaaS Dashboard</span>
             </div>
           </div>
-          <div className="w-2 h-2 rounded-full bg-indigo-600 animate-ping" />
+          <div className="w-2 h-2 rounded-full bg-[#FF6B35] animate-ping" />
         </div>
 
         {/* Current Active Venue Stripe */}
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 min-h-16 flex items-center">
+        <div className="px-6 py-4 border-b border-slate-800 bg-white/5 min-h-16 flex items-center">
           <div className="flex items-center gap-3 min-w-0">
             {venueLogo ? (
               <img 
@@ -108,10 +108,10 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                 className="w-8 h-8 rounded-full border border-slate-200 object-cover"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400">QR</div>
+              <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400">QR</div>
             )}
             <div className="min-w-0">
-              <span className="text-slate-800 text-xs font-bold block truncate">{venueDisplayName}</span>
+              <span className="text-white text-xs font-bold block truncate">{venueDisplayName}</span>
               <span className="text-[10px] text-slate-400 block truncate">Primary Merchant</span>
             </div>
           </div>
@@ -129,8 +129,8 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                 id={`sidebar-link-${item.path.split('/').pop()}`}
                 className={`flex items-center justify-between p-3 rounded-lg text-xs font-semibold tracking-wide transition-all ${
                   isActive 
-                    ? 'bg-indigo-50 text-indigo-700 shadow-3xs' 
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-[#FF6B35] text-white shadow-3xs' 
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -138,8 +138,8 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                   <span>{item.name}</span>
                 </div>
                 {item.badge && (
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black leading-none ${
-                    isActive ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black leading-none ${ // Adjusted badge colors
+                    isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-[#FF6B35]'
                   }`}>
                     {item.badge}
                   </span>
@@ -153,7 +153,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
               <Link
                 to={`/menu/${user.venueId}/t1`}
                 target="_blank"
-                className="flex items-center justify-between p-3 rounded-lg text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
+                className="flex items-center justify-between p-3 rounded-lg text-xs font-semibold text-slate-400 hover:bg-white/5 hover:text-white transition-all"
               >
                 <div className="flex items-center gap-3">
                   <ExternalLink className="w-4 h-4 flex-shrink-0" />
@@ -166,11 +166,11 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
         </nav>
 
         {/* Footer Admin controls */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div className="p-4 border-t border-slate-800 bg-white/5">
           <button
             id="sidebar-logout-btn"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 p-2.5 rounded-lg text-xs font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 cursor-pointer transition-colors"
+            className="w-full flex items-center gap-3 p-2.5 rounded-lg text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-900 cursor-pointer transition-colors"
           >
             <LogOut className="w-4 h-4" />
             <span>Logout Account</span>
@@ -180,7 +180,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
 
       {/* Main Client Content Container */}
       <div className="flex-1 flex flex-col min-w-0">
-        
+
         {/* Mobile Header Menu bar */}
         <header className="md:hidden bg-white text-slate-800 border-b border-slate-200 p-4 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2">
@@ -193,7 +193,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
           <button
             id="mobile-menu-toggle-btn"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1 text-slate-500 hover:text-slate-850"
+            className="p-1 text-slate-300 hover:text-white"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -201,8 +201,8 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
 
         {/* Mobile menu sheet */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white text-slate-600 border-b border-slate-200 p-4 space-y-2 shadow-xs">
-            <div className="px-2 py-3 bg-slate-50 rounded-lg flex items-center gap-3 mb-2 min-h-13">
+          <div className="md:hidden bg-[#1A1A1A] text-slate-600 border-b border-slate-800 p-4 space-y-2 shadow-xs">
+            <div className="px-2 py-3 bg-white/5 rounded-lg flex items-center gap-3 mb-2 min-h-13">
               {venueLogo ? (
                 <img 
                   src={venueLogo} 
@@ -213,7 +213,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
               ) : (
                 <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400">QR</div>
               )}
-              <span className="text-slate-800 text-xs font-bold truncate">{venueDisplayName}</span>
+              <span className="text-white text-xs font-bold truncate">{venueDisplayName}</span>
             </div>
 
             {menuItems.map(item => {
@@ -226,7 +226,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                   id={`mobile-nav-${item.path.split('/').pop()}`}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between p-3 rounded-lg text-xs font-bold ${
-                    isActive ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-slate-50 text-slate-600'
+                    isActive ? 'bg-[#FF6B35] text-white' : 'hover:bg-white/5 text-slate-400'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -234,7 +234,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                     <span>{item.name}</span>
                   </div>
                   {item.badge && (
-                    <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-[9px] font-black">
+                    <span className="bg-white/20 text-white px-2 py-0.5 rounded-full text-[9px] font-black">
                       {item.badge}
                     </span>
                   )}
@@ -248,7 +248,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                   to={`/menu/${user.venueId}/t1`}
                   target="_blank"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 p-3 rounded-lg text-xs text-slate-500 hover:bg-slate-50"
+                  className="flex items-center gap-3 p-3 rounded-lg text-xs text-slate-400 hover:bg-white/5"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>Test Customer Page</span>
@@ -258,7 +258,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
               <button
                 id="mobile-logout-btn"
                 onClick={handleLogout}
-                className="w-full text-left flex items-center gap-3 p-3 rounded-lg text-xs text-rose-500 hover:bg-rose-50 cursor-pointer"
+                className="w-full text-left flex items-center gap-3 p-3 rounded-lg text-xs text-rose-400 hover:bg-rose-900 cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -268,17 +268,17 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
         )}
 
         {/* Content Viewport Wrapper */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#FAFAFA]">
           <div className="max-w-6xl mx-auto">
             
             {/* Header Title Section */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-200 pb-5 mb-6 gap-3">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-200 pb-5 mb-6 gap-3 bg-white rounded-xl p-4 shadow-sm">
               <div>
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">{title}</h1>
                 {subtitle && <p className="text-slate-500 text-sm mt-1">{subtitle}</p>}
               </div>
 
-              <div className="bg-white border border-slate-200 shadow-3xs px-4 py-2 rounded-xl flex items-center gap-3 self-start text-xs font-semibold">
+              <div className="bg-white border border-slate-200 shadow-3xs px-4 py-2 rounded-xl flex items-center gap-3 self-start text-xs font-semibold flex-shrink-0">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 <span className="text-slate-600">Sistem Online</span>
               </div>
