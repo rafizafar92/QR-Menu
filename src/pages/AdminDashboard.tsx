@@ -296,7 +296,7 @@ export default function AdminDashboard() {
                       {order.tableId === 'Walk-in' ? (
                         'WALK-IN'
                       ) : (
-                        `T${order.tableId}`
+                        order.tableId
                       )}
                     </div>
                     <div>
@@ -351,7 +351,7 @@ export default function AdminDashboard() {
                 </div>
               ))}
               {popularItems.length === 0 && (
-                <div className="text-center py-4 text-slate-400 text-xs italic">No items sold today yet.</div>
+                <div className="text-center py-4 text-slate-400 text-xs italic">Belum ada item terjual hari ini.</div>
               )}
             </div>
           </div>
