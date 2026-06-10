@@ -1,21 +1,20 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { 
-  QrCode, 
-  ArrowRight, 
-  Search, 
-  ShoppingBag, 
-  Plus, 
-  ChefHat, 
-  TrendingUp, 
-  Star, 
+import {
+  QrCode,
+  ArrowRight,
+  Search,
+  ShoppingBag,
+  Plus,
+  ChefHat,
+  Star,
   CheckCircle2,
   MessageCircle,
   Zap,
   Wallet,
   Smartphone
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Ensure Link is imported
 
 // --- Sub-components (Defined before the main export) ---
 
@@ -182,10 +181,10 @@ export default function LandingPage() {
         <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
           <button onClick={() => scrollToSection('features')} className="hover:text-[#FF6B35] transition-colors">Fitur</button>
           <button onClick={() => scrollToSection('how-it-works')} className="hover:text-[#FF6B35] transition-colors">Cara Kerja</button>
-          <Link to="/admin/login" className="hover:text-[#FF6B35] transition-colors">Masuk</Link>
-          <button className="bg-[#FF6B35] text-white px-6 py-3 rounded-xl shadow-lg shadow-[#FF6B35]/20 font-black hover:bg-[#e85a24] transition-all">
+          <Link to="/admin/login" className="hover:text-[#FF6B35] transition-colors">Masuk</Link> {/* This is already correct */}
+          <Link to="/admin/register" className="bg-[#FF6B35] text-white px-6 py-3 rounded-xl shadow-lg shadow-[#FF6B35]/20 font-black hover:bg-[#e85a24] transition-all">
             Coba Gratis
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -214,16 +213,16 @@ export default function LandingPage() {
               Tingkatkan omzet dan efisiensi operasional dengan sistem Menu QR, 
               Dashboard Kasir, dan KDS terintegrasi. Pelanggan pesan, Anda cuan.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group">
+              <Link to="/admin/register" className="flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group">
                 Mulai Sekarang
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-8 py-4 rounded-2xl font-bold text-lg hover:border-[#FF6B35] hover:text-[#FF6B35] transition-all">
+              </Link>
+              <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-8 py-4 rounded-2xl font-bold text-lg hover:border-[#FF6B35] hover:text-[#FF6B35] transition-all">
                 <MessageCircle size={20} />
                 Tanya Sales
-              </button>
+              </a>
             </div>
 
             <div className="pt-4 flex items-center gap-6">
@@ -329,10 +328,10 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <div className="pt-10">
-              <button className="bg-[#FF6B35] text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all">
+            <div className="pt-10"> {/* This button is a CTA to register */}
+              <Link to="/admin/register" className="bg-[#FF6B35] text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all">
                 Mulai Gratis Sekarang
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -434,11 +433,11 @@ export default function LandingPage() {
       </footer>
 
       {/* Floating WhatsApp CTA */}
-      <div className="fixed bottom-8 right-8 z-[100]">
-        <button className="bg-[#25D366] text-white p-4 rounded-full shadow-2xl shadow-emerald-500/20 hover:scale-110 active:scale-95 transition-all">
+      <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="fixed bottom-8 right-8 z-[100]">
+        <div className="bg-[#25D366] text-white p-4 rounded-full shadow-2xl shadow-emerald-500/20 hover:scale-110 active:scale-95 transition-all">
           <MessageCircle size={28} />
-        </button>
-      </div>
+        </div>
+      </a>
     </div>
   );
 }
