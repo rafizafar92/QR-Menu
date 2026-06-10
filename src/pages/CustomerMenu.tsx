@@ -329,7 +329,7 @@ export default function CustomerMenu() {
                     <span className="text-[10px] font-black">4.9</span>
                   </div>
                   <div className="flex justify-between items-center mt-2">
-                    <span className="font-black text-[#2C1810]">${item.price.toFixed(2)}</span>
+                    <span className="font-black text-[#2C1810]">{formatPrice(item.price)}</span>
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
