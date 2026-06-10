@@ -167,7 +167,7 @@ export default function AdminDashboard() {
           <div class="divider"></div>
           <div class="bold" style="display: flex; justify-content: space-between; font-size: 14px;">
             <span>TOTAL PAID</span>
-            <span>$${totalWithTax}</span>
+            <span>${formatCurrency(totalWithTax)}</span>
           </div>
           <div class="divider" style="margin-top: 20px;"></div>
           <div class="center bold">THANK YOU!</div>
@@ -202,9 +202,16 @@ export default function AdminDashboard() {
   };
 
   const formatTimeAgo = (isoString: string) => {
-    const diff = Math.floor((new Date().getTime() - new Date(isoString).getTime()) / 60000);
-    if (diff < 1) return 'Just now';
-    return `${diff}m ago`;
+    const now = new Date();
+    const past = new Date(isoString);
+    const diffInMins = Math.floor((now.getTime() - past.getTime()) / 60000);
+    
+    if (diffInMins < 1) return 'Just now';
+    if (diffInMins < 60) return `${diffInMins}m ago`;
+    const diffInHours = Math.floor(diffInMins / 60);
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
   };
 
   // Status color pill helper
@@ -245,7 +252,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
           { label: "Today's Orders", value: stats.todayOrders, icon: ShoppingBag, color: 'bg-amber-500', text: 'text-amber-600' },
-          { label: "Today's Revenue", value: `$${stats.todayRevenue.toFixed(2)}`, icon: DollarSign, color: 'bg-emerald-500', text: 'text-emerald-600' },
+          { label: "Today's Revenue", value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: 'bg-emerald-500', text: 'text-emerald-600' },
           { label: "Active Tables", value: stats.activeTables, icon: Utensils, color: 'bg-indigo-500', text: 'text-indigo-600' },
           { label: "Pending Payments", value: stats.pendingPayments, icon: CreditCard, color: 'bg-rose-500', text: 'text-rose-600' }
         ].map((kpi, idx) => (
@@ -275,8 +282,12 @@ export default function AdminDashboard() {
               {orders.slice(0, 5).map(order => (
                 <div key={order.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-600">
-                      T{order.tableId.replace(/\D/g, '') || 'W'}
+                    <div className={`h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600 px-3 min-w-[40px]`}>
+                      {order.tableId === 'Walk-in' ? (
+                        'WALK-IN'
+                      ) : (
+                        `T${order.tableId}`
+                      )}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
