@@ -62,12 +62,12 @@ const PhoneMenuMockup = () => (
       {/* Food Items */}
       <div className="flex-1 px-4 space-y-3 overflow-hidden">
         {[
-          { name: 'Nasi Goreng Spesial', price: '35.000', desc: 'Nasi goreng dengan telur, ayam, dan kerupuk.' },
-          { name: 'Ayam Bakar Madu', price: '45.000', desc: 'Ayam bakar bumbu madu khas Solo.' },
-          { name: 'Es Kopi Susu', price: '22.000', desc: 'Kopi susu gula aren segar.' }
+          { name: 'Nasi Goreng Spesial', price: '35.000', desc: 'Nasi goreng dengan telur, ayam, dan kerupuk.', image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=80&h=80&fit=crop' },
+          { name: 'Ayam Bakar Madu', price: '45.000', desc: 'Ayam bakar bumbu madu khas Solo.', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=80&h=80&fit=crop' },
+          { name: 'Es Kopi Susu', price: '22.000', desc: 'Kopi susu gula aren segar.', image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=80&h=80&fit=crop' }
         ].map((item, i) => (
           <div key={i} className="bg-white p-3 rounded-2xl flex gap-3 border border-slate-50 shadow-sm">
-            <div className="w-14 h-14 bg-slate-100 rounded-xl flex-shrink-0" />
+            <img src={item.image} alt={item.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start">
                 <h5 className="text-[10px] font-bold text-slate-800 truncate">{item.name}</h5>

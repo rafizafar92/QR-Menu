@@ -138,15 +138,19 @@ export default function AdminReports() {
   }, [orders]);
 
   const exportPDF = async () => {
-    if (!reportRef.current) return;
-    const canvas = await html2canvas(reportRef.current, { scale: 2 });
+    const element = document.getElementById('report-content');
+    if (!element) return;
+    const canvas = await html2canvas(element, { 
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`Ordio_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    pdf.save('laporan-ordio.pdf');
   };
 
   return (
@@ -177,7 +181,7 @@ export default function AdminReports() {
         </button>
       </div>
 
-      <div ref={reportRef} className="space-y-8 p-1">
+      <div id="report-content" ref={reportRef} className="space-y-8 p-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between">
             <div>
