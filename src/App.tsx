@@ -4,6 +4,7 @@ import AdminKitchen from './pages/AdminKitchen';
 import AdminMenu from './pages/AdminMenu';
 import AdminTables from './pages/AdminTables';
 import AdminSettings from './pages/AdminSettings';
+import AdminReports from './pages/AdminReports';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import CustomerMenu from './pages/CustomerMenu';
 import AdminLogin from './pages/AdminLogin';
@@ -413,6 +414,8 @@ function HomePortal() {
             <Route path="/admin/menu" element={<AdminMenu />} />
             <Route path="/admin/tables" element={<AdminTables />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
