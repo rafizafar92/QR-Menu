@@ -32,6 +32,13 @@ export default function AdminReports() {
   const [customRange, setCustomRange] = useState({ start: '', end: '' });
   const reportRef = useRef<HTMLDivElement>(null);
 
+  const getStatusLabel = (status: string) => {
+    if (['confirmed', 'preparing', 'ready', 'completed'].includes(status)) return 'Lunas';
+    if (status === 'pending_payment') return 'Belum Bayar';
+    if (status === 'cancelled') return 'Dibatalkan';
+    return status;
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -252,7 +259,7 @@ export default function AdminReports() {
       pdf.text(order.tableId.toString(), 45, y + 5.5);
       pdf.text(truncatedItems, 70, y + 5.5);
       pdf.text(formatCurrency(order.totalPrice), pageWidth - 45, y + 5.5);
-      pdf.text(order.status, pageWidth - 18, y + 5.5, { align: 'right' });
+      pdf.text(getStatusLabel(order.status), pageWidth - 18, y + 5.5, { align: 'right' });
       
       y += 8;
       pdf.setDrawColor(241, 245, 249);
@@ -361,7 +368,16 @@ export default function AdminReports() {
                   <td className="px-6 py-4 text-xs font-bold text-slate-900">{order.tableId}</td>
                   <td className="px-6 py-4 text-xs text-slate-500 truncate max-w-[200px]">{order.items.map(i => `${i.quantity}x ${i.menuItemName}`).join(', ')}</td>
                   <td className="px-6 py-4 text-xs font-black text-slate-900">{formatCurrency(order.totalPrice)}</td>
-                  <td className="px-6 py-4"><span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full border ${order.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>{order.status}</span></td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full border ${
+                      ['confirmed', 'preparing', 'ready', 'completed'].includes(order.status) ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      order.status === 'pending_payment' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                      order.status === 'cancelled' ? 'bg-slate-50 text-slate-600 border-slate-100' :
+                      'bg-slate-50 text-slate-400 border-slate-100'
+                    }`}>
+                      {getStatusLabel(order.status)}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
