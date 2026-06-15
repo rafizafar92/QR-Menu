@@ -23,7 +23,6 @@ import {
   CartesianGrid 
 } from 'recharts';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 export default function AdminReports() {
   const { user } = useAuth();
@@ -137,20 +136,130 @@ export default function AdminReports() {
     return Object.values(aggregation).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
   }, [orders]);
 
-  const exportPDF = async () => {
-    const element = document.getElementById('report-content');
-    if (!element) return;
-    const canvas = await html2canvas(element, { 
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff'
-    });
-    const imgData = canvas.toDataURL('image/png');
+  const exportPDF = () => {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('laporan-ordio.pdf');
+    
+    // Header background (Brand Orange #FF6B35)
+    pdf.setFillColor(255, 107, 53);
+    pdf.rect(0, 0, pageWidth, 25, 'F');
+    
+    // Header text
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(18);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Laporan Penjualan - Ordio', 14, 16);
+    
+    // Header date
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(new Date().toLocaleDateString('id-ID', { 
+      day: '2-digit', month: 'long', year: 'numeric' 
+    }), pageWidth - 14, 16, { align: 'right' });
+    
+    // Venue & Info
+    pdf.setTextColor(30, 41, 59); // slate-800
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(user?.venueName || 'Restoran Ordio', 14, 35);
+    
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    let rangeLabel = '';
+    if (filter === 'today') rangeLabel = 'Hari Ini';
+    else if (filter === 'week') rangeLabel = 'Minggu Ini';
+    else if (filter === 'month') rangeLabel = 'Bulan Ini';
+    else rangeLabel = `${customRange.start} - ${customRange.end}`;
+    pdf.text(`Periode: ${rangeLabel}`, 14, 41);
+
+    // KPI Summary Section
+    pdf.setDrawColor(226, 232, 240); // slate-200
+    pdf.line(14, 46, pageWidth - 14, 46);
+    
+    pdf.setFontSize(8);
+    pdf.setTextColor(100, 116, 139); // slate-500
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('TOTAL PENDAPATAN', 14, 52);
+    pdf.text('TOTAL PESANAN', 75, 52);
+    pdf.text('RATA-RATA PESANAN', 130, 52);
+
+    pdf.setFontSize(14);
+    pdf.setTextColor(15, 23, 42); // slate-900
+    pdf.text(formatCurrency(stats.totalRevenue), 14, 60);
+    pdf.text(stats.totalOrders.toString(), 75, 60);
+    pdf.text(formatCurrency(stats.avgOrder), 130, 60);
+
+    // Top 5 Selling Items Table
+    let y = 75;
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Top 5 Produk Terlaris', 14, y);
+    y += 6;
+
+    pdf.setFillColor(248, 250, 252); // slate-50
+    pdf.rect(14, y, pageWidth - 28, 8, 'F');
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text('Produk', 18, y + 5.5);
+    pdf.text('Qty', 100, y + 5.5);
+    pdf.text('Pendapatan', pageWidth - 18, y + 5.5, { align: 'right' });
+    
+    y += 8;
+    pdf.setTextColor(30, 41, 59);
+    pdf.setFont('helvetica', 'normal');
+    topItems.forEach(item => {
+      pdf.text(item.name, 18, y + 5.5);
+      pdf.text(item.quantity.toString(), 100, y + 5.5);
+      pdf.text(formatCurrency(item.revenue), pageWidth - 18, y + 5.5, { align: 'right' });
+      y += 8;
+      pdf.setDrawColor(241, 245, 249); // slate-100
+      pdf.line(14, y, pageWidth - 14, y);
+    });
+
+    // Orders Summary Table
+    y += 15;
+    if (y > 250) { pdf.addPage(); y = 20; }
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Ringkasan Pesanan', 14, y);
+    y += 6;
+
+    pdf.setFillColor(248, 250, 252);
+    pdf.rect(14, y, pageWidth - 28, 8, 'F');
+    pdf.setFontSize(8);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text('Tanggal', 18, y + 5.5);
+    pdf.text('Meja', 45, y + 5.5);
+    pdf.text('Item', 70, y + 5.5);
+    pdf.text('Total', pageWidth - 45, y + 5.5);
+    pdf.text('Status', pageWidth - 18, y + 5.5, { align: 'right' });
+
+    y += 8;
+    pdf.setTextColor(30, 41, 59);
+    pdf.setFont('helvetica', 'normal');
+    
+    orders.forEach((order) => {
+      if (y > 275) {
+        pdf.addPage();
+        y = 20;
+      }
+      
+      const dateStr = new Date(order.createdAt).toLocaleDateString('id-ID');
+      const itemsList = order.items.map(i => `${i.quantity}x ${i.menuItemName}`).join(', ');
+      const truncatedItems = itemsList.length > 35 ? itemsList.substring(0, 32) + '...' : itemsList;
+
+      pdf.text(dateStr, 18, y + 5.5);
+      pdf.text(order.tableId.toString(), 45, y + 5.5);
+      pdf.text(truncatedItems, 70, y + 5.5);
+      pdf.text(formatCurrency(order.totalPrice), pageWidth - 45, y + 5.5);
+      pdf.text(order.status, pageWidth - 18, y + 5.5, { align: 'right' });
+      
+      y += 8;
+      pdf.setDrawColor(241, 245, 249);
+      pdf.line(14, y, pageWidth - 14, y);
+    });
+
+    pdf.save(`Laporan_Ordio_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (
