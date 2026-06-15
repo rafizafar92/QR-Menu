@@ -49,6 +49,7 @@ export default function AdminReports() {
       .from('orders')
       .select('*, table:tables(table_number), items:order_items(*, menu_item:menu_items(name))')
       .eq('venue_id', user.venueId)
+      .in('status', ['confirmed', 'preparing', 'ready', 'completed'])
       .order('created_at', { ascending: false });
 
     const now = new Date();
@@ -97,7 +98,8 @@ export default function AdminReports() {
   }, [user?.venueId, filter, customRange]);
 
   const stats = useMemo(() => {
-    const completedOrders = orders.filter(o => o.status === 'completed');
+    const validStatuses = ['confirmed', 'preparing', 'ready', 'completed'];
+    const completedOrders = orders.filter(o => validStatuses.includes(o.status));
     const totalRevenue = completedOrders.reduce((sum, o) => sum + o.totalPrice, 0);
     const totalOrders = orders.length;
     const avgOrder = completedOrders.length > 0 ? totalRevenue / completedOrders.length : 0;
@@ -114,7 +116,8 @@ export default function AdminReports() {
 
   const chartData = useMemo(() => {
     const data: Record<string, number> = {};
-    orders.filter(o => o.status === 'completed').forEach(o => {
+    const validStatuses = ['confirmed', 'preparing', 'ready', 'completed'];
+    orders.filter(o => validStatuses.includes(o.status)).forEach(o => {
       const date = new Date(o.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
       data[date] = (data[date] || 0) + o.totalPrice;
     });
@@ -123,7 +126,8 @@ export default function AdminReports() {
 
   const topItems = useMemo(() => {
     const aggregation: Record<string, { name: string, quantity: number, revenue: number }> = {};
-    orders.filter(o => o.status === 'completed').forEach(order => {
+    const validStatuses = ['confirmed', 'preparing', 'ready', 'completed'];
+    orders.filter(o => validStatuses.includes(o.status)).forEach(order => {
       order.items.forEach(item => {
         if (!aggregation[item.menuItemId]) aggregation[item.menuItemId] = { name: item.menuItemName, quantity: 0, revenue: 0 };
         aggregation[item.menuItemId].quantity += item.quantity;

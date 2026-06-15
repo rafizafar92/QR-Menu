@@ -28,6 +28,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const [venueLogo, setVenueLogo] = useState<string | null>(null);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   
   const venueDisplayName = user?.venueName || 'Ordio Admin';
 
@@ -40,13 +41,42 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
     getLogo();
   }, [user?.venueId]);
 
+  useEffect(() => {
+    if (!user?.venueId) return;
+
+    const fetchPendingCount = async () => {
+      const { count } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('venue_id', user.venueId)
+        .eq('status', 'pending_payment');
+      
+      setPendingOrdersCount(count || 0);
+    };
+
+    fetchPendingCount();
+
+    const channel = supabase
+      .channel('pending-orders-badge')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders', filter: `venue_id=eq.${user.venueId}` },
+        () => fetchPendingCount()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.venueId]);
+
   // Nav configuration
   const menuItems = [
     {
       name: 'Incoming Orders',
       path: '/admin/dashboard',
       icon: ClipboardList,
-      badge: '2 New'
+      badge: pendingOrdersCount > 0 ? `${pendingOrdersCount} Baru` : undefined
     },
     {
       name: 'Kitchen',
