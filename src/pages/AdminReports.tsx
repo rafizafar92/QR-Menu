@@ -138,7 +138,7 @@ export default function AdminReports() {
 
   const exportPDF = () => {
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pageWidth = pdf.internal.pageSize.getWidth();
     
     // Header background (Brand Orange #FF6B35)
     pdf.setFillColor(255, 107, 53);
