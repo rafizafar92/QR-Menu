@@ -55,8 +55,12 @@ export default function CustomerMenu() {
     const fetchData = async () => {
       setLoading(true);
       // Fetch venue metadata and tables in parallel
-      const { data: vData } = await supabase.from('venues').select('*').eq('id', venueId).single();
-      if (vData) setVenue({ id: vData.id, name: vData.name, description: vData.description, logoUrl: vData.logo_url });
+      const { data: vData, error: vError } = await supabase.from('venues').select('*').eq('id', venueId).single();
+      if (vError) console.error("Error fetching venue:", vError);
+      
+      if (vData) {
+        setVenue({ id: vData.id, name: vData.name, description: vData.description, logoUrl: vData.logo_url });
+      }
 
       // Fetch menu items
       const { data: mData } = await supabase
@@ -270,7 +274,7 @@ export default function CustomerMenu() {
                 src={item.imageUrl} 
                 alt={item.name}
                 className="w-16 h-16 rounded-xl object-cover bg-slate-50 flex-shrink-0"
-              />
+              /> 
             )}
             <div className="flex-1 min-w-0 flex flex-col justify-between">
               <div>
