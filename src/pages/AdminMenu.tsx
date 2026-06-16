@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const DEFAULT_CATEGORIES = ['Signature Coffee', 'Gourmet Pastries', 'All-Day Brunch', 'Beverages'];
+const DEFAULT_CATEGORIES = ['Makanan', 'Minuman', 'Cimilan', 'Lainnya'];
 
 export default function AdminMenu() {
   const { user } = useAuth();
@@ -32,7 +32,7 @@ export default function AdminMenu() {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Signature Coffee');
+  const [category, setCategory] = useState('Makanan');
   const [imageUrl, setImageUrl] = useState('');
   const [isAvailable, setIsAvailable] = useState(true);
   const [formSuccess, setFormSuccess] = useState(false);
