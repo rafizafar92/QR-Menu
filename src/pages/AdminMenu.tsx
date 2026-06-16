@@ -135,7 +135,10 @@ export default function AdminMenu() {
   const deleteItem = async (itemId: string) => {
     if (!confirm('Hapus item ini?')) return;
     const { error } = await supabase.from('menu_items').delete().eq('id', itemId);
-    if (error) return alert('Delete failed');
+    if (error) {
+      console.error("Supabase error deleting item:", error);
+      return alert(`Delete failed: ${error.message}`);
+    }
     setItems(prev => prev.filter(it => it.id !== itemId));
   };
 
