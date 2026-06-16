@@ -53,12 +53,18 @@ export default function CustomerMenu() {
     if (!venueId) return;
 
     const fetchData = async () => {
+      console.log('DEBUG: Starting fetchData for venueId:', venueId);
       setLoading(true);
+
       // Fetch venue metadata and tables in parallel
       const { data: vData, error: vError } = await supabase.from('venues').select('*').eq('id', venueId).single();
-      if (vError) console.error("Error fetching venue:", vError);
+      
+      if (vError) {
+        console.error("DEBUG: Supabase error fetching venue:", vError);
+      }
       
       if (vData) {
+        console.log('DEBUG: Venue data successfully retrieved:', vData);
         setVenue({ id: vData.id, name: vData.name, description: vData.description, logoUrl: vData.logo_url });
       }
 
