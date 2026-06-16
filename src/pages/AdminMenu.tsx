@@ -38,6 +38,10 @@ export default function AdminMenu() {
   const [formSuccess, setFormSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  const formatPrice = (price: number) => {
+    return 'Rp ' + price.toLocaleString('id-ID');
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -265,7 +269,7 @@ export default function AdminMenu() {
                     <div className="min-w-0 flex-1">
                       <div className="flex justify-between items-start gap-1">
                         <h4 className="font-extrabold text-slate-900 text-sm truncate">{item.name}</h4>
-                        <span className="font-bold text-indigo-600 text-sm whitespace-nowrap">${item.price.toFixed(2)}</span>
+                        <span className="font-bold text-indigo-600 text-sm whitespace-nowrap">{formatPrice(item.price)}</span>
                       </div>
                       <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
                       
@@ -385,11 +389,11 @@ export default function AdminMenu() {
                       <input
                         id="food-price"
                         type="number"
-                        step="0.01"
+                        step="1"
                         required
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
-                        placeholder="5.25"
+                        placeholder="25000"
                         className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
                       />
                     </div>

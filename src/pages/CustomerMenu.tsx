@@ -8,6 +8,7 @@ import {
   Plus, 
   Minus, 
   Check,
+  QrCode,
   Clock,
   MapPin,
   AlertTriangle,
@@ -31,7 +32,7 @@ export default function CustomerMenu() {
   // States
   const [venue, setVenue] = useState<Venue | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<string[]>(['Semua']);
+  const [categories] = useState<string[]>(['Semua', 'Makanan', 'Minuman', 'Cimilan']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [cart, setCart] = useState<Array<{ item: MenuItem; quantity: number; notes: string }>>([]);
@@ -76,8 +77,6 @@ export default function CustomerMenu() {
           isAvailable: i.is_available
         }));
         setMenuItems(mapped);
-        const cats = Array.from(new Set(mapped.map(i => i.category)));
-        setCategories(['Semua', ...cats]);
       }
 
       // Resolve table info for display
@@ -120,21 +119,6 @@ export default function CustomerMenu() {
       return matchesCategory && matchesSearch;
     });
   }, [menuItems, selectedCategory, searchQuery]);
-
-  const popularItems = useMemo(() => {
-    // Taking the first 4 available items as "Menu Populer" for design simulation
-    return menuItems.filter(i => i.isAvailable).slice(0, 4);
-  }, [menuItems]);
-
-  const getCategoryIcon = (cat: string) => {
-    const name = cat.toLowerCase();
-    if (name.includes('coffee')) return <Coffee className="w-4 h-4" />;
-    if (name.includes('bakery') || name.includes('pastries')) return <Croissant className="w-4 h-4" />;
-    if (name.includes('dessert')) return <Cake className="w-4 h-4" />;
-    if (name.includes('drink') || name.includes('beverage')) return <GlassWater className="w-4 h-4" />;
-    if (name === 'semua' || name === 'all') return <Sparkles className="w-4 h-4" />;
-    return <Coffee className="w-4 h-4" />;
-  };
 
   const cartTotal = useMemo(() => {
     return cart.reduce((acc, curr) => acc + (curr.item.price * curr.quantity), 0);
@@ -230,190 +214,98 @@ export default function CustomerMenu() {
   const tableDisplay = activeTable?.table_number || (
     tableId 
       ? (tableId.toLowerCase().startsWith('table') ? tableId : `Table ${tableId.replace(/\D/g, '') || tableId}`) 
-      : 'Table Seat'
+      : '05'
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] font-sans text-[#2C1810] pb-32 relative">
-      {/* Premium Header */}
-      <header className="p-6 flex items-center justify-between sticky top-0 bg-[#F5F0E8]/80 backdrop-blur-md z-30">
-        <div className="flex items-center gap-3">
-          <img 
-            src={venue?.logoUrl || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop'} 
-            alt={venueName} 
-            className="w-12 h-12 rounded-full border-2 border-[#2C1810] object-cover shadow-sm"
-          />
-          <div className="min-w-0 flex-1">
-            <h1 className="text-lg font-bold leading-tight truncate">{venueName}</h1> {/* No currency here */}
-            <p className="text-[10px] text-[#2C1810]/60 line-clamp-1">{venue?.description || 'Premium Coffee & Bakery'}</p>
-          </div>
+    <div className="min-h-screen bg-[#FFF8F3] font-sans text-slate-900 pb-32">
+      {/* Header */}
+      <header className="p-4 flex items-center justify-between bg-[#FFF8F3]/80 backdrop-blur-md sticky top-0 z-30">
+        <div className="w-8 h-8 rounded-full bg-[#FF6B35] flex items-center justify-center text-white shadow-lg shadow-[#FF6B35]/20">
+          <QrCode size={16} />
         </div>
-        <button 
-          onClick={() => setIsCartOpen(true)}
-          className="bg-[#2C1810] text-white px-3 py-2 rounded-full flex items-center gap-2 shadow-lg transition-transform active:scale-95"
-        >
-          <ShoppingBag size={18} /> {/* No currency here */}
-          <span className="text-xs font-bold">{cartItemCount} | {formatPrice(cartTotal)}</span>
+        <button className="text-slate-400 p-2">
+          <Search size={20} />
         </button>
       </header>
 
-      {/* Info Pills */}
-      <div className="flex gap-2 px-6 mb-6">
-        <div className="bg-white/60 px-3 py-1.5 rounded-full border border-[#2C1810]/10 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
-          <MapPin className="w-3.5 h-3.5" />
-          <span>{tableDisplay}</span>
-        </div>
-        <div className="bg-white/60 px-3 py-1.5 rounded-full border border-[#2C1810]/10 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
-          <Clock className="w-3.5 h-3.5" />
-          <span>08:00 - 22:00</span>
-        </div>
+      {/* Info Section */}
+      <div className="px-5 py-2 space-y-1">
+        <h1 className="text-2xl font-black text-slate-800 tracking-tight">{venueName}</h1>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          Meja {tableDisplay} • {venue?.description || 'Grogol, Jakarta'}
+        </p>
       </div>
 
-      {/* Search & Filter */}
-      <div className="px-6 mb-8 flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2C1810]/40 w-4 h-4" />
-          <input 
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari makanan, minuman favoritmu..."
-            className="w-full bg-white border-none rounded-2xl pl-10 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-[#2C1810]/10 shadow-sm placeholder:text-[#2C1810]/30"
-          />
-        </div>
-        <button className="bg-white p-3.5 rounded-2xl shadow-sm text-[#2C1810] border border-transparent active:bg-slate-50">
-          <SlidersHorizontal size={20} />
-        </button>
-      </div>
-
-      {/* Categories with Icons */}
-      <div className="flex gap-4 overflow-x-auto pb-4 px-6 scrollbar-none">
+      {/* Categories Pills */}
+      <div className="flex gap-2 overflow-x-auto px-5 py-6 scrollbar-none">
         {categories.map(category => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`flex flex-col items-center gap-2 min-w-[70px] group transition-all`}
-          >
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+            className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
               selectedCategory === category 
-                ? 'bg-[#2C1810] text-white shadow-xl shadow-amber-900/20 scale-110' 
-                : 'bg-white text-[#2C1810]/60'
-            }`}>
-              {getCategoryIcon(category)}
-            </div>
-            <span className={`text-[11px] font-bold ${selectedCategory === category ? 'text-[#2C1810]' : 'text-[#2C1810]/40'}`}>
-              {category}
-            </span>
+                ? 'bg-[#FF6B35] text-white shadow-lg shadow-[#FF6B35]/20' 
+                : 'bg-white border border-slate-100 text-slate-400'
+            }`}
+          >
+            {category}
           </button>
         ))}
       </div>
 
-      {/* Popular Picks Horizontal Scroll */}
-      {popularItems.length > 0 && selectedCategory === 'Semua' && !searchQuery && (
-        <section className="mt-8 mb-4">
-          <div className="px-6 flex justify-between items-end mb-4">
-            <h2 className="text-xl font-black italic">Menu Populer 🔥</h2>
-          </div>
-          <div className="flex gap-4 overflow-x-auto px-6 pb-6 scrollbar-none">
-            {popularItems.map(item => (
-              <motion.div 
-                key={`popular-${item.id}`}
-                onClick={() => setActiveItemDetails(item)}
-                className="bg-white min-w-[190px] p-3 rounded-[2rem] shadow-sm flex flex-col gap-3 relative"
+      {/* Menu Items List */}
+      <div className="px-5 space-y-4">
+        {filteredItems.map(item => (
+          <motion.div 
+            layout
+            key={item.id}
+            onClick={() => item.isAvailable && setActiveItemDetails(item)}
+            className={`bg-white p-3 rounded-2xl flex gap-3 border border-slate-50 shadow-sm transition-all active:scale-[0.98] ${
+              !item.isAvailable ? 'opacity-60' : ''
+            }`}
+          >
+            {item.imageUrl && (
+              <img 
+                src={item.imageUrl} 
+                alt={item.name}
+                className="w-16 h-16 rounded-xl object-cover bg-slate-50 flex-shrink-0"
               >
-                <img src={item.imageUrl} className="w-full h-40 object-cover rounded-[1.5rem]" />
-                <div className="px-1">
-                  <h3 className="font-bold text-sm truncate">{item.name}</h3>
-                  <div className="flex items-center gap-1 mt-1 text-amber-500"> {/* No currency here */}
-                    <Star size={10} fill="currentColor" />
-                    <span className="text-[10px] font-black">4.9</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="font-black text-[#2C1810]">{formatPrice(item.price)}</span>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(item);
-                      }}
-                      className="bg-[#2C1810] text-white p-1.5 rounded-xl transition-transform active:scale-90"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
+            )}
+            <div className="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-start">
+                  <h3 className="text-[11px] font-bold text-slate-800 truncate pr-2">{item.name}</h3>
+                  <span className="text-[11px] font-bold text-[#FF6B35] whitespace-nowrap">{formatPrice(item.price)}</span>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* All Menu Section */}
-      <div className="max-w-3xl mx-auto px-6 mt-4">
-        <h2 className="text-xl font-black italic mb-6">Lihat semua menu</h2>
+                <p className="text-[9px] text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">{item.description}</p>
+              </div>
+              
+              <div className="mt-2 flex justify-end">
+                {item.isAvailable ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(item);
+                    }}
+                    className="w-6 h-6 rounded-lg bg-[#FF6B35] flex items-center justify-center text-white shadow-md shadow-[#FF6B35]/20 transition-transform active:scale-90"
+                  >
+                    <Plus size={14} />
+                  </button>
+                ) : (
+                  <span className="text-[8px] font-black text-rose-500 uppercase">Stok Habis</span>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
         
         {filteredItems.length === 0 ? (
-          <div className="bg-white rounded-[2rem] p-12 text-center shadow-sm">
-            <Info className="w-10 h-10 text-[#2C1810]/20 mx-auto mb-3" />
-            <p className="text-[#2C1810]/60 font-medium text-sm">Menu tidak ditemukan</p>
+          <div className="py-20 text-center text-slate-400">
+            <Info className="w-10 h-10 mx-auto mb-2 opacity-20" />
+            <p className="text-xs font-black uppercase tracking-widest">Menu tidak ditemukan</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {filteredItems.map(item => (
-              <motion.div 
-                layout
-                key={item.id}
-                onClick={() => item.isAvailable && setActiveItemDetails(item)}
-                className={`bg-white rounded-[2rem] p-4 flex gap-5 transition-shadow hover:shadow-md ${
-                  !item.isAvailable ? 'opacity-70' : ''
-                }`}
-              >
-                {item.imageUrl && (
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.name}
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover bg-slate-50 flex-shrink-0 shadow-sm"
-                  />
-                )}
-                <div className="flex-1 min-w-0 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-start gap-2">
-                      <h3 className="font-black text-[#2C1810] text-base line-clamp-1">{item.name}</h3>
-                      <span className="font-black text-[#2C1810]">{formatPrice(item.price)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-[#F5F0E8] rounded-full text-[#2C1810]/60 uppercase">
-                        {item.category}
-                      </span>
-                      <div className="flex items-center gap-0.5 text-amber-500">
-                        <Star size={10} fill="currentColor" />
-                        <span className="text-[10px] font-black">4.8</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-[#2C1810]/50 mt-2 line-clamp-2 leading-relaxed">{item.description}</p>
-                  </div>
-                  
-                  <div className="flex justify-end items-center mt-2">
-                    {item.isAvailable ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(item);
-                        }}
-                        className="bg-[#2C1810] text-white py-1.5 px-4 rounded-xl text-xs font-black transition-transform active:scale-95"
-                      >
-                        Tambah
-                      </button>
-                    ) : (
-                      <span className="text-xs font-medium text-rose-500 flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" /> Out of Stock
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+        ) : null}
       </div>
 
       {/* Persistent Order Success Modal Overlay */}
@@ -672,26 +564,28 @@ export default function CustomerMenu() {
         )}
       </AnimatePresence>
 
-      {/* Persistent Sticky Cart Action Bar at bottom */}
-      {cartItemCount > 0 && (
-        <div className="fixed bottom-6 inset-x-0 px-6 flex justify-center z-30 pointer-events-none">
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="pointer-events-auto w-full max-w-sm bg-[#2C1810] text-white font-black py-4 px-6 rounded-[2rem] shadow-2xl flex items-center justify-between transition-transform active:scale-95"
+      {/* Bottom Sticky Bar */}
+      <AnimatePresence>
+        {cartItemCount > 0 && (
+          <motion.div 
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-6 inset-x-5 z-40"
           >
-            <div className="flex items-center gap-2">
-              <span className="bg-white/20 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center">
-                {cartItemCount}
-              </span>
-              <span className="text-xs uppercase tracking-widest">Lihat Pesanan</span>
-            </div>
-            <div className="flex items-center gap-1.5"> {/* No currency here */}
-              <span className="text-sm font-black">{formatPrice(cartTotal)}</span>
-              <ChevronRight className="w-4 h-4" />
-            </div>
-          </button>
-        </div>
-      )}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="w-full bg-slate-900 rounded-2xl p-4 flex justify-between items-center text-white shadow-2xl transition-transform active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingBag size={18} />
+                <span className="text-[10px] font-black uppercase tracking-widest">{cartItemCount} Item</span>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest">Lanjut • {formatPrice(cartTotal)}</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
