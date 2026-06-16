@@ -6,6 +6,9 @@ import AdminTables from './pages/AdminTables';
 import AdminSettings from './pages/AdminSettings';
 import AdminReports from './pages/AdminReports';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import SuperAdminLogin from './pages/SuperAdminLogin';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import SuperAdminProtectedRoute from './components/SuperAdminProtectedRoute';
 import CustomerMenu from './pages/CustomerMenu';
 import AdminLogin from './pages/AdminLogin';
 import AdminRegister from './pages/AdminRegister';
@@ -417,6 +420,12 @@ function HomePortal() {
             <Route path="/admin/reports" element={<AdminReports />} />
             <Route path="/admin/reports" element={<AdminReports />} />
           </Route>
+
+          <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+          <Route element={<SuperAdminProtectedRoute />}>
+            <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
+          </Route>
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
