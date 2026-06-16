@@ -13,7 +13,9 @@ import {
   Check,
   Search,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -37,6 +39,7 @@ export default function AdminMenu() {
   const [isAvailable, setIsAvailable] = useState(true);
   const [formSuccess, setFormSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
 
   const formatPrice = (price: number) => {
     return 'Rp ' + price.toLocaleString('id-ID');
@@ -132,14 +135,21 @@ export default function AdminMenu() {
   };
 
   // Delete item handler
-  const deleteItem = async (itemId: string) => {
-    if (!confirm('Hapus item ini?')) return;
-    const { error } = await supabase.from('menu_items').delete().eq('id', itemId);
+  const executeDelete = async () => {
+    if (!itemToDelete) return;
+    
+    const { error } = await supabase
+      .from('menu_items')
+      .delete()
+      .eq('id', itemToDelete.id);
+
     if (error) {
       console.error("Supabase error deleting item:", error);
       return alert(`Delete failed: ${error.message}`);
     }
-    setItems(prev => prev.filter(it => it.id !== itemId));
+
+    setItems(prev => prev.filter(it => it.id !== itemToDelete.id));
+    setItemToDelete(null);
   };
 
   // Add Item handler
@@ -306,7 +316,7 @@ export default function AdminMenu() {
 
                     <button
                       id={`delete-stock-btn-${item.id}`}
-                      onClick={() => deleteItem(item.id)}
+                      onClick={() => setItemToDelete(item)}
                       className="text-slate-400 hover:text-rose-600 p-1 rounded-md transition-colors cursor-pointer"
                       title="Remove product"
                     >
@@ -493,6 +503,58 @@ export default function AdminMenu() {
         </div>
 
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {itemToDelete && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 10 }}
+              className="bg-white rounded-2xl max-w-sm w-full p-6 text-center border border-slate-100 shadow-xl"
+            >
+              <div className="w-14 h-14 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mx-auto mb-4">
+                <AlertTriangle className="w-7 h-7" />
+              </div>
+              
+              <h3 className="text-lg font-black text-slate-900">Hapus item ini?</h3>
+              <p className="text-xs text-slate-500 mt-2">
+                Anda akan menghapus <span className="font-bold text-slate-800">"{itemToDelete.name}"</span> dari menu. Tindakan ini tidak dapat dibatalkan.
+              </p>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  id="btn-cancel-delete"
+                  onClick={() => setItemToDelete(null)}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 rounded-xl text-xs transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  id="btn-confirm-delete"
+                  onClick={executeDelete}
+                  className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-sm cursor-pointer"
+                >
+                  Hapus
+                </button>
+              </div>
+              
+              <button 
+                onClick={() => setItemToDelete(null)}
+                className="absolute top-4 right-4 text-slate-300 hover:text-slate-500 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AdminLayout>
   );
 }
