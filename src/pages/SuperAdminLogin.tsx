@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Lock, Mail, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, QrCode } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function SuperAdminLogin() {
