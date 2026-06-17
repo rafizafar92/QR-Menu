@@ -189,14 +189,14 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-6 lg:pt-20 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 items-center">
+      <section className="max-w-7xl mx-auto px-6 pt-6 lg:pt-16 pb-12 lg:pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12 lg:gap-16 items-center">
           {/* Left Column */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-6 lg:space-y-8 flex flex-col items-center text-center lg:items-start lg:text-left"
+            className="space-y-4 lg:space-y-6 flex flex-col items-center text-center lg:items-start lg:text-left"
           >
             <div className="flex items-center gap-2 text-[#FF6B35] bg-[#FF6B35]/5 w-fit px-4 py-1.5 rounded-full border border-[#FF6B35]/10">
               <Star size={14} fill="currentColor" />
@@ -270,48 +270,48 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="max-w-7xl mx-auto px-6 py-24 bg-white rounded-[4rem] shadow-sm border border-slate-100">
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <h2 className="text-3xl lg:text-5xl font-black text-slate-900 mb-6 uppercase italic tracking-tight">Fitur Unggulan</h2>
-          <p className="text-slate-500 font-medium leading-relaxed">
+      <section id="features" className="max-w-7xl mx-auto px-6 mt-16 lg:mt-24 pt-16 pb-10 lg:pt-24 lg:pb-16 bg-white rounded-[4rem] shadow-sm border border-slate-100">
+        <div className="text-center max-w-2xl mx-auto mb-8 lg:mb-12">
+          <h2 className="text-2xl lg:text-4xl font-black text-slate-900 mb-4 uppercase italic tracking-tight">Fitur Unggulan</h2>
+          <p className="text-slate-500 text-sm lg:text-base font-medium leading-relaxed">
             Segala yang Anda butuhkan untuk menjalankan bisnis kuliner di era digital, 
             mulai dari pemesanan mandiri hingga manajemen dapur.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
           {[
             { icon: Zap, title: 'Setup Cepat', desc: 'Daftar dan buat menu Anda dalam hitungan menit, langsung siap digunakan.' },
             { icon: Smartphone, title: 'Tanpa Aplikasi', desc: 'Pelanggan cukup scan QR tanpa perlu download aplikasi apapun.' },
             { icon: ChefHat, title: 'KDS Terintegrasi', desc: 'Pesanan masuk langsung ke layar dapur secara real-time.' },
             { icon: Wallet, title: 'Dashboard Kasir', desc: 'Pantau laporan penjualan dan transaksi dari mana saja.' }
           ].map((feature, i) => (
-            <div key={i} className="p-8 rounded-3xl border border-slate-100 hover:border-[#FF6B35]/20 hover:shadow-xl hover:shadow-[#FF6B35]/5 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-[#FF6B35]/5 flex items-center justify-center text-[#FF6B35] mb-6 group-hover:bg-[#FF6B35] group-hover:text-white transition-all">
+            <div key={i} className="p-5 lg:p-8 rounded-3xl border border-slate-100 hover:border-[#FF6B35]/20 hover:shadow-xl hover:shadow-[#FF6B35]/5 transition-all group">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-[#FF6B35]/5 flex items-center justify-center text-[#FF6B35] mb-4 lg:mb-6 group-hover:bg-[#FF6B35] group-hover:text-white transition-all">
                 <feature.icon size={24} />
               </div>
-              <h3 className="text-lg font-black text-slate-900 mb-3">{feature.title}</h3>
-              <p className="text-sm text-slate-500 font-medium leading-relaxed">{feature.desc}</p>
+              <h3 className="text-base lg:text-lg font-black text-slate-900 mb-2 lg:mb-3">{feature.title}</h3>
+              <p className="text-xs lg:text-sm text-slate-500 font-medium leading-relaxed">{feature.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Trust Section */}
-      <section className="max-w-7xl mx-auto px-6 py-32 text-center">
-        <h2 className="text-2xl font-black text-slate-400 uppercase tracking-[0.2em] mb-12">Siap untuk Berakselerasi?</h2>
+      <section className="max-w-7xl mx-auto px-6 py-16 lg:py-24 text-center">
+        <h2 className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] mb-8 lg:mb-12">Siap untuk Berakselerasi?</h2>
         
-        <div className="bg-[#1A1A1A] rounded-[4rem] p-12 lg:p-24 relative overflow-hidden">
+        <div className="bg-[#1A1A1A] rounded-[4rem] p-8 lg:p-16 relative overflow-hidden">
           {/* Background pattern */}
           <div className="absolute inset-0 bg-[#FF6B35]/5 opacity-50" />
           
-          <div className="relative z-10 max-w-3xl mx-auto space-y-10">
-            <h3 className="text-3xl lg:text-6xl font-black text-white leading-tight">
+          <div className="relative z-10 max-w-3xl mx-auto space-y-6 lg:space-y-8">
+            <h3 className="text-3xl lg:text-5xl font-black text-white leading-tight">
               Bergabung dengan ribuan <br /> 
               bisnis kuliner lainnya.
             </h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8">
               {[
                 { label: 'Menu Item', value: 'Unlimited' },
                 { label: 'Transaksi', value: 'Tanpa Biaya' },
@@ -324,8 +324,8 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <div className="pt-10"> {/* This button is a CTA to register */}
-              <Link to="/admin/register" className="inline-block bg-[#FF6B35] text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all mx-4 mb-8">
+            <div className="pt-6"> {/* This button is a CTA to register */}
+              <Link to="/admin/register" className="inline-block bg-[#FF6B35] text-white px-10 py-4 lg:px-12 lg:py-5 rounded-2xl font-black text-lg lg:text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all mx-4 mb-4">
                 Mulai Gratis
               </Link>
             </div>
@@ -334,35 +334,35 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-          <div className="space-y-12">
-            <h2 className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
+      <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-10 lg:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="space-y-6 lg:space-y-8">
+            <h2 className="text-2xl sm:text-4xl lg:text-4xl font-black text-slate-900 leading-tight">
               Tiga Langkah Mudah <br />
               Digitalisasi Resto.
             </h2>
             
-            <div className="space-y-8">
+            <div className="space-y-5 lg:space-y-6">
               {[
                 { step: '01', title: 'Buat Menu Digital', desc: 'Upload foto produk, tentukan harga, dan cetak QR Code unik untuk setiap meja.' },
                 { step: '02', title: 'Pelanggan Scan & Pesan', desc: 'Tamu langsung pesan dari smartphone mereka tanpa perlu menunggu pelayan.' },
                 { step: '03', title: 'Dapur Siapkan Pesanan', desc: 'Notifikasi otomatis masuk ke dapur untuk segera diproses dan disajikan.' }
               ].map((step, i) => (
-                <div key={i} className="flex gap-6">
-                  <div className="text-3xl font-black text-[#FF6B35]/20">{step.step}</div>
+                <div key={i} className="flex gap-4 lg:gap-6">
+                  <div className="text-2xl lg:text-3xl font-black text-[#FF6B35]/20">{step.step}</div>
                   <div className="space-y-2">
-                    <h4 className="text-xl font-black text-slate-900">{step.title}</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed">{step.desc}</p>
+                    <h4 className="text-lg lg:text-xl font-black text-slate-900">{step.title}</h4>
+                    <p className="text-xs lg:text-sm text-slate-500 font-medium leading-relaxed">{step.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 flex items-center justify-center relative group">
+          <div className="bg-white p-8 lg:p-12 rounded-[4rem] shadow-sm border border-slate-100 flex items-center justify-center relative group">
             <div className="absolute inset-12 bg-[#FF6B35]/5 rounded-3xl blur-[40px] group-hover:bg-[#FF6B35]/10 transition-colors" />
             <div className="relative z-10 flex flex-col items-center gap-6">
-              <div className="p-8 bg-white rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center gap-4 w-64">
+              <div className="p-6 lg:p-8 bg-white rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center gap-4 w-60 lg:w-64">
                 <div className="w-40 h-40 bg-slate-900 rounded-2xl flex items-center justify-center p-3">
                   <QrCode size={120} className="text-white" />
                 </div>
@@ -381,52 +381,52 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="max-w-7xl mx-auto px-6 py-24">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl lg:text-5xl font-black text-slate-900 mb-6 uppercase italic tracking-tight">Pilih Paket yang Sesuai</h2>
-          <p className="text-slate-500 font-medium leading-relaxed">
+      <section id="pricing" className="max-w-7xl mx-auto px-6 py-10 lg:py-16">
+        <div className="text-center max-w-2xl mx-auto mb-8 lg:mb-10">
+          <h2 className="text-2xl lg:text-4xl font-black text-slate-900 mb-4 uppercase italic tracking-tight">Pilih Paket yang Sesuai</h2>
+          <p className="text-slate-500 text-sm lg:text-base font-medium leading-relaxed">
             Mulai gratis, upgrade kapan saja.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8 items-stretch">
           {/* Card 1: Gratis */}
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
-            <div className="mb-8">
-              <h3 className="text-xl font-black text-slate-900 mb-2">Gratis (Trial)</h3>
+          <div className="bg-white p-5 lg:p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
+            <div className="mb-6 lg:mb-8">
+              <h3 className="text-lg lg:text-xl font-black text-slate-900 mb-2">Gratis (Trial)</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-slate-900">Rp 0</span>
+                <span className="text-2xl lg:text-3xl font-black text-slate-900">Rp 0</span>
                 <span className="text-slate-400 text-sm font-bold">/ 14 hari</span>
               </div>
             </div>
-            <ul className="space-y-4 mb-10 flex-1">
+            <ul className="space-y-3 lg:space-y-4 mb-8 lg:mb-10 flex-1">
               {['1 Meja', '10 Menu Item', 'Branding Ordio'].map((feat) => (
-                <li key={feat} className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                <li key={feat} className="flex items-center gap-3 text-xs lg:text-sm font-bold text-slate-600">
                   <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0" />
                   {feat}
                 </li>
               ))}
             </ul>
-            <Link to="/admin/register" className="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-2xl font-black text-center transition-all">
+            <Link to="/admin/register" className="w-full py-3 lg:py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-2xl font-black text-center transition-all">
               Mulai Gratis
             </Link>
           </div>
 
           {/* Card 2: Starter */}
-          <div className="bg-white p-8 rounded-[2.5rem] border-2 border-[#FF6B35] flex flex-col shadow-xl shadow-[#FF6B35]/5 relative md:scale-105 z-10 transition-transform hover:scale-[1.07]">
+          <div className="bg-white p-5 lg:p-8 rounded-[2.5rem] border-2 border-[#FF6B35] flex flex-col shadow-xl shadow-[#FF6B35]/5 relative md:scale-105 z-10 transition-transform hover:scale-[1.07]">
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
               Paling Populer
             </div>
-            <div className="mb-8">
-              <h3 className="text-xl font-black text-slate-900 mb-2">Starter</h3>
+            <div className="mb-6 lg:mb-8">
+              <h3 className="text-lg lg:text-xl font-black text-slate-900 mb-2">Starter</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-slate-900">Rp 199.000</span>
+                <span className="text-2xl lg:text-3xl font-black text-slate-900">Rp 199.000</span>
                 <span className="text-slate-400 text-sm font-bold">/ bulan</span>
               </div>
             </div>
-            <ul className="space-y-4 mb-10 flex-1">
+            <ul className="space-y-3 lg:space-y-4 mb-8 lg:mb-10 flex-1">
               {['10 Meja', 'Unlimited Menu Item', 'Tanpa Branding Ordio', 'Kitchen Display System'].map((feat) => (
-                <li key={feat} className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                <li key={feat} className="flex items-center gap-3 text-xs lg:text-sm font-bold text-slate-600">
                   <CheckCircle2 size={18} className="text-[#FF6B35] flex-shrink-0" />
                   {feat}
                 </li>
@@ -436,24 +436,24 @@ export default function LandingPage() {
               href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Paket%20Starter%20Ordio." 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-full py-4 bg-[#FF6B35] hover:bg-[#e85a24] text-white rounded-2xl font-black text-center transition-all shadow-lg shadow-[#FF6B35]/20"
+              className="w-full py-3 lg:py-4 bg-[#FF6B35] hover:bg-[#e85a24] text-white rounded-2xl font-black text-center transition-all shadow-lg shadow-[#FF6B35]/20"
             >
               Pilih Starter
             </a>
           </div>
 
           {/* Card 3: Pro */}
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
-            <div className="mb-8">
-              <h3 className="text-xl font-black text-slate-900 mb-2">Pro</h3>
+          <div className="bg-white p-5 lg:p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
+            <div className="mb-6 lg:mb-8">
+              <h3 className="text-lg lg:text-xl font-black text-slate-900 mb-2">Pro</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-slate-900">Rp 399.000</span>
+                <span className="text-2xl lg:text-3xl font-black text-slate-900">Rp 399.000</span>
                 <span className="text-slate-400 text-sm font-bold">/ bulan</span>
               </div>
             </div>
-            <ul className="space-y-4 mb-10 flex-1">
+            <ul className="space-y-3 lg:space-y-4 mb-8 lg:mb-10 flex-1">
               {['Unlimited Meja', 'Semua fitur Starter', 'Laporan Penjualan + Export PDF', 'Priority Support'].map((feat) => (
-                <li key={feat} className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                <li key={feat} className="flex items-center gap-3 text-xs lg:text-sm font-bold text-slate-600">
                   <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0" />
                   {feat}
                 </li>
@@ -463,7 +463,7 @@ export default function LandingPage() {
               href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Paket%20Pro%20Ordio." 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-center transition-all"
+              className="w-full py-3 lg:py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-center transition-all"
             >
               Pilih Pro
             </a>
@@ -472,8 +472,8 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-100 py-20">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+      <footer className="bg-white border-t border-slate-100 py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-12 mb-10 lg:mb-12">
           <div className="col-span-1 md:col-span-2 space-y-6">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl bg-[#FF6B35] flex items-center justify-center text-white">
@@ -511,7 +511,7 @@ export default function LandingPage() {
           </div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-6 pt-12 border-t border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
+        <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
           <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">© 2026 Ordio Indonesia. All rights reserved.</p>
           <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <span>Made in Indonesia</span>
