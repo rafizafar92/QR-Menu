@@ -135,7 +135,7 @@ export default function AdminDashboard() {
       <tr>
         <td style="text-align: left; padding: 4px 0;">${item.menuItemName}</td>
         <td style="text-align: center;">${item.quantity}</td>
-        <td style="text-align: right;">$${(item.price * item.quantity).toFixed(2)}</td>
+        <td style="text-align: right;">${formatCurrency(item.price * item.quantity)}</td>
       </tr>
     `).join('');
 
