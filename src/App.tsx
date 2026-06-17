@@ -421,9 +421,9 @@ function HomePortal() {
             <Route path="/admin/reports" element={<AdminReports />} />
           </Route>
 
-          <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+          <Route path="/ordio-core-x9k2/login" element={<SuperAdminLogin />} />
           <Route element={<SuperAdminProtectedRoute />}>
-            <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
+            <Route path="/ordio-core-x9k2/dashboard" element={<SuperAdminDashboard />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -25,7 +25,7 @@ export default function SuperAdminLogin() {
 
       if (loginError) throw loginError;
       if (data.user?.email === 'owner@ordio.id') {
-        navigate('/superadmin/dashboard');
+        navigate('/ordio-core-x9k2/dashboard');
       } else {
         setError('Unauthorized access. This area is for platform owners only.');
         await supabase.auth.signOut();
