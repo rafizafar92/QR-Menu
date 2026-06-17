@@ -380,6 +380,97 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="max-w-7xl mx-auto px-6 py-24">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <h2 className="text-3xl lg:text-5xl font-black text-slate-900 mb-6 uppercase italic tracking-tight">Pilih Paket yang Sesuai</h2>
+          <p className="text-slate-500 font-medium leading-relaxed">
+            Mulai gratis, upgrade kapan saja.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {/* Card 1: Gratis */}
+          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
+            <div className="mb-8">
+              <h3 className="text-xl font-black text-slate-900 mb-2">Gratis (Trial)</h3>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-black text-slate-900">Rp 0</span>
+                <span className="text-slate-400 text-sm font-bold">/ 14 hari</span>
+              </div>
+            </div>
+            <ul className="space-y-4 mb-10 flex-1">
+              {['1 Meja', '10 Menu Item', 'Branding Ordio'].map((feat) => (
+                <li key={feat} className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                  <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0" />
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <Link to="/admin/register" className="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-2xl font-black text-center transition-all">
+              Mulai Gratis
+            </Link>
+          </div>
+
+          {/* Card 2: Starter */}
+          <div className="bg-white p-8 rounded-[2.5rem] border-2 border-[#FF6B35] flex flex-col shadow-xl shadow-[#FF6B35]/5 relative md:scale-105 z-10 transition-transform hover:scale-[1.07]">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+              Paling Populer
+            </div>
+            <div className="mb-8">
+              <h3 className="text-xl font-black text-slate-900 mb-2">Starter</h3>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-black text-slate-900">Rp 199.000</span>
+                <span className="text-slate-400 text-sm font-bold">/ bulan</span>
+              </div>
+            </div>
+            <ul className="space-y-4 mb-10 flex-1">
+              {['10 Meja', 'Unlimited Menu Item', 'Tanpa Branding Ordio', 'Kitchen Display System'].map((feat) => (
+                <li key={feat} className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                  <CheckCircle2 size={18} className="text-[#FF6B35] flex-shrink-0" />
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <a 
+              href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Paket%20Starter%20Ordio." 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-full py-4 bg-[#FF6B35] hover:bg-[#e85a24] text-white rounded-2xl font-black text-center transition-all shadow-lg shadow-[#FF6B35]/20"
+            >
+              Pilih Starter
+            </a>
+          </div>
+
+          {/* Card 3: Pro */}
+          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
+            <div className="mb-8">
+              <h3 className="text-xl font-black text-slate-900 mb-2">Pro</h3>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-black text-slate-900">Rp 399.000</span>
+                <span className="text-slate-400 text-sm font-bold">/ bulan</span>
+              </div>
+            </div>
+            <ul className="space-y-4 mb-10 flex-1">
+              {['Unlimited Meja', 'Semua fitur Starter', 'Laporan Penjualan + Export PDF', 'Priority Support'].map((feat) => (
+                <li key={feat} className="flex items-center gap-3 text-sm font-bold text-slate-600">
+                  <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0" />
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <a 
+              href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Paket%20Pro%20Ordio." 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-center transition-all"
+            >
+              Pilih Pro
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-white border-t border-slate-100 py-20">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
