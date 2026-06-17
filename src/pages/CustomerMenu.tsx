@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { MenuItem, Venue } from '../types';
 import { supabase } from '../lib/supabase';
+import { theme } from '../config/theme';
 
 export default function CustomerMenu() {
   const { venueId, tableId } = useParams<{ venueId: string; tableId: string }>();
@@ -111,9 +112,9 @@ export default function CustomerMenu() {
   // Update browser tab title dynamically
   useEffect(() => {
     if (venue?.name) {
-      document.title = `${venue.name} - Ordio`;
+      document.title = `${venue.name} - ${theme.brandName}`;
     } else {
-      document.title = 'Ordio'; // Default title if venue name is not available
+      document.title = theme.brandName; // Default title if venue name is not available
     }
   }, [venue?.name]);
 
@@ -228,10 +229,10 @@ export default function CustomerMenu() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FFF8F3] font-sans text-slate-900 pb-32">
+    <div className="min-h-screen font-sans text-slate-900 pb-32" style={{ backgroundColor: theme.backgroundColor }}>
       {/* Header */}
-      <header className="p-4 flex items-center justify-between bg-[#FFF8F3]/80 backdrop-blur-md sticky top-0 z-30">
-        <div className="w-8 h-8 rounded-full bg-[#FF6B35] flex items-center justify-center text-white shadow-lg shadow-[#FF6B35]/20">
+      <header className="p-4 flex items-center justify-between backdrop-blur-md sticky top-0 z-30" style={{ backgroundColor: `${theme.backgroundColor}CC` }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}>
           <QrCode size={16} />
         </div>
         <button className="text-slate-400 p-2">
@@ -255,9 +256,10 @@ export default function CustomerMenu() {
             onClick={() => setSelectedCategory(category)}
             className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
               selectedCategory === category 
-                ? 'bg-[#FF6B35] text-white shadow-lg shadow-[#FF6B35]/20' 
+                ? 'text-white shadow-lg' 
                 : 'bg-white border border-slate-100 text-slate-400'
             }`}
+            style={selectedCategory === category ? { backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` } : {}}
           >
             {category}
           </button>
@@ -286,7 +288,7 @@ export default function CustomerMenu() {
               <div>
                 <div className="flex justify-between items-start">
                   <h3 className="text-[11px] font-bold text-slate-800 truncate pr-2">{item.name}</h3>
-                  <span className="text-[11px] font-bold text-[#FF6B35] whitespace-nowrap">{formatPrice(item.price)}</span>
+                  <span className="text-[11px] font-bold whitespace-nowrap" style={{ color: theme.primaryColor }}>{formatPrice(item.price)}</span>
                 </div>
                 <p className="text-[9px] text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">{item.description}</p>
               </div>
@@ -298,7 +300,8 @@ export default function CustomerMenu() {
                       e.stopPropagation();
                       addToCart(item);
                     }}
-                    className="w-6 h-6 rounded-lg bg-[#FF6B35] flex items-center justify-center text-white shadow-md shadow-[#FF6B35]/20 transition-transform active:scale-90"
+                    className="w-6 h-6 rounded-lg flex items-center justify-center text-white shadow-md transition-transform active:scale-90"
+                    style={{ backgroundColor: theme.primaryColor, boxShadow: `0 4px 6px -1px ${theme.primaryColor}33` }}
                   >
                     <Plus size={14} />
                   </button>

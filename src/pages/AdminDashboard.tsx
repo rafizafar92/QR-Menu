@@ -19,6 +19,7 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { theme } from '../config/theme';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -129,7 +130,7 @@ export default function AdminDashboard() {
 
   // Modify order status dynamically in memory
   const handlePrintReceipt = (order: Order) => {
-    const venueName = user?.venueName || 'Ordio Admin';
+    const venueName = user?.venueName || `${theme.brandName} Admin`;
     const totalWithTax = (order.totalPrice * 1.08).toFixed(2);
     const itemsHtml = order.items.map(item => `
       <tr>
@@ -181,7 +182,7 @@ export default function AdminDashboard() {
           </div>
           <div class="divider" style="margin-top: 20px;"></div>
           <div class="center bold">THANK YOU!</div>
-          <div class="center" style="font-size: 10px; margin-top: 5px;">Powered by Ordio</div>
+          <div class="center" style="font-size: 10px; margin-top: 5px;">Powered by ${theme.brandName}</div>
         </body>
       </html>
     `);
@@ -261,10 +262,10 @@ export default function AdminDashboard() {
       {/* 4 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: "Pesanan Hari Ini", value: stats.todayOrders, icon: ShoppingBag, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' },
-          { label: "Pendapatan Hari Ini", value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' },
-          { label: "Meja Aktif", value: stats.activeTables, icon: Utensils, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' },
-          { label: "Menunggu Pembayaran", value: stats.pendingPayments, icon: CreditCard, color: 'bg-[#FF6B35]', text: 'text-[#FF6B35]' }
+          { label: "Pesanan Hari Ini", value: stats.todayOrders, icon: ShoppingBag, color: `bg-[${theme.primaryColor}]`, text: `text-[${theme.primaryColor}]` },
+          { label: "Pendapatan Hari Ini", value: formatCurrency(stats.todayRevenue), icon: DollarSign, color: `bg-[${theme.primaryColor}]`, text: `text-[${theme.primaryColor}]` },
+          { label: "Meja Aktif", value: stats.activeTables, icon: Utensils, color: `bg-[${theme.primaryColor}]`, text: `text-[${theme.primaryColor}]` },
+          { label: "Menunggu Pembayaran", value: stats.pendingPayments, icon: CreditCard, color: `bg-[${theme.primaryColor}]`, text: `text-[${theme.primaryColor}]` }
         ].map((kpi, idx) => (
           <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-3xs flex items-center justify-between transition-transform hover:scale-[1.02]">
             <div>
@@ -284,7 +285,7 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-3xl border border-slate-200 shadow-3xs overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
               <h3 className="font-black text-slate-900 text-lg flex items-center gap-2">
-                <Clock className="text-[#FF6B35]" size={20} />
+                <Clock style={{ color: theme.primaryColor }} size={20} />
                 Aktivitas Terbaru
               </h3>
             </div>
@@ -314,7 +315,8 @@ export default function AdminDashboard() {
                     {order.status === 'pending_payment' && (
                       <button // Confirm Payment button
                         onClick={() => updateOrderStatus(order.id, 'confirmed')}
-                        className="bg-[#FF6B35] hover:bg-[#e85a24] text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg shadow-[#FF6B35]/20"
+                        className="text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg"
+                        style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}
                       >
                         KONFIRMASI PEMBAYARAN
                       </button>
@@ -333,7 +335,7 @@ export default function AdminDashboard() {
           {/* Popular Items Today */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-3xs p-6">
             <h3 className="font-black text-slate-900 text-lg mb-6 flex items-center gap-2">
-              <TrendingUp className="text-[#FF6B35]" size={20} />
+              <TrendingUp style={{ color: theme.primaryColor }} size={20} />
               Terpopuler Hari Ini
             </h3>
             <div className="space-y-4">
@@ -345,7 +347,7 @@ export default function AdminDashboard() {
                     </span>
                     <span className="text-sm font-bold text-slate-700">{item.name}</span>
                   </div>
-                  <span className="bg-[#FF6B35]/10 text-[#FF6B35] text-[10px] font-black px-2 py-1 rounded-md uppercase">
+                  <span className="text-[10px] font-black px-2 py-1 rounded-md uppercase" style={{ backgroundColor: `${theme.primaryColor}1A`, color: theme.primaryColor }}>
                     {item.count} Sold
                   </span>
                 </div>
@@ -359,7 +361,7 @@ export default function AdminDashboard() {
           {/* Quick Actions */}
           <div className="bg-[#1A1A1A] rounded-3xl p-6 shadow-xl shadow-slate-950/20">
             <h3 className="font-black text-white text-lg mb-6 flex items-center gap-2">
-              <ArrowUpRight className="text-[#FF6B35]" size={20} />
+              <ArrowUpRight style={{ color: theme.primaryColor }} size={20} />
               Aksi Cepat
             </h3>
             <div className="grid grid-cols-1 gap-3">
@@ -367,7 +369,7 @@ export default function AdminDashboard() {
                 to="/admin/menu" 
                 className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center text-[#FF6B35] group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: `${theme.primaryColor}33`, color: theme.primaryColor }}>
                   <Plus size={20} />
                 </div>
                 <span className="text-sm font-bold">Tambah Menu</span>
@@ -376,7 +378,7 @@ export default function AdminDashboard() {
                 to="/admin/tables" 
                 className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center text-[#FF6B35] group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: `${theme.primaryColor}33`, color: theme.primaryColor }}>
                   <TableIcon size={20} />
                 </div>
                 <span className="text-sm font-bold">Tambah Meja</span>
@@ -385,7 +387,7 @@ export default function AdminDashboard() {
                 to="/admin/kitchen" 
                 className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white transition-all group border border-white/10"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center text-[#FF6B35] group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: `${theme.primaryColor}33`, color: theme.primaryColor }}>
                   <ChefHat size={20} />
                 </div>
                 <span className="text-sm font-bold">Lihat Dapur</span>

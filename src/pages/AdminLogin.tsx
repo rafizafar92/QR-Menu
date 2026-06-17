@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Lock, Mail, QrCode } from 'lucide-react';
 import { useAuth } from '../lib/auth';
+import { theme } from '../config/theme';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -33,18 +34,18 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F3] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans antialiased text-slate-800">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans antialiased text-slate-800" style={{ backgroundColor: theme.backgroundColor }}>
       
       {/* Visual Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div className="flex flex-col items-center gap-2 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-[#FF6B35] flex items-center justify-center text-white shadow-lg shadow-[#FF6B35]/20">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}>
             <QrCode size={28} />
           </div>
-          <span className="text-2xl font-black tracking-tight text-slate-900">Ordio</span>
+          <span className="text-2xl font-black tracking-tight text-slate-900">{theme.brandName}</span>
         </div>
         <h2 className="text-center text-3xl font-black tracking-tight text-slate-900">
-          Masuk ke Ordio
+          Masuk ke {theme.brandName}
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
           Masuk untuk mengelola pengaturan dan pesanan restoran
@@ -79,7 +80,8 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="manager@restaurant.com"
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#FF6B35] transition-all font-medium"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-hidden focus:ring-1 transition-all font-medium"
+                  style={{ '--tw-ring-color': theme.primaryColor } as any}
                 />
               </div>
             </div>
@@ -99,7 +101,8 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-[#FF6B35] transition-all font-medium"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-hidden focus:ring-1 transition-all font-medium"
+                  style={{ '--tw-ring-color': theme.primaryColor } as any}
                 />
               </div>
             </div>
@@ -110,18 +113,20 @@ export default function AdminLogin() {
                   type="checkbox"
                   id="remember-me"
                   defaultChecked
-                  className="rounded-sm border-slate-300 text-[#FF6B35] focus:ring-[#FF6B35] h-4 w-4"
+                  className="rounded-sm border-slate-300 h-4 w-4"
+                  style={{ color: theme.primaryColor, '--tw-ring-color': theme.primaryColor } as any}
                 />
                 <span>Ingat saya</span>
               </label>
-              <span className="text-slate-400 hover:text-[#FF6B35] hover:underline cursor-pointer">Lupa Password?</span>
+              <span className="text-slate-400 hover:underline cursor-pointer" style={{ '--hover-color': theme.primaryColor } as any}>Lupa Password?</span>
             </div>
 
             <button
               id="admin-submit-login-btn"
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg shadow-[#FF6B35]/20 text-sm font-bold text-white bg-[#FF6B35] hover:bg-[#e85a24] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[#FF6B35] transition-all cursor-pointer"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-bold text-white transition-all cursor-pointer hover:opacity-90"
+              style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -133,7 +138,7 @@ export default function AdminLogin() {
 
           <div className="mt-4 text-center text-xs">
             <span className="text-slate-500">Mitra baru? </span>
-            <Link to="/admin/register" className="text-[#FF6B35] font-bold hover:underline">
+            <Link to="/admin/register" className="font-bold hover:underline" style={{ color: theme.primaryColor }}>
               Buat akun gratis
             </Link>
           </div>

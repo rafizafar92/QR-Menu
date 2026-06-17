@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
+import { theme } from '../config/theme';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -30,7 +31,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
   const [venueLogo, setVenueLogo] = useState<string | null>(null);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   
-  const venueDisplayName = user?.venueName || 'Ordio Admin';
+  const venueDisplayName = user?.venueName || `${theme.brandName} Admin`;
 
   useEffect(() => {
     if (!user?.venueId) return;
@@ -126,7 +127,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
               QR
             </span>
             <div className="flex-1">
-              <span className="text-white font-bold text-sm block">Ordio Admin</span>
+              <span className="text-white font-bold text-sm block">{theme.brandName} Admin</span>
               <span className="text-[10px] text-slate-400 block">SaaS Dashboard</span>
             </div>
           </div>
@@ -223,7 +224,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
             <span className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
               QR
             </span>
-            <span className="font-extrabold text-sm tracking-tight text-slate-800">Ordio Admin</span>
+            <span className="font-extrabold text-sm tracking-tight text-slate-800">{theme.brandName} Admin</span>
           </div>
 
           <button

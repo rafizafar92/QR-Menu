@@ -15,6 +15,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import { Link } from 'react-router-dom'; // Ensure Link is imported
+import { theme } from '../config/theme';
 
 // --- Sub-components (Defined before the main export) ---
 
@@ -24,8 +25,8 @@ const LANDING_IMAGES = {
   cashier: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600'
 };
 const PhoneMenuMockup = () => (
-  <div className="relative mx-auto bg-slate-900 w-[280px] h-[580px] rounded-[3rem] border-[10px] border-slate-900 shadow-[0_0_50px_rgba(255,107,53,0.15)] overflow-hidden">
-    <div className="bg-[#FFF8F3] h-full flex flex-col font-sans">
+  <div className="relative mx-auto bg-slate-900 w-[280px] h-[580px] rounded-[3rem] border-[10px] border-slate-900 overflow-hidden" style={{ boxShadow: '0 0 50px rgba(255,107,53,0.15)' }}>
+    <div className="h-full flex flex-col font-sans" style={{ backgroundColor: theme.backgroundColor }}>
       {/* Status Bar */}
       <div className="h-6 w-full flex justify-between items-center px-6 pt-2">
         <div className="h-1.5 w-8 bg-slate-300 rounded-full" />
@@ -38,7 +39,7 @@ const PhoneMenuMockup = () => (
       {/* App Header */}
       <div className="p-4 flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <div className="w-8 h-8 rounded-full bg-[#FF6B35] flex items-center justify-center text-white">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: theme.primaryColor }}>
             <QrCode size={16} />
           </div>
           <Search size={18} className="text-slate-400" />
@@ -52,7 +53,7 @@ const PhoneMenuMockup = () => (
         {/* Categories */}
         <div className="flex gap-2 overflow-hidden">
           {['Semua', 'Makanan', 'Minuman'].map((cat, i) => (
-            <div key={cat} className={`px-3 py-1.5 rounded-full text-[9px] font-bold ${i === 0 ? 'bg-[#FF6B35] text-white' : 'bg-white border border-slate-100 text-slate-400'}`}>
+            <div key={cat} className={`px-3 py-1.5 rounded-full text-[9px] font-bold ${i === 0 ? 'text-white' : 'bg-white border border-slate-100 text-slate-400'}`} style={i === 0 ? { backgroundColor: theme.primaryColor } : {}}>
               {cat}
             </div>
           ))}
@@ -71,11 +72,11 @@ const PhoneMenuMockup = () => (
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start">
                 <h5 className="text-[10px] font-bold text-slate-800 truncate">{item.name}</h5>
-                <span className="text-[10px] font-bold text-[#FF6B35]">Rp {item.price}</span>
+                <span className="text-[10px] font-bold" style={{ color: theme.primaryColor }}>Rp {item.price}</span>
               </div>
               <p className="text-[8px] text-slate-400 line-clamp-1 mt-0.5">{item.desc}</p>
               <div className="mt-2 flex justify-end">
-                <div className="w-5 h-5 rounded-md bg-[#FF6B35] flex items-center justify-center text-white">
+                <div className="w-5 h-5 rounded-md flex items-center justify-center text-white" style={{ backgroundColor: theme.primaryColor }}>
                   <Plus size={12} />
                 </div>
               </div>
@@ -128,7 +129,7 @@ const DashboardCardKitchen = () => (
 const CashierDashboardCard = () => (
   <div className="bg-[#1A1A1A] p-5 rounded-3xl shadow-2xl w-56 border border-white/5">
     <div className="flex items-center gap-2 mb-4">
-      <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/20 flex items-center justify-center text-[#FF6B35]">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${theme.primaryColor}33`, color: theme.primaryColor }}>
         <ShoppingBag size={16} />
       </div>
       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">🧾 Kasir Dashboard</span>
@@ -144,7 +145,7 @@ const CashierDashboardCard = () => (
             <span className="text-[10px] font-bold text-slate-400">{order.items} Items</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm font-black text-[#FF6B35]">Rp {order.price}</span>
+            <span className="text-sm font-black" style={{ color: theme.primaryColor }}>Rp {order.price}</span>
             <button className="bg-emerald-600 text-white text-[9px] font-black px-3 py-1.5 rounded-lg shadow-md shadow-emerald-600/20 hover:bg-emerald-700 transition-colors">
               Konfirmasi
             </button>
@@ -166,23 +167,23 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F3] text-slate-900 font-sans selection:bg-[#FF6B35]/20 selection:text-[#FF6B35]">
+    <div className="min-h-screen text-slate-900 font-sans" style={{ backgroundColor: theme.backgroundColor }}>
       {/* Navigation */}
       <nav className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center relative z-50">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-[#FF6B35] flex items-center justify-center text-white shadow-lg shadow-[#FF6B35]/20">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}>
             <QrCode size={24} />
           </div>
           <div>
-            <span className="text-xl font-black tracking-tight">Ordio</span>
-            <span className="text-[10px] text-[#FF6B35] block font-bold uppercase tracking-widest leading-none mt-0.5">Indonesia</span>
+            <span className="text-xl font-black tracking-tight">{theme.brandName}</span>
+            <span className="text-[10px] block font-bold uppercase tracking-widest leading-none mt-0.5" style={{ color: theme.primaryColor }}>Indonesia</span>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
-          <button onClick={() => scrollToSection('features')} className="hover:text-[#FF6B35] transition-colors">Fitur</button>
-          <button onClick={() => scrollToSection('how-it-works')} className="hover:text-[#FF6B35] transition-colors">Cara Kerja</button>
-          <Link to="/admin/login" className="hover:text-[#FF6B35] transition-colors">Masuk</Link> {/* This is already correct */}
-          <Link to="/admin/register" className="bg-[#FF6B35] text-white px-6 py-3 rounded-xl shadow-lg shadow-[#FF6B35]/20 font-black hover:bg-[#e85a24] transition-all">
+          <button onClick={() => scrollToSection('features')} className="transition-colors hover:opacity-80">Fitur</button>
+          <button onClick={() => scrollToSection('how-it-works')} className="transition-colors hover:opacity-80">Cara Kerja</button>
+          <Link to="/admin/login" className="transition-colors hover:opacity-80">Masuk</Link> {/* This is already correct */}
+          <Link to="/admin/register" className="text-white px-6 py-3 rounded-xl shadow-lg font-black transition-all hover:opacity-90" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}>
             Coba Gratis
           </Link>
         </div>
@@ -198,14 +199,14 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="space-y-4 lg:space-y-6 flex flex-col items-center text-center lg:items-start lg:text-left"
           >
-            <div className="flex items-center gap-2 text-[#FF6B35] bg-[#FF6B35]/5 w-fit px-4 py-1.5 rounded-full border border-[#FF6B35]/10">
+            <div className="flex items-center gap-2 w-fit px-4 py-1.5 rounded-full border" style={{ color: theme.primaryColor, backgroundColor: `${theme.primaryColor}0D`, borderColor: `${theme.primaryColor}1A` }}>
               <Star size={14} fill="currentColor" />
               <span className="text-xs font-black uppercase tracking-wider">Solusi No. 1 di Indonesia</span>
             </div>
             
             <h1 className="text-[2.5rem] sm:text-5xl lg:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
               Menu QR, Kasir & Dapur <br />
-              Dalam <span className="text-[#FF6B35]">Satu Sistem.</span>
+              Dalam <span style={{ color: theme.primaryColor }}>Satu Sistem.</span>
             </h1>
             
             <p className="text-lg text-slate-600 leading-relaxed max-w-lg">
@@ -213,18 +214,18 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-row gap-3 lg:gap-4 w-full lg:w-auto">
-              <Link to="/admin/register" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-[#FF6B35] text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all group whitespace-nowrap">
+              <Link to="/admin/register" className="flex-1 lg:flex-none flex items-center justify-center gap-2 text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl transition-all group whitespace-nowrap" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 20px 25px -5px ${theme.primaryColor}33` }}>
                 Mulai Sekarang
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:border-[#FF6B35] hover:text-[#FF6B35] transition-all whitespace-nowrap">
+              <a href={`https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20${theme.brandName},%20boleh%20minta%20info%20lebih%20lanjut?`} target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:opacity-80 transition-all whitespace-nowrap">
                 <MessageCircle size={20} />
                 Tanya Sales
               </a>
             </div>
 
             <div className="pt-4 flex items-center gap-2 text-slate-500">
-              <CheckCircle2 size={16} className="text-[#FF6B35]" />
+              <CheckCircle2 size={16} style={{ color: theme.primaryColor }} />
               <p className="text-xs font-medium">
                 Siap Digunakan Untuk Cafe, Restoran & Food Court
               </p>
@@ -239,7 +240,7 @@ export default function LandingPage() {
             className="relative flex flex-col lg:flex-row items-center justify-center h-auto lg:h-[600px] mt-8 lg:mt-0 gap-8 lg:gap-0"
           >
             {/* Decoration Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#FF6B35]/5 rounded-full blur-[100px] -z-10" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] rounded-full blur-[100px] -z-10" style={{ backgroundColor: `${theme.primaryColor}0D` }} />
             
             {/* Floating Stats Card */}
             <motion.div 
@@ -286,8 +287,8 @@ export default function LandingPage() {
             { icon: ChefHat, title: 'KDS Terintegrasi', desc: 'Pesanan masuk langsung ke layar dapur secara real-time.' },
             { icon: Wallet, title: 'Dashboard Kasir', desc: 'Pantau laporan penjualan dan transaksi dari mana saja.' }
           ].map((feature, i) => (
-            <div key={i} className="p-5 lg:p-8 rounded-3xl border border-slate-100 hover:border-[#FF6B35]/20 hover:shadow-xl hover:shadow-[#FF6B35]/5 transition-all group">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-[#FF6B35]/5 flex items-center justify-center text-[#FF6B35] mb-4 lg:mb-6 group-hover:bg-[#FF6B35] group-hover:text-white transition-all">
+            <div key={i} className="p-5 lg:p-8 rounded-3xl border border-slate-100 transition-all group hover:shadow-xl">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center mb-4 lg:mb-6 transition-all" style={{ backgroundColor: `${theme.primaryColor}0D`, color: theme.primaryColor }}>
                 <feature.icon size={24} />
               </div>
               <h3 className="text-base lg:text-lg font-black text-slate-900 mb-2 lg:mb-3">{feature.title}</h3>
@@ -303,7 +304,7 @@ export default function LandingPage() {
         
         <div className="bg-[#1A1A1A] rounded-[4rem] p-8 lg:p-16 relative overflow-hidden">
           {/* Background pattern */}
-          <div className="absolute inset-0 bg-[#FF6B35]/5 opacity-50" />
+          <div className="absolute inset-0 opacity-50" style={{ backgroundColor: `${theme.primaryColor}0D` }} />
           
           <div className="relative z-10 max-w-3xl mx-auto space-y-6 lg:space-y-8">
             <h3 className="text-3xl lg:text-5xl font-black text-white leading-tight">
@@ -318,14 +319,14 @@ export default function LandingPage() {
                 { label: 'Support', value: '24/7 CS' }
               ].map((stat, i) => (
                 <div key={i} className="space-y-1">
-                  <div className="text-3xl font-black text-[#FF6B35]">{stat.value}</div>
+                  <div className="text-3xl font-black" style={{ color: theme.primaryColor }}>{stat.value}</div>
                   <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">{stat.label}</div>
                 </div>
               ))}
             </div>
 
             <div className="pt-6"> {/* This button is a CTA to register */}
-              <Link to="/admin/register" className="inline-block bg-[#FF6B35] text-white px-10 py-4 lg:px-12 lg:py-5 rounded-2xl font-black text-lg lg:text-xl shadow-2xl shadow-[#FF6B35]/20 hover:bg-[#e85a24] transition-all mx-4 mb-4">
+              <Link to="/admin/register" className="inline-block text-white px-10 py-4 lg:px-12 lg:py-5 rounded-2xl font-black text-lg lg:text-xl shadow-2xl transition-all mx-4 mb-4" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 25px 50px -12px ${theme.primaryColor}33` }}>
                 Mulai Gratis
               </Link>
             </div>
@@ -349,7 +350,7 @@ export default function LandingPage() {
                 { step: '03', title: 'Dapur Siapkan Pesanan', desc: 'Notifikasi otomatis masuk ke dapur untuk segera diproses dan disajikan.' }
               ].map((step, i) => (
                 <div key={i} className="flex gap-4 lg:gap-6">
-                  <div className="text-2xl lg:text-3xl font-black text-[#FF6B35]/20">{step.step}</div>
+                  <div className="text-2xl lg:text-3xl font-black" style={{ color: `${theme.primaryColor}33` }}>{step.step}</div>
                   <div className="space-y-2">
                     <h4 className="text-lg lg:text-xl font-black text-slate-900">{step.title}</h4>
                     <p className="text-xs lg:text-sm text-slate-500 font-medium leading-relaxed">{step.desc}</p>
@@ -360,14 +361,14 @@ export default function LandingPage() {
           </div>
 
           <div className="bg-white p-8 lg:p-12 rounded-[4rem] shadow-sm border border-slate-100 flex items-center justify-center relative group">
-            <div className="absolute inset-12 bg-[#FF6B35]/5 rounded-3xl blur-[40px] group-hover:bg-[#FF6B35]/10 transition-colors" />
+            <div className="absolute inset-12 rounded-3xl blur-[40px] transition-colors" style={{ backgroundColor: `${theme.primaryColor}0D` }} />
             <div className="relative z-10 flex flex-col items-center gap-6">
               <div className="p-6 lg:p-8 bg-white rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center gap-4 w-60 lg:w-64">
                 <div className="w-40 h-40 bg-slate-900 rounded-2xl flex items-center justify-center p-3">
                   <QrCode size={120} className="text-white" />
                 </div>
                 <div className="text-center">
-                  <div className="text-xs font-black uppercase tracking-widest text-[#FF6B35] mb-1">Meja 01</div>
+                  <div className="text-xs font-black uppercase tracking-widest mb-1" style={{ color: theme.primaryColor }}>Meja 01</div>
                   <div className="text-sm font-bold text-slate-900">Scan untuk Pesan</div>
                 </div>
               </div>
@@ -382,92 +383,20 @@ export default function LandingPage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="max-w-7xl mx-auto px-6 py-10 lg:py-16">
-        <div className="text-center max-w-2xl mx-auto mb-8 lg:mb-10">
-          <h2 className="text-2xl lg:text-4xl font-black text-slate-900 mb-4 uppercase italic tracking-tight">Pilih Paket yang Sesuai</h2>
-          <p className="text-slate-500 text-sm lg:text-base font-medium leading-relaxed">
-            Mulai gratis, upgrade kapan saja.
+        <div className="text-center max-w-2xl mx-auto">
+          <h2 className="text-2xl lg:text-4xl font-black text-slate-900 mb-4 uppercase italic tracking-tight">Harga Terjangkau, Sekali Bayar</h2>
+          <p className="text-slate-500 text-sm lg:text-base font-medium leading-relaxed mb-8">
+            Tidak ada biaya bulanan. Tidak ada kontrak. Hubungi kami untuk informasi harga sesuai kebutuhan café Anda.
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8 items-stretch">
-          {/* Card 1: Gratis */}
-          <div className="bg-white p-5 lg:p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
-            <div className="mb-6 lg:mb-8">
-              <h3 className="text-lg lg:text-xl font-black text-slate-900 mb-2">Gratis (Trial)</h3>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl lg:text-3xl font-black text-slate-900">Rp 0</span>
-                <span className="text-slate-400 text-sm font-bold">/ 14 hari</span>
-              </div>
-            </div>
-            <ul className="space-y-3 lg:space-y-4 mb-8 lg:mb-10 flex-1">
-              {['1 Meja', '10 Menu Item', 'Branding Ordio'].map((feat) => (
-                <li key={feat} className="flex items-center gap-3 text-xs lg:text-sm font-bold text-slate-600">
-                  <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0" />
-                  {feat}
-                </li>
-              ))}
-            </ul>
-            <Link to="/admin/register" className="w-full py-3 lg:py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-2xl font-black text-center transition-all">
-              Mulai Gratis
-            </Link>
-          </div>
-
-          {/* Card 2: Starter */}
-          <div className="bg-white p-5 lg:p-8 rounded-[2.5rem] border-2 border-[#FF6B35] flex flex-col shadow-xl shadow-[#FF6B35]/5 relative md:scale-105 z-10 transition-transform hover:scale-[1.07]">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FF6B35] text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-              Paling Populer
-            </div>
-            <div className="mb-6 lg:mb-8">
-              <h3 className="text-lg lg:text-xl font-black text-slate-900 mb-2">Starter</h3>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl lg:text-3xl font-black text-slate-900">Rp 199.000</span>
-                <span className="text-slate-400 text-sm font-bold">/ bulan</span>
-              </div>
-            </div>
-            <ul className="space-y-3 lg:space-y-4 mb-8 lg:mb-10 flex-1">
-              {['10 Meja', 'Unlimited Menu Item', 'Tanpa Branding Ordio', 'Kitchen Display System'].map((feat) => (
-                <li key={feat} className="flex items-center gap-3 text-xs lg:text-sm font-bold text-slate-600">
-                  <CheckCircle2 size={18} className="text-[#FF6B35] flex-shrink-0" />
-                  {feat}
-                </li>
-              ))}
-            </ul>
-            <a 
-              href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Paket%20Starter%20Ordio." 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-full py-3 lg:py-4 bg-[#FF6B35] hover:bg-[#e85a24] text-white rounded-2xl font-black text-center transition-all shadow-lg shadow-[#FF6B35]/20"
-            >
-              Pilih Starter
-            </a>
-          </div>
-
-          {/* Card 3: Pro */}
-          <div className="bg-white p-5 lg:p-8 rounded-[2.5rem] border border-slate-100 flex flex-col shadow-sm transition-transform hover:scale-[1.02]">
-            <div className="mb-6 lg:mb-8">
-              <h3 className="text-lg lg:text-xl font-black text-slate-900 mb-2">Pro</h3>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl lg:text-3xl font-black text-slate-900">Rp 399.000</span>
-                <span className="text-slate-400 text-sm font-bold">/ bulan</span>
-              </div>
-            </div>
-            <ul className="space-y-3 lg:space-y-4 mb-8 lg:mb-10 flex-1">
-              {['Unlimited Meja', 'Semua fitur Starter', 'Laporan Penjualan + Export PDF', 'Priority Support'].map((feat) => (
-                <li key={feat} className="flex items-center gap-3 text-xs lg:text-sm font-bold text-slate-600">
-                  <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0" />
-                  {feat}
-                </li>
-              ))}
-            </ul>
-            <a 
-              href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Paket%20Pro%20Ordio." 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-full py-3 lg:py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-center transition-all"
-            >
-              Pilih Pro
-            </a>
-          </div>
+          <a 
+            href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20sistem%20order%20digital%20Ordio" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-block text-white px-10 py-4 lg:px-12 lg:py-5 rounded-2xl font-black text-lg lg:text-xl shadow-2xl transition-all"
+            style={{ backgroundColor: theme.primaryColor, boxShadow: `0 25px 50px -12px ${theme.primaryColor}33` }}
+          >
+            Tanya Harga via WhatsApp
+          </a>
         </div>
       </section>
 
@@ -476,17 +405,17 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-12 mb-10 lg:mb-12">
           <div className="col-span-1 md:col-span-2 space-y-6">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-[#FF6B35] flex items-center justify-center text-white">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ backgroundColor: theme.primaryColor }}>
                 <QrCode size={24} />
               </div>
-              <span className="text-xl font-black tracking-tight">Ordio</span>
+              <span className="text-xl font-black tracking-tight">{theme.brandName}</span>
             </div>
             <p className="text-slate-500 font-medium max-w-sm leading-relaxed">
-              Ordio membantu pemilik restoran di Indonesia mentransformasi 
+              {theme.brandName} membantu pemilik restoran di Indonesia mentransformasi 
               operasional mereka menjadi lebih cerdas dan efisien.
             </p>
             <div className="flex gap-4">
-              {[1, 2, 3].map(i => <div key={i} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#FF6B35] hover:border-[#FF6B35]/20 cursor-pointer transition-colors" />)}
+              {[1, 2, 3].map(i => <div key={i} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 cursor-pointer transition-colors hover:opacity-80" />)}
             </div>
           </div>
           
@@ -512,7 +441,7 @@ export default function LandingPage() {
         </div>
         
         <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">© 2026 Ordio Indonesia. All rights reserved.</p>
+          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">© 2026 {theme.brandName} Indonesia. All rights reserved.</p>
           <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <span>Made in Indonesia</span>
           </div>
@@ -520,7 +449,7 @@ export default function LandingPage() {
       </footer>
 
       {/* Floating WhatsApp CTA */}
-      <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="fixed bottom-8 right-8 z-[100]">
+      <a href={`https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20${theme.brandName},%20boleh%20minta%20info%20lebih%20lanjut?`} target="_blank" rel="noopener noreferrer" className="fixed bottom-8 right-8 z-[100]">
         <div className="bg-[#25D366] text-white p-4 rounded-full shadow-2xl shadow-emerald-500/20 hover:scale-110 active:scale-95 transition-all">
           <MessageCircle size={28} />
         </div>
