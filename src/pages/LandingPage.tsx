@@ -257,12 +257,18 @@ export default function LandingPage() {
 
             <div className="flex flex-row gap-3 lg:gap-4 w-full lg:w-auto">
               <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl transition-all group whitespace-nowrap" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 20px 25px -5px ${theme.primaryColor}33` }}>
-                Hubungi Kami
+                Minta Demo
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </a>
-              <a href={`https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20${theme.brandName},%20boleh%20minta%20info%20lebih%20lanjut?`} target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:opacity-80 transition-all whitespace-nowrap">
-                <MessageCircle size={20} />
-                Tanya Sales
+              <a 
+                href="#fitur" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('fitur');
+                }}
+                className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:opacity-80 transition-all whitespace-nowrap"
+              >
+                Lihat Fitur
               </a>
             </div>
 
@@ -313,8 +319,8 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="max-w-7xl mx-auto px-6 mt-16 lg:mt-24 pt-16 pb-10 lg:pt-24 lg:pb-16 bg-white rounded-[4rem] shadow-sm border border-slate-100">
-        <div className="text-center max-w-2xl mx-auto mb-8 lg:mb-12">
+      <section id="fitur" className="max-w-7xl mx-auto px-6 mt-16 lg:mt-24 pt-16 pb-10 lg:pt-24 lg:pb-16 bg-white rounded-[4rem] shadow-sm border border-slate-100">
+        <div id="features" className="text-center max-w-2xl mx-auto mb-8 lg:mb-12">
           <h2 className="text-2xl lg:text-4xl font-black text-slate-900 mb-4 uppercase italic tracking-tight">Fitur Unggulan</h2>
           <p className="text-slate-500 text-sm lg:text-base font-medium leading-relaxed">
             Segala yang Anda butuhkan untuk menjalankan bisnis kuliner di era digital, 
