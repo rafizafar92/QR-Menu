@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Lock, Mail, QrCode } from 'lucide-react';
 import { useAuth } from '../lib/auth';
@@ -118,7 +118,7 @@ export default function AdminLogin() {
                 />
                 <span>Ingat saya</span>
               </label>
-              <span className="text-slate-400 hover:underline cursor-pointer" style={{ '--hover-color': theme.primaryColor } as any}>Lupa Password?</span>
+
             </div>
 
             <button
@@ -137,10 +137,10 @@ export default function AdminLogin() {
           </form>
 
           <div className="mt-4 text-center text-xs">
-            <span className="text-slate-500">Mitra baru? </span>
-            <Link to="/admin/register" className="font-bold hover:underline" style={{ color: theme.primaryColor }}>
-              Buat akun gratis
-            </Link>
+            <span className="text-slate-500">Belum punya akun? </span>
+            <a href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20Ordio,%20boleh%20minta%20info%20lebih%20lanjut?" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline" style={{ color: theme.primaryColor }}>
+              Hubungi kami
+            </a>
           </div>
 
         </motion.div>

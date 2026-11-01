@@ -12,7 +12,7 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminProtectedRoute from './components/SuperAdminProtectedRoute';
 import CustomerMenu from './pages/CustomerMenu';
 import AdminLogin from './pages/AdminLogin';
-import AdminRegister from './pages/AdminRegister';
+
 import { AuthProvider } from './lib/auth';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import { 
@@ -412,7 +412,7 @@ function HomePortal() {
           <Route path="/brochure" element={<Brochure />} />
           <Route path="/menu/:venueId/:tableId" element={<CustomerMenu />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/admin/register" element={<Navigate to="/admin/login" replace />} />
           <Route element={<AdminProtectedRoute />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/kitchen" element={<AdminKitchen />} />
