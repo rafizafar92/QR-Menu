@@ -79,7 +79,7 @@ export default function AdminLogin() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="manager@restaurant.com"
+                  placeholder="email@restoran.com"
                   className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-hidden focus:ring-1 transition-all font-medium"
                   style={{ '--tw-ring-color': theme.primaryColor } as any}
                 />
@@ -100,7 +100,7 @@ export default function AdminLogin() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Password"
                   className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-hidden focus:ring-1 transition-all font-medium"
                   style={{ '--tw-ring-color': theme.primaryColor } as any}
                 />

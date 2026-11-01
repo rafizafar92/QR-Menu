@@ -256,10 +256,10 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-row gap-3 lg:gap-4 w-full lg:w-auto">
-              <Link to="/admin/register" className="flex-1 lg:flex-none flex items-center justify-center gap-2 text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl transition-all group whitespace-nowrap" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 20px 25px -5px ${theme.primaryColor}33` }}>
-                Mulai Sekarang
+              <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 text-white px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold lg:font-black text-sm lg:text-lg shadow-xl transition-all group whitespace-nowrap" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 20px 25px -5px ${theme.primaryColor}33` }}>
+                Hubungi Kami
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </a>
               <a href={`https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20${theme.brandName},%20boleh%20minta%20info%20lebih%20lanjut?`} target="_blank" rel="noopener noreferrer" className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-sm lg:text-lg hover:opacity-80 transition-all whitespace-nowrap">
                 <MessageCircle size={20} />
                 Tanya Sales

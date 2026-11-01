@@ -131,12 +131,13 @@ export default function AdminDashboard() {
   // Modify order status dynamically in memory
   const handlePrintReceipt = (order: Order) => {
     const venueName = user?.venueName || `${theme.brandName} Admin`;
-    const totalWithTax = (order.totalPrice * 1.08).toFixed(2);
+    const grandTotal = Math.round(order.totalPrice * 1.08);
     const itemsHtml = order.items.map(item => `
       <tr>
         <td style="text-align: left; padding: 4px 0;">${item.menuItemName}</td>
         <td style="text-align: center;">${item.quantity}</td>
-        <td style="text-align: right;">${formatCurrency(item.price * item.quantity)}</td>
+        <td style="text-align: right;">${'Rp ' + item.price.toLocaleString('id-ID')}</td>
+        <td style="text-align: right;">${'Rp ' + (item.price * item.quantity).toLocaleString('id-ID')}</td>
       </tr>
     `).join('');
 
@@ -169,6 +170,7 @@ export default function AdminDashboard() {
                 <th align="left">ITEM</th>
                 <th align="center">QTY</th>
                 <th align="right">PRICE</th>
+                <th align="right">TOTAL</th>
               </tr>
             </thead>
             <tbody>
@@ -178,7 +180,7 @@ export default function AdminDashboard() {
           <div class="divider"></div>
           <div class="bold" style="display: flex; justify-content: space-between; font-size: 14px;">
             <span>TOTAL PAID</span>
-            <span>${formatCurrency(totalWithTax)}</span>
+            <span>${'Rp ' + grandTotal.toLocaleString('id-ID')}</span>
           </div>
           <div class="divider" style="margin-top: 20px;"></div>
           <div class="center bold">THANK YOU!</div>
