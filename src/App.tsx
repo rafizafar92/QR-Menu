@@ -1,4 +1,5 @@
 import LandingPage from './pages/LandingPage';
+import Brochure from './pages/Brochure';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminKitchen from './pages/AdminKitchen';
 import AdminMenu from './pages/AdminMenu';
@@ -408,6 +409,7 @@ function HomePortal() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/brochure" element={<Brochure />} />
           <Route path="/menu/:venueId/:tableId" element={<CustomerMenu />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/register" element={<AdminRegister />} />

@@ -24,6 +24,48 @@ const LANDING_IMAGES = {
   kitchen: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600',
   cashier: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600'
 };
+
+const DEMO_URL = 'https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20sistem%20QR%20order,%20boleh%20minta%20demo?';
+
+const PRICING_PLANS = [
+  {
+    name: 'Basic',
+    price: '1.500.000',
+    tagline: 'Untuk bisnis kuliner yang baru mulai',
+    features: [
+      'Sampai 10 meja',
+      'Menu QR + Dashboard Kasir',
+      'Branding & logo restoran Anda',
+      'Setup & pelatihan',
+      'Support 30 hari',
+    ],
+  },
+  {
+    name: 'Standard',
+    price: '2.500.000',
+    tagline: 'Untuk restoran yang makin ramai',
+    featured: true,
+    features: [
+      'Meja unlimited',
+      'Semua fitur Basic',
+      'Kitchen Display real-time',
+      'Laporan penjualan + Export PDF',
+      'Support 60 hari',
+    ],
+  },
+  {
+    name: 'Premium',
+    price: '3.500.000',
+    tagline: 'Untuk operasional yang lengkap',
+    dark: true,
+    features: [
+      'Semua fitur Standard',
+      'Cetak kartu QR meja',
+      'Setup di lokasi',
+      'Support 90 hari',
+    ],
+  },
+];
 const PhoneMenuMockup = () => (
   <div className="relative mx-auto bg-slate-900 w-[280px] h-[580px] rounded-[3rem] border-[10px] border-slate-900 overflow-hidden" style={{ boxShadow: '0 0 50px rgba(255,107,53,0.15)' }}>
     <div className="h-full flex flex-col font-sans" style={{ backgroundColor: theme.backgroundColor }}>
@@ -183,9 +225,9 @@ export default function LandingPage() {
           <button onClick={() => scrollToSection('features')} className="transition-colors hover:opacity-80">Fitur</button>
           <button onClick={() => scrollToSection('how-it-works')} className="transition-colors hover:opacity-80">Cara Kerja</button>
           <Link to="/admin/login" className="transition-colors hover:opacity-80">Masuk</Link> {/* This is already correct */}
-          <Link to="/admin/register" className="text-white px-6 py-3 rounded-xl shadow-lg font-black transition-all hover:opacity-90" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}>
-            Coba Gratis
-          </Link>
+          <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="text-white px-6 py-3 rounded-xl shadow-lg font-black transition-all hover:opacity-90" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}>
+            Minta Demo
+          </a>
         </div>
       </nav>
 
@@ -325,10 +367,10 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <div className="pt-6"> {/* This button is a CTA to register */}
-              <Link to="/admin/register" className="inline-block text-white px-10 py-4 lg:px-12 lg:py-5 rounded-2xl font-black text-lg lg:text-xl shadow-2xl transition-all mx-4 mb-4" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 25px 50px -12px ${theme.primaryColor}33` }}>
-                Mulai Gratis
-              </Link>
+            <div className="pt-6">
+              <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="inline-block text-white px-10 py-4 lg:px-12 lg:py-5 rounded-2xl font-black text-lg lg:text-xl shadow-2xl transition-all mx-4 mb-4" style={{ backgroundColor: theme.primaryColor, boxShadow: `0 25px 50px -12px ${theme.primaryColor}33` }}>
+                Minta Demo
+              </a>
             </div>
           </div>
         </div>
@@ -384,19 +426,59 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <section id="pricing" className="max-w-7xl mx-auto px-6 py-10 lg:py-16">
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-2xl lg:text-4xl font-black text-slate-900 mb-4 uppercase italic tracking-tight">Harga Terjangkau, Sekali Bayar</h2>
-          <p className="text-slate-500 text-sm lg:text-base font-medium leading-relaxed mb-8">
-            Tidak ada biaya bulanan. Tidak ada kontrak. Hubungi kami untuk informasi harga sesuai kebutuhan café Anda.
+          <h2 className="text-2xl lg:text-4xl font-black text-slate-900 mb-4 uppercase italic tracking-tight">Bayar Sekali, Milik Selamanya</h2>
+          <p className="text-slate-500 text-sm lg:text-base font-medium leading-relaxed">
+            Tanpa biaya bulanan. Sistem dengan nama dan brand restoran Anda sendiri.
           </p>
-          <a 
-            href="https://wa.me/6287855585366?text=Halo,%20saya%20tertarik%20dengan%20sistem%20order%20digital%20Ordio" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="inline-block text-white px-10 py-4 lg:px-12 lg:py-5 rounded-2xl font-black text-lg lg:text-xl shadow-2xl transition-all"
-            style={{ backgroundColor: theme.primaryColor, boxShadow: `0 25px 50px -12px ${theme.primaryColor}33` }}
-          >
-            Tanya Harga via WhatsApp
-          </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-12 lg:mt-16 items-stretch max-w-6xl mx-auto">
+          {PRICING_PLANS.map((plan) => (
+            <div
+              key={plan.name}
+              className={`relative flex flex-col rounded-[2.5rem] p-8 border transition-all ${plan.dark ? 'bg-[#1A1A1A] border-white/10' : 'bg-white border-slate-100'} ${plan.featured ? 'shadow-2xl md:-translate-y-2' : 'shadow-sm hover:shadow-xl'}`}
+              style={plan.featured ? { borderColor: theme.primaryColor, boxShadow: `0 25px 50px -12px ${theme.primaryColor}33` } : {}}
+            >
+              {plan.featured && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full text-[10px] font-black tracking-widest text-white shadow-lg" style={{ backgroundColor: theme.primaryColor }}>
+                  Paling Populer
+                </div>
+              )}
+
+              <div className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: plan.dark ? '#94A3B8' : theme.primaryColor }}>
+                {plan.name}
+              </div>
+              <p className={`text-xs font-medium mt-2 ${plan.dark ? 'text-slate-400' : 'text-slate-500'}`}>{plan.tagline}</p>
+
+              <div className="mt-6 flex items-end gap-1">
+                <span className={`text-sm font-black mb-2 ${plan.dark ? 'text-white' : 'text-slate-900'}`}>Rp</span>
+                <span className={`text-4xl font-black tracking-tight leading-none ${plan.dark ? 'text-white' : 'text-slate-900'}`}>{plan.price}</span>
+              </div>
+              <div className={`text-xs font-bold mt-2 ${plan.dark ? 'text-slate-400' : 'text-slate-500'}`}>sekali bayar</div>
+
+              <div className={`h-px my-6 ${plan.dark ? 'bg-white/10' : 'bg-slate-100'}`} />
+
+              <ul className="space-y-3 flex-1">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-3">
+                    <CheckCircle2 size={16} className="shrink-0 mt-0.5" style={{ color: theme.primaryColor }} />
+                    <span className={`text-sm font-medium leading-relaxed ${plan.dark ? 'text-slate-300' : 'text-slate-600'}`}>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href={DEMO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`mt-8 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-black text-sm transition-all hover:opacity-90 ${plan.dark ? 'bg-white text-slate-900' : 'text-white'}`}
+                style={plan.dark ? {} : { backgroundColor: theme.primaryColor, boxShadow: `0 10px 20px -8px ${theme.primaryColor}66` }}
+              >
+                Minta Demo
+                <ArrowRight size={16} />
+              </a>
+            </div>
+          ))}
         </div>
       </section>
 
