@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import {
   QrCode,
@@ -12,7 +12,9 @@ import {
   MessageCircle,
   Zap,
   Wallet,
-  Smartphone
+  Smartphone,
+  Menu,
+  X
 } from 'lucide-react';
 import { Link } from 'react-router-dom'; // Ensure Link is imported
 import { theme } from '../config/theme';
@@ -204,6 +206,8 @@ const CashierDashboardCard = () => (
 // --- Main Landing Page Component ---
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -229,7 +233,30 @@ export default function LandingPage() {
             Minta Demo
           </a>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsMenuOpen((open) => !open)}
+          aria-label={isMenuOpen ? 'Tutup menu' : 'Buka menu'}
+          aria-expanded={isMenuOpen}
+          className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border transition-colors"
+          style={{ color: theme.primaryColor, borderColor: `${theme.primaryColor}33`, backgroundColor: '#FFF8F3' }}
+        >
+          {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </nav>
+
+      {isMenuOpen && (
+        <div className="md:hidden max-w-7xl mx-auto px-6 relative z-40">
+          <div className="rounded-2xl p-4 border shadow-lg" style={{ backgroundColor: '#FFF8F3', borderColor: `${theme.primaryColor}1A`, boxShadow: '0 10px 30px -12px rgba(0,0,0,0.15)' }}>
+            <button onClick={() => { scrollToSection('features'); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm font-bold text-slate-700 rounded-xl transition-colors hover:opacity-80" style={{ backgroundColor: 'transparent' }}>Fitur</button>
+            <button onClick={() => { scrollToSection('pricing'); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-sm font-bold text-slate-700 rounded-xl transition-colors hover:opacity-80" style={{ backgroundColor: 'transparent' }}>Harga</button>
+            <Link to="/admin/login" onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-sm font-bold text-slate-700 rounded-xl transition-colors hover:opacity-80">Masuk</Link>
+            <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)} className="mt-2 flex items-center justify-center w-full text-white px-6 py-3 rounded-xl font-black shadow-lg transition-all hover:opacity-90" style={{ backgroundColor: theme.primaryColor }}>
+              Minta Demo
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 pt-6 lg:pt-16 pb-12 lg:pb-16">
