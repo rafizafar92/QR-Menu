@@ -17,7 +17,9 @@ import {
   Table as TableIcon,
   TrendingUp,
   PackageCheck,
-  ArrowUpRight
+  ArrowUpRight,
+  Printer,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { theme } from '../config/theme';
@@ -33,6 +35,8 @@ export default function AdminDashboard() {
     pendingPayments: 0
   });
   const [popularItems, setPopularItems] = useState<{ name: string; count: number }[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
   const formatCurrency = (amount: number | string) => {
     const value = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -130,6 +134,20 @@ export default function AdminDashboard() {
     };
   }, [user?.venueId]);
 
+  useEffect(() => {
+    if (!selectedOrder) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedOrder(null);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [selectedOrder]);
+
+  const formatTableLabel = (tableId: string) => {
+    if (tableId === 'Walk-in') return 'Walk-in';
+    return /^meja\b/i.test(tableId) ? tableId : `Meja ${tableId.replace(/^table\s+/i, '')}`;
+  };
+
   // Modify order status dynamically in memory
   const handlePrintReceipt = (order: Order) => {
     const venueName = user?.venueName || `${theme.brandName} Admin`;
@@ -149,14 +167,14 @@ export default function AdminDashboard() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Receipt ${order.id.toUpperCase()}</title>
+          <title>Struk #${order.id.slice(-5).toUpperCase()}</title>
           <style>
-            body { font-family: monospace; width: 280px; margin: 0 auto; font-size: 12px; line-height: 1.4; }
+            body { font-family: monospace; width: 72mm; margin: 0 auto; padding: 4mm 0; font-size: 12px; line-height: 1.4; }
             .center { text-align: center; }
             .bold { font-weight: bold; }
             .divider { border-bottom: 1px dashed black; margin: 10px 0; }
             table { width: 100%; border-collapse: collapse; }
-            @page { size: 80mm auto; margin: 5mm; }
+            @page { size: 80mm auto; margin: 0; }
           </style>
         </head>
         <body>
@@ -202,18 +220,16 @@ export default function AdminDashboard() {
       .update({ status: newStatus })
       .eq('id', orderId);
 
-    if (error) return alert('Failed to update status');
+    if (error) {
+      alert('Failed to update status');
+      return false;
+    }
 
     const updatedOrders = orders.map(ord => 
       ord.id === orderId ? { ...ord, status: newStatus } : ord
     );
     setOrders(updatedOrders);
-
-    // Automatically trigger receipt print when payment is confirmed
-    if (newStatus === 'confirmed') {
-      const orderToPrint = updatedOrders.find(o => o.id === orderId);
-      if (orderToPrint) handlePrintReceipt(orderToPrint);
-    }
+    return true;
   };
 
   const formatTimeAgo = (isoString: string) => {
@@ -295,7 +311,7 @@ export default function AdminDashboard() {
             </div>
             <div className="divide-y divide-slate-50">
               {orders.slice(0, 5).map(order => (
-                <div key={order.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 hover:bg-slate-50/50 transition-colors">
+                <div key={order.id} onClick={() => { setIsProcessingOrder(false); setSelectedOrder(order); }} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 hover:bg-slate-50/50 transition-colors cursor-pointer">
                   <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-x-2 gap-y-1 sm:gap-x-4 min-w-0 flex-1">
                     <div className="h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600 px-3 min-w-[40px] shrink-0 whitespace-nowrap">
                       {order.tableId === 'Walk-in' ? (
@@ -319,7 +335,11 @@ export default function AdminDashboard() {
                     {order.status === 'pending_payment' && (
                       <div className="flex-1 min-w-0 sm:flex-none">
                         <button // Confirm Payment button
-                          onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setIsProcessingOrder(false);
+                            setSelectedOrder(order);
+                          }}
                           className="w-full sm:w-auto h-10 sm:h-auto text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg"
                           style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}
                         >
@@ -402,6 +422,114 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedOrder && (
+          <motion.div
+            key="order-detail-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
+            onClick={() => setSelectedOrder(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              role="dialog"
+              aria-modal="true"
+              className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-black text-slate-900 text-lg">Order #{selectedOrder.id.slice(0, 5).toUpperCase()}</h3>
+                    {getStatusBadge(selectedOrder.status)}
+                  </div>
+                  <p className="text-xs font-bold text-slate-400 mt-1">
+                    {formatTableLabel(selectedOrder.tableId)} · {parseDbDate(selectedOrder.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Jakarta' })}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrder(null)}
+                  className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  aria-label="Tutup"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+                {selectedOrder.items.map(item => (
+                  <div key={item.id} className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-slate-800 truncate">{item.menuItemName}</p>
+                      <p className="text-[11px] font-medium text-slate-400">
+                        {item.quantity} x {'Rp ' + item.price.toLocaleString('id-ID')}
+                      </p>
+                    </div>
+                    <span className="text-sm font-black text-slate-900 whitespace-nowrap">
+                      {'Rp ' + (item.price * item.quantity).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                ))}
+
+                {selectedOrder.notes && (
+                  <div className="mt-4 rounded-2xl border p-3" style={{ backgroundColor: '#FFF8F3', borderColor: `${theme.primaryColor}33` }}>
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: theme.primaryColor }}>Catatan</p>
+                    <p className="text-sm font-medium text-slate-600 whitespace-pre-wrap">{selectedOrder.notes}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="shrink-0 border-t border-slate-100 px-6 py-4 space-y-4 bg-white">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-400">Total</span>
+                  <span className="text-2xl font-black text-slate-900">{'Rp ' + selectedOrder.totalPrice.toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    disabled={isProcessingOrder}
+                    onClick={() => {
+                      if (isProcessingOrder) return;
+                      setIsProcessingOrder(true);
+                      const orderToProcess = selectedOrder;
+                      setSelectedOrder(null);
+
+                      if (orderToProcess.status === 'pending_payment') {
+                        updateOrderStatus(orderToProcess.id, 'confirmed').then(success => {
+                          if (success) handlePrintReceipt({ ...orderToProcess, status: 'confirmed' });
+                          setIsProcessingOrder(false);
+                        });
+                      } else {
+                        handlePrintReceipt(orderToProcess);
+                        setIsProcessingOrder(false);
+                      }
+                    }}
+                    className="flex-1 h-11 rounded-xl text-white text-xs font-black flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: '#FF6B35' }}
+                  >
+                    <Printer size={16} />
+                    {selectedOrder.status === 'pending_payment' ? 'Konfirmasi & Cetak Struk' : 'Cetak Ulang Struk'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOrder(null)}
+                    className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-xs font-black hover:bg-slate-50 transition-all active:scale-95"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AdminLayout>
   );
 }

@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Table, Venue } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 import { QRCodeCanvas } from 'qrcode.react';
-import domtoimage from 'dom-to-image-more';
+import * as QRCode from 'qrcode';
 import { 
   Plus, 
   Trash2, 
@@ -19,6 +19,67 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const SHOW_ORDIO_BRANDING = true;
+const CANVAS_FONT = 'Inter, Arial, sans-serif';
+
+const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+};
+
+const loadImage = (src: string) =>
+  new Promise<HTMLImageElement | null>((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+
+const drawForkAndKnife = (ctx: CanvasRenderingContext2D, cx: number, cy: number) => {
+  ctx.save();
+  ctx.strokeStyle = '#FF6B35';
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  ctx.beginPath();
+  ctx.moveTo(cx - 26, cy - 34);
+  ctx.lineTo(cx - 26, cy - 6);
+  ctx.moveTo(cx - 14, cy - 34);
+  ctx.lineTo(cx - 14, cy - 6);
+  ctx.moveTo(cx - 2, cy - 34);
+  ctx.lineTo(cx - 2, cy - 6);
+  ctx.quadraticCurveTo(cx - 14, cy + 6, cx - 14, cy - 6);
+  ctx.moveTo(cx - 14, cy - 2);
+  ctx.lineTo(cx - 14, cy + 34);
+
+  ctx.moveTo(cx + 18, cy - 34);
+  ctx.quadraticCurveTo(cx + 32, cy - 14, cx + 18, cy + 4);
+  ctx.lineTo(cx + 18, cy + 34);
+  ctx.stroke();
+  ctx.restore();
+};
+
+const drawSpacedText = (ctx: CanvasRenderingContext2D, text: string, centerX: number, y: number, spacing: number) => {
+  const chars = text.split('');
+  const widths = chars.map(char => ctx.measureText(char).width);
+  const totalWidth = widths.reduce((sum, width) => sum + width, 0) + spacing * (chars.length - 1);
+  let x = centerX - totalWidth / 2;
+
+  ctx.textAlign = 'center';
+  chars.forEach((char, index) => {
+    ctx.fillText(char, x + widths[index] / 2, y);
+    x += widths[index] + spacing;
+  });
+};
+
 export default function AdminTables() {
   const { user } = useAuth();
   const [tables, setTables] = useState<Table[]>([]);
@@ -30,7 +91,6 @@ export default function AdminTables() {
   const [newTableNum, setNewTableNum] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [createSuccess, setCreateSuccess] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user?.venueId) return;
@@ -128,23 +188,166 @@ export default function AdminTables() {
   };
 
   const downloadAsPng = async () => {
-    if (!selectedTable || !cardRef.current) return;
+    if (!selectedTable || !targetUrl) return;
 
     try {
-      const dataUrl = await domtoimage.toPng(cardRef.current, {
-        bgcolor: '#ffffff',
-        cacheBust: true,
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 1800;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 2D context unavailable');
+
+      const qrDataUrl = await QRCode.toDataURL(targetUrl, {
+        errorCorrectionLevel: 'H',
+        margin: 0,
+        width: 640,
+        color: { dark: '#0F172A', light: '#FFFFFF' },
       });
 
+      const [logoImg, qrImg] = await Promise.all([
+        venue?.logoUrl ? loadImage(venue.logoUrl) : Promise.resolve(null),
+        loadImage(qrDataUrl),
+      ]);
+
+      ctx.fillStyle = '#FFF8F3';
+      ctx.fillRect(0, 0, 1200, 1800);
+
+      ctx.fillStyle = '#FF6B35';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(1200, 0);
+      ctx.lineTo(1200, 260);
+      ctx.quadraticCurveTo(1200, 320, 1140, 320);
+      ctx.lineTo(60, 320);
+      ctx.quadraticCurveTo(0, 320, 0, 260);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(600, 95, 70, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      if (logoImg) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(600, 95, 62, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(logoImg, 538, 33, 124, 124);
+        ctx.restore();
+      } else {
+        drawForkAndKnife(ctx, 600, 95);
+      }
+
+      ctx.beginPath();
+      ctx.arc(600, 95, 70, 0, Math.PI * 2);
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 8;
+      ctx.stroke();
+
+      const venueName = venue?.name || 'Our Venue';
+      let nameSize = 64;
+      ctx.font = `700 ${nameSize}px ${CANVAS_FONT}`;
+      while (ctx.measureText(venueName).width > 1000 && nameSize > 28) {
+        nameSize -= 2;
+        ctx.font = `700 ${nameSize}px ${CANVAS_FONT}`;
+      }
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(venueName, 600, 235);
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(15, 23, 42, 0.14)';
+      ctx.shadowBlur = 50;
+      ctx.shadowOffsetY = 20;
+      roundRect(ctx, 220, 270, 760, 760, 48);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+      ctx.restore();
+
+      if (qrImg) {
+        ctx.drawImage(qrImg, 280, 330, 640, 640);
+      }
+
+      ctx.font = `700 36px ${CANVAS_FONT}`;
+      ctx.fillStyle = '#FF6B35';
+      drawSpacedText(ctx, 'MEJA', 600, 1110, 12);
+
+      const tableNumber = selectedTable.tableNumber.replace(/^Table\s+/i, '');
+      let tableSize = 200;
+      ctx.font = `900 ${tableSize}px ${CANVAS_FONT}`;
+      while (ctx.measureText(tableNumber).width > 1050 && tableSize > 80) {
+        tableSize -= 4;
+        ctx.font = `900 ${tableSize}px ${CANVAS_FONT}`;
+      }
+      ctx.fillStyle = '#0F172A';
+      ctx.fillText(tableNumber, 600, 1340);
+
+      const pillText = 'Scan untuk Pesan';
+      ctx.font = `700 56px ${CANVAS_FONT}`;
+      const pillWidth = ctx.measureText(pillText).width + 120;
+      const pillHeight = 100;
+      const pillY = 1425;
+      roundRect(ctx, 600 - pillWidth / 2, pillY, pillWidth, pillHeight, pillHeight / 2);
+      ctx.fillStyle = '#FF6B35';
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pillText, 600, pillY + pillHeight / 2 + 2);
+      ctx.textBaseline = 'alphabetic';
+
+      const steps = ['Scan QR', 'Pilih Menu', 'Bayar di Kasir'];
+      ctx.font = `600 34px ${CANVAS_FONT}`;
+      const stepLabelWidths = steps.map(step => ctx.measureText(step).width);
+      const circleRadius = 20;
+      const circleGap = 12;
+      const stepGap = 56;
+      const stepsWidth = stepLabelWidths.reduce((sum, width) => sum + width, 0)
+        + steps.length * (circleRadius * 2 + circleGap)
+        + (steps.length - 1) * stepGap;
+      let stepX = (1200 - stepsWidth) / 2;
+      const stepY = 1575;
+
+      steps.forEach((step, index) => {
+        ctx.beginPath();
+        ctx.arc(stepX + circleRadius, stepY, circleRadius, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF6B35';
+        ctx.fill();
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `700 22px ${CANVAS_FONT}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(index + 1), stepX + circleRadius, stepY + 1);
+
+        ctx.fillStyle = '#64748B';
+        ctx.font = `600 34px ${CANVAS_FONT}`;
+        ctx.textAlign = 'center';
+        ctx.fillText(step, stepX + circleRadius * 2 + circleGap + stepLabelWidths[index] / 2, stepY + 1);
+
+        stepX += circleRadius * 2 + circleGap + stepLabelWidths[index] + stepGap;
+      });
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+
+      const isWhiteLabel = Boolean((venue as Venue & { whiteLabel?: boolean })?.whiteLabel);
+      if (SHOW_ORDIO_BRANDING && !isWhiteLabel) {
+        ctx.font = `500 28px ${CANVAS_FONT}`;
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText('Powered by Ordio', 600, 1735);
+      }
+
       const downloadLink = document.createElement('a');
-      downloadLink.href = dataUrl;
-      downloadLink.download = `tent-card-${selectedTable.tableNumber.toLowerCase().replace(/\s+/g, '-')}.png`;
+      downloadLink.href = canvas.toDataURL('image/png');
+      downloadLink.download = `Meja-${selectedTable.tableNumber}-${venue?.name || 'Venue'}.png`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
     } catch (error) {
       console.error('Error generating PNG:', error);
-      alert('Failed to generate the PNG card preview.');
+      alert('Failed to generate the PNG card.');
     }
   };
 
@@ -331,79 +534,75 @@ export default function AdminTables() {
 
                   {/* Outer Flyer leaf */}
                   <div
-                    ref={cardRef}
                     id="tent-card-preview"
                     style={{
-                      width: '85mm',
-                      height: '120mm',
-                      backgroundColor: '#ffffff',
-                      borderRadius: '16px',
-                      padding: '40px 30px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      textAlign: 'center',
-                      boxSizing: 'border-box',
-                      border: '1px solid #f1f5f9',
+                      width: '100%',
+                      maxWidth: '300px',
+                      aspectRatio: '2 / 3',
+                      containerType: 'inline-size',
+                      backgroundColor: '#FFF8F3',
+                      borderRadius: '12px',
+                      position: 'relative',
+                      overflow: 'hidden',
                       boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-                      fontFamily: 'system-ui, -apple-system, sans-serif'
+                      fontFamily: 'Inter, Arial, sans-serif',
+                      textAlign: 'center',
+                      color: '#0F172A'
                     }}
                   >
-                    {/* Top Section: Branding */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '26.667cqw', backgroundColor: '#FF6B35', borderBottomLeftRadius: '5cqw', borderBottomRightRadius: '5cqw' }} />
+
+                    <div style={{ position: 'absolute', top: '2.083cqw', left: '50%', transform: 'translateX(-50%)', width: '11.667cqw', height: '11.667cqw', borderRadius: '50%', backgroundColor: '#FFFFFF', border: '0.667cqw solid #FFFFFF', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                       {venue?.logoUrl ? (
-                        <img
-                          src={venue.logoUrl}
-                          alt="Logo"
-                          style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0', marginBottom: '12px' }}
-                        />
+                        <img src={venue.logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px', color: '#94a3b8' }}>
-                          <Utensils size={24} />
-                        </div>
+                        <Utensils size={24} style={{ width: '55%', height: '55%', color: '#FF6B35' }} />
                       )}
-                      <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#1e293b', margin: 0, fontFamily: 'serif', letterSpacing: '-0.01em' }}>
-                        {venue?.name || 'Our Venue'}
-                      </h2>
                     </div>
 
-                    {/* Divider */}
-                    <div style={{ width: '40px', height: '1.5px', backgroundColor: '#e2e8f0' }} />
+                    <div style={{ position: 'absolute', top: '14.8cqw', left: '50%', transform: 'translateX(-50%)', width: '83.333cqw', color: '#FFFFFF', fontSize: (venue?.name?.length || 0) > 16 ? '4.2cqw' : '5.333cqw', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {venue?.name || 'Our Venue'}
+                    </div>
 
-                    {/* Middle: QR Code */}
-                    <div style={{ padding: '15px', backgroundColor: '#ffffff', border: '1px solid #f1f5f9', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                    <div style={{ position: 'absolute', top: '22.5cqw', left: '50%', transform: 'translateX(-50%)', width: '63.333cqw', height: '63.333cqw', borderRadius: '4cqw', backgroundColor: '#FFFFFF', boxShadow: '0 1.667cqw 3.333cqw -1.25cqw rgba(15, 23, 42, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {targetUrl ? (
                         <QRCodeCanvas
                           id="qr-canvas"
                           value={targetUrl}
-                          size={160}
+                          size={640}
                           level="H"
                           includeMargin={false}
+                          fgColor="#0F172A"
+                          bgColor="#FFFFFF"
+                          style={{ width: '53.333cqw', height: '53.333cqw' }}
                         />
                       ) : (
-                        <div style={{ width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
-                          <QrCode size={48} />
-                        </div>
+                        <QrCode size={48} style={{ width: '12cqw', height: '12cqw', color: '#CBD5E1' }} />
                       )}
                     </div>
 
-                    {/* Divider */}
-                    <div style={{ width: '40px', height: '1.5px', backgroundColor: '#e2e8f0' }} />
+                    <div style={{ position: 'absolute', top: '89.5cqw', left: 0, right: 0, fontSize: '3cqw', fontWeight: 700, letterSpacing: '0.18em', color: '#FF6B35' }}>MEJA</div>
 
-                    {/* Bottom: Table Information */}
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '4px' }}>Table</span>
-                      <h1 style={{ fontSize: '48px', fontWeight: '900', color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1 }}>Meja 
-                        {selectedTable.tableNumber.replace(/\D/g, '') || selectedTable.tableNumber}
-                      </h1>
-                      <span style={{ fontSize: '14px', fontWeight: '600', color: '#64748b' }}>Scan to Order</span>
+                    <div style={{ position: 'absolute', top: '97.9cqw', left: 0, right: 0, fontSize: '16.667cqw', fontWeight: 900, lineHeight: 1, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: '0 2cqw', boxSizing: 'border-box' }}>
+                      {selectedTable.tableNumber.replace(/^Table\s+/i, '')}
                     </div>
 
-                    {/* Footer */}
-                    <div style={{ fontSize: '9px', fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Powered by Ordio
+                    <div style={{ position: 'absolute', top: '118.75cqw', left: '50%', transform: 'translateX(-50%)', height: '8.333cqw', padding: '0 5cqw', borderRadius: '99cqw', backgroundColor: '#FF6B35', color: '#FFFFFF', fontSize: '4.667cqw', fontWeight: 700, lineHeight: '8.333cqw', whiteSpace: 'nowrap' }}>
+                      Scan untuk Pesan
                     </div>
+
+                    <div style={{ position: 'absolute', top: '128.3cqw', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '4.667cqw', fontSize: '2.833cqw', fontWeight: 600, color: '#64748B', whiteSpace: 'nowrap' }}>
+                      {['Scan QR', 'Pilih Menu', 'Bayar di Kasir'].map((step, index) => (
+                        <span key={step} style={{ display: 'inline-flex', alignItems: 'center', gap: '1cqw' }}>
+                          <span style={{ width: '3.333cqw', height: '3.333cqw', borderRadius: '50%', backgroundColor: '#FF6B35', color: '#FFFFFF', fontSize: '1.833cqw', fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{index + 1}</span>
+                          {step}
+                        </span>
+                      ))}
+                    </div>
+
+                    {SHOW_ORDIO_BRANDING && !(venue as Venue & { whiteLabel?: boolean })?.whiteLabel && (
+                      <div style={{ position: 'absolute', top: '143cqw', left: 0, right: 0, fontSize: '2.333cqw', fontWeight: 500, color: '#94A3B8' }}>Powered by Ordio</div>
+                    )}
                   </div>
 
                   <span className="absolute top-2.5 right-3 text-[10px] text-slate-400 font-bold bg-white px-2 py-0.5 rounded-full border border-slate-200 shadow-3xs flex items-center gap-1">
