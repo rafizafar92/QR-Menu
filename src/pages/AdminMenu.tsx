@@ -15,7 +15,8 @@ import {
   Upload,
   Image as ImageIcon,
   AlertTriangle,
-  X
+  X,
+  Pencil
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -39,6 +40,9 @@ export default function AdminMenu() {
   const [isAvailable, setIsAvailable] = useState(true);
   const [formSuccess, setFormSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<MenuItem | null>(null);
 
   const formatPrice = (price: number) => {
@@ -202,6 +206,188 @@ export default function AdminMenu() {
     }, 1200);
   };
 
+  const resetItemForm = () => {
+    setName('');
+    setPrice('');
+    setDescription('');
+    setCategory(categories.find(c => c !== 'All') || 'Makanan');
+    setImageUrl('');
+    setIsAvailable(true);
+    setFormError('');
+    setFormSuccess(false);
+  };
+
+  const openAddForm = () => {
+    setEditingItem(null);
+    resetItemForm();
+    setShowAddForm(true);
+  };
+
+  const openEditItem = (item: MenuItem) => {
+    setEditingItem(item);
+    setName(item.name);
+    setPrice(String(item.price));
+    setDescription(item.description || '');
+    setCategory(item.category || 'Makanan');
+    setImageUrl(item.imageUrl || '');
+    setIsAvailable(item.isAvailable);
+    setFormError('');
+    setFormSuccess(false);
+    setShowAddForm(false);
+  };
+
+  const handleEditItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem || !user?.venueId) return;
+    if (!name || !price) {
+      setFormError('Item name and price are required.');
+      return;
+    }
+
+    setSaving(true);
+    setFormError('');
+
+    const { data, error } = await supabase
+      .from('menu_items')
+      .update({
+        name,
+        price: parseFloat(price) || 0,
+        description: description || 'No description provided.',
+        category,
+        image_url: imageUrl,
+        is_available: isAvailable
+      })
+      .eq('id', editingItem.id)
+      .eq('venue_id', user.venueId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.error('Supabase update failed:', error);
+      setFormError(error?.message || 'Failed to update item.');
+      setSaving(false);
+      return;
+    }
+
+    const updatedItem: MenuItem = {
+      id: data.id,
+      venueId: data.venue_id,
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      imageUrl: data.image_url,
+      category: data.category,
+      isAvailable: data.is_available
+    };
+
+    setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    setFormSuccess(true);
+
+    setTimeout(() => {
+      setFormSuccess(false);
+      setEditingItem(null);
+      setSaving(false);
+    }, 1200);
+  };
+
+  const renderItemFormFields = () => (
+    <div className="space-y-3">
+      <div>
+        <label htmlFor="food-name" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nama Item *</label>
+        <input
+          id="food-name"
+          type="text"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="E.g., Pistachio Scone, Iced Cappuccino"
+          className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor="food-price" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Harga (Rp) *</label>
+          <input
+            id="food-price"
+            type="number"
+            step="1"
+            required
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="25000"
+            className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="food-category" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
+          <select
+            id="food-category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
+          >
+            {categories.filter(c => c !== 'All').map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="food-desc" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Deskripsi</label>
+        <textarea
+          id="food-desc"
+          rows={2}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Provide delicate ingredients, allergen tags, preparation details..."
+          className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
+        />
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Product Image</label>
+        <div className="flex items-center gap-3">
+          {imageUrl ? (
+            <img src={imageUrl} className="w-12 h-12 rounded-lg object-cover border border-slate-200 bg-slate-50" alt="Preview" />
+          ) : (
+            <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-300">
+              <ImageIcon size={20} />
+            </div>
+          )}
+          <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-lg py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
+            <Upload size={14} className="text-slate-400" />
+            <span className="text-[10px] font-black text-slate-500 uppercase">
+              {uploading ? 'Mengunggah...' : 'Unggah Gambar'}
+            </span>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+              className="hidden" 
+              disabled={uploading || saving}
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 pt-1">
+        <input
+          id="food-active"
+          type="checkbox"
+          checked={isAvailable}
+          onChange={(e) => setIsAvailable(e.target.checked)}
+          className="h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
+        />
+        <label htmlFor="food-active" className="text-xs text-slate-600 font-bold select-none cursor-pointer">
+          Aktifkan di menu digital (Tersedia)
+        </label>
+      </div>
+    </div>
+  );
+
   return (
     <AdminLayout
       title="Kelola Menu"
@@ -231,7 +417,7 @@ export default function AdminMenu() {
             <div className="flex border border-slate-200 bg-white rounded-xl overflow-hidden self-stretch sm:self-auto">
               <button
                 id="btn-add-item-trigger"
-                onClick={() => setShowAddForm(true)}
+                onClick={openAddForm}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2 px-4 rounded-xl flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
@@ -314,14 +500,24 @@ export default function AdminMenu() {
                       )}
                     </button>
 
-                    <button
-                      id={`delete-stock-btn-${item.id}`}
-                      onClick={() => setItemToDelete(item)}
-                      className="text-slate-400 hover:text-rose-600 p-1 rounded-md transition-colors cursor-pointer"
-                      title="Remove product"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        id={`edit-menu-btn-${item.id}`}
+                        onClick={() => openEditItem(item)}
+                        className="text-slate-400 hover:text-indigo-600 p-1 rounded-md transition-colors cursor-pointer"
+                        title="Edit product"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        id={`delete-stock-btn-${item.id}`}
+                        onClick={() => setItemToDelete(item)}
+                        className="text-slate-400 hover:text-rose-600 p-1 rounded-md transition-colors cursor-pointer"
+                        title="Remove product"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -382,101 +578,7 @@ export default function AdminMenu() {
                   </div>
                 )}
 
-                <div className="space-y-3">
-                  <div>
-                    <label htmlFor="food-name" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Nama Item *</label>
-                    <input
-                      id="food-name"
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="E.g., Pistachio Scone, Iced Cappuccino"
-                      className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label htmlFor="food-price" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Harga (Rp) *</label>
-                      <input
-                        id="food-price"
-                        type="number"
-                        step="1"
-                        required
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        placeholder="25000"
-                        className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="food-category" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
-                      <select
-                        id="food-category"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
-                      >
-                        {categories.filter(c => c !== 'All').map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="food-desc" className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Deskripsi</label>
-                    <textarea
-                      id="food-desc"
-                      rows={2}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Provide delicate ingredients, allergen tags, preparation details..."
-                      className="w-full mt-1.5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-850"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Product Image</label>
-                    <div className="flex items-center gap-3">
-                      {imageUrl ? (
-                        <img src={imageUrl} className="w-12 h-12 rounded-lg object-cover border border-slate-200 bg-slate-50" alt="Preview" />
-                      ) : (
-                        <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-300">
-                          <ImageIcon size={20} />
-                        </div>
-                      )}
-                      <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-lg py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
-                        <Upload size={14} className="text-slate-400" />
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          {uploading ? 'Mengunggah...' : 'Unggah Gambar'}
-                        </span>
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          onChange={handleImageUpload} 
-                          className="hidden" 
-                          disabled={uploading}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-1">
-                    <input
-                      id="food-active"
-                      type="checkbox"
-                      checked={isAvailable}
-                      onChange={(e) => setIsAvailable(e.target.checked)}
-                      className="h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <label htmlFor="food-active" className="text-xs text-slate-600 font-bold select-none cursor-pointer">
-                      Aktifkan di menu digital (Tersedia)
-                    </label>
-                  </div>
-                </div>
+                {renderItemFormFields()}
 
                 <button
                   id="submit-new-food"
@@ -491,7 +593,7 @@ export default function AdminMenu() {
                 <p className="text-xs text-slate-400">Want to expand your culinary offerings? Creating items publishes them instantly.</p>
                 <button
                   id="btn-re-add"
-                  onClick={() => setShowAddForm(true)}
+                  onClick={openAddForm}
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-xl border border-indigo-100 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
@@ -503,6 +605,72 @@ export default function AdminMenu() {
         </div>
 
       </div>
+
+      {/* Edit Item Modal */}
+      <AnimatePresence>
+        {editingItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
+            onClick={() => setEditingItem(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 10 }}
+              className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] flex flex-col border border-slate-100 shadow-xl overflow-hidden"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <form onSubmit={handleEditItem} className="flex flex-col min-h-0 flex-1">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+                  <h3 className="text-lg font-black text-slate-900">Edit Menu</h3>
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem(null)}
+                    className="text-slate-300 hover:text-slate-500 transition-colors"
+                    aria-label="Tutup"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                  {formError && (
+                    <div className="bg-rose-50 text-rose-700 text-xs font-bold p-3 rounded-lg border border-rose-100">
+                      {formError}
+                    </div>
+                  )}
+                  {formSuccess && (
+                    <div className="bg-indigo-50 text-indigo-700 text-xs font-bold p-3 rounded-lg border border-indigo-100 flex items-center gap-1">
+                      <Check className="w-4 h-4" /> Perubahan menu berhasil disimpan!
+                    </div>
+                  )}
+                  {renderItemFormFields()}
+                </div>
+
+                <div className="shrink-0 px-6 py-4 border-t border-slate-100 bg-white flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem(null)}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 rounded-xl text-xs transition-colors cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving || uploading}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-xs cursor-pointer"
+                  >
+                    {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
