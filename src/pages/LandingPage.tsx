@@ -222,7 +222,6 @@ export default function LandingPage() {
           </div>
           <div>
             <span className="text-xl font-black tracking-tight">{theme.brandName}</span>
-            <span className="text-[10px] block font-bold uppercase tracking-widest leading-none mt-0.5" style={{ color: theme.primaryColor }}>Indonesia</span>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
@@ -556,10 +555,7 @@ export default function LandingPage() {
         </div>
         
         <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-6">
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">© 2026 {theme.brandName} Indonesia. All rights reserved.</p>
-          <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
-            <span>Made in Indonesia</span>
-          </div>
+          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">© 2026 {theme.brandName}. All rights reserved.</p>
         </div>
       </footer>
 

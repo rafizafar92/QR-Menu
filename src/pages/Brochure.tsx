@@ -70,17 +70,6 @@ function OrdioLogo({ scale = 1 }: { scale?: number }) {
         >
           Ordio
         </div>
-        <div
-          style={{
-            fontSize: 7.5 * scale,
-            letterSpacing: '0.24em',
-            fontWeight: 700,
-            color: MUTED,
-            marginTop: 2 * scale,
-          }}
-        >
-          INDONESIA
-        </div>
       </div>
     </div>
   );

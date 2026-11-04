@@ -219,29 +219,29 @@ export default function AdminDashboard() {
     const past = new Date(isoString);
     const diffInMins = Math.floor((now.getTime() - past.getTime()) / 60000);
     
-    if (diffInMins < 1) return 'Just now';
-    if (diffInMins < 60) return `${diffInMins}m yang lalu`;
+    if (diffInMins < 1) return 'baru saja';
+    if (diffInMins < 60) return `${diffInMins} menit lalu`;
     const diffInHours = Math.floor(diffInMins / 60);
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    if (diffInHours < 24) return `${diffInHours} jam lalu`;
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    return `${diffInDays} hari lalu`;
   };
 
   // Status color pill helper
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
       case 'pending_payment':
-        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">● Menunggu Pembayaran</span>;
+        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1 whitespace-nowrap">● Menunggu Pembayaran</span>;
       case 'confirmed':
-        return <span className="bg-indigo-500/10 text-indigo-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-indigo-500/20 flex items-center gap-1">● Dikonfirmasi</span>;
+        return <span className="bg-indigo-500/10 text-indigo-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-indigo-500/20 flex items-center gap-1 whitespace-nowrap">● Dikonfirmasi</span>;
       case 'preparing':
-        return <span className="bg-sky-500/10 text-sky-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-sky-500/20 flex items-center gap-1">● Sedang Diproses</span>;
+        return <span className="bg-sky-500/10 text-sky-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-sky-500/20 flex items-center gap-1 whitespace-nowrap">● Sedang Diproses</span>;
       case 'ready':
-        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Siap</span>;
+        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1 whitespace-nowrap">● Siap</span>;
       case 'completed':
-        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">● Selesai</span>;
+        return <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1 whitespace-nowrap">● Selesai</span>;
       case 'cancelled':
-        return <span className="bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-rose-500/20 flex items-center gap-1">● Dibatalkan</span>;
+        return <span className="bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-rose-500/20 flex items-center gap-1 whitespace-nowrap">● Dibatalkan</span>;
     }
   };
 
@@ -293,35 +293,37 @@ export default function AdminDashboard() {
             </div>
             <div className="divide-y divide-slate-50">
               {orders.slice(0, 5).map(order => (
-                <div key={order.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600 px-3 min-w-[40px]`}>
+                <div key={order.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 hover:bg-slate-50/50 transition-colors overflow-hidden">
+                  <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-x-2 gap-y-1 sm:gap-x-4 min-w-0 flex-1">
+                    <div className="h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600 px-3 min-w-[40px] shrink-0 whitespace-nowrap">
                       {order.tableId === 'Walk-in' ? (
                         'WALK-IN'
                       ) : (
                         order.tableId
                       )}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 text-sm">Order #{order.id.slice(0, 5).toUpperCase()}</span>
-                        {getStatusBadge(order.status)}
+                    <div className="contents sm:flex sm:flex-col sm:min-w-0 sm:flex-1">
+                      <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                        <span className="font-bold text-slate-900 text-sm whitespace-nowrap">Order #{order.id.slice(0, 5).toUpperCase()}</span>
+                        <span className="ml-auto sm:ml-0 shrink-0">{getStatusBadge(order.status)}</span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1 line-clamp-1">
+                      <p className="w-full sm:w-auto text-xs text-slate-400 mt-1 truncate min-w-0">
                         {order.items.map(i => `${i.quantity}x ${i.menuItemName}`).join(', ')}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">{formatTimeAgo(order.createdAt)}</span>
+                  <div className="flex items-center justify-between sm:justify-end gap-4 min-w-0 sm:shrink-0">
+                    <span className="text-[10px] font-bold text-slate-400 lowercase whitespace-nowrap shrink-0">{formatTimeAgo(order.createdAt)}</span>
                     {order.status === 'pending_payment' && (
-                      <button // Confirm Payment button
-                        onClick={() => updateOrderStatus(order.id, 'confirmed')}
-                        className="text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg"
-                        style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}
-                      >
-                        KONFIRMASI PEMBAYARAN
-                      </button>
+                      <div className="flex-1 min-w-0 sm:flex-none">
+                        <button // Confirm Payment button
+                          onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                          className="w-full sm:w-auto h-10 sm:h-auto text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-lg"
+                          style={{ backgroundColor: theme.primaryColor, boxShadow: `0 10px 15px -3px ${theme.primaryColor}33` }}
+                        >
+                          KONFIRMASI PEMBAYARAN
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
