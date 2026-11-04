@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase'; // Updated to use owner email logic
 import { useAuth } from '../lib/auth';
+import { parseDbDate } from '../lib/utils';
 import { 
   Users, 
   Store, 
@@ -432,7 +433,7 @@ const confirmDelete = async () => {
                       <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
                         <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Last Activity</span>
                         <span className="text-xs font-bold text-white">
-                          {selectedVenueDetails.stats?.last_order ? new Date(selectedVenueDetails.stats.last_order).toLocaleString() : 'No activity'}
+                          {selectedVenueDetails.stats?.last_order ? parseDbDate(selectedVenueDetails.stats.last_order).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'No activity'}
                         </span>
                       </div>
                     </div>

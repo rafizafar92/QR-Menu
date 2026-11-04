@@ -3,6 +3,7 @@ import AdminLayout from '../components/AdminLayout';
 import { Order } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
+import { parseDbDate } from '../lib/utils';
 import { 
   CheckCircle2, 
   Clock, 
@@ -100,7 +101,7 @@ export default function AdminKitchen() {
   };
 
   const formatTimeAgo = (isoString: string) => {
-    const diff = Math.floor((new Date().getTime() - new Date(isoString).getTime()) / 60000);
+    const diff = Math.floor((new Date().getTime() - parseDbDate(isoString).getTime()) / 60000);
     if (diff < 1) return 'Baru saja';
     return `${diff} menit lalu`;
   };
@@ -210,7 +211,7 @@ export default function AdminKitchen() {
         <div className="bg-[#1E293B] px-8 py-4 rounded-3xl border border-slate-800 flex flex-col items-center">
           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Waktu Stasiun</span>
           <span className="text-3xl font-black text-white font-mono">
-            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta' })}
           </span>
         </div>
       </header>

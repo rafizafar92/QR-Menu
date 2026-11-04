@@ -3,6 +3,7 @@ import AdminLayout from '../components/AdminLayout';
 import { Order } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
+import { parseDbDate } from '../lib/utils';
 import { 
   BarChart3, 
   Download, 
@@ -60,7 +61,9 @@ export default function AdminReports() {
 
     const now = new Date();
     if (filter === 'today') {
-      const start = new Date(now.setHours(0,0,0,0)).toISOString();
+      const jakartaParts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
+      const jakartaPart = (type: string) => jakartaParts.find(p => p.type === type)?.value;
+      const start = new Date(`${jakartaPart('year')}-${jakartaPart('month')}-${jakartaPart('day')}T00:00:00+07:00`).toISOString();
       query = query.gte('created_at', start);
     } else if (filter === 'week') {
       const start = new Date(now.setDate(now.getDate() - 7)).toISOString();
@@ -124,7 +127,7 @@ export default function AdminReports() {
     const data: Record<string, number> = {};
     const validStatuses = ['confirmed', 'preparing', 'ready', 'completed'];
     orders.filter(o => validStatuses.includes(o.status)).forEach(o => {
-      const date = new Date(o.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+      const date = parseDbDate(o.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', timeZone: 'Asia/Jakarta' });
       data[date] = (data[date] || 0) + o.totalPrice;
     });
     return Object.entries(data).map(([name, total]) => ({ name, total }));
@@ -161,7 +164,7 @@ export default function AdminReports() {
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     pdf.text(new Date().toLocaleDateString('id-ID', { 
-      day: '2-digit', month: 'long', year: 'numeric' 
+      day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta'
     }), pageWidth - 14, 16, { align: 'right' });
     
     // Venue & Info
@@ -251,7 +254,7 @@ export default function AdminReports() {
         y = 20;
       }
       
-      const dateStr = new Date(order.createdAt).toLocaleDateString('id-ID');
+      const dateStr = parseDbDate(order.createdAt).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' });
       const itemsList = order.items.map(i => `${i.quantity}x ${i.menuItemName}`).join(', ');
       const truncatedItems = itemsList.length > 35 ? itemsList.substring(0, 32) + '...' : itemsList;
 
@@ -364,7 +367,7 @@ export default function AdminReports() {
             <tbody className="divide-y divide-slate-100">
               {orders.map(order => (
                 <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{new Date(order.createdAt).toLocaleDateString('id-ID')}</td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-600">{parseDbDate(order.createdAt).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' })}</td>
                   <td className="px-6 py-4 text-xs font-bold text-slate-900">{order.tableId}</td>
                   <td className="px-6 py-4 text-xs text-slate-500 truncate max-w-[200px]">{order.items.map(i => `${i.quantity}x ${i.menuItemName}`).join(', ')}</td>
                   <td className="px-6 py-4 text-xs font-black text-slate-900">{formatCurrency(order.totalPrice)}</td>

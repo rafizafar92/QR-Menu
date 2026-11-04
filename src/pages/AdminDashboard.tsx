@@ -4,6 +4,7 @@ import AdminLayout from '../components/AdminLayout';
 import { Order, OrderStatus } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
+import { parseDbDate } from '../lib/utils';
 import { 
   DollarSign, 
   ShoppingBag,
@@ -48,8 +49,9 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
       setLoading(true);
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
+      const jakartaParts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      const jakartaPart = (type: string) => jakartaParts.find(p => p.type === type)?.value;
+      const startOfDay = new Date(`${jakartaPart('year')}-${jakartaPart('month')}-${jakartaPart('day')}T00:00:00+07:00`);
 
       // Fetch last 100 orders to calculate today's KPIs and show recent activity
       const { data } = await supabase
@@ -81,7 +83,7 @@ export default function AdminDashboard() {
         setOrders(mappedOrders);
 
         // Calculate Stats
-        const todayOrdersList = mappedOrders.filter(o => new Date(o.createdAt) >= startOfDay);
+        const todayOrdersList = mappedOrders.filter(o => parseDbDate(o.createdAt) >= startOfDay);
         
         const todayRevenue = todayOrdersList
           .filter(o => o.status === 'completed')
@@ -162,7 +164,7 @@ export default function AdminDashboard() {
           <div class="divider"></div>
           <div class="bold">ORDER: ${order.id.toUpperCase()}</div>
           <div>TABLE: ${order.tableId}</div>
-          <div>DATE: ${new Date().toLocaleString()}</div>
+          <div>DATE: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</div>
           <div class="divider"></div>
           <table>
             <thead>
@@ -216,7 +218,7 @@ export default function AdminDashboard() {
 
   const formatTimeAgo = (isoString: string) => {
     const now = new Date();
-    const past = new Date(isoString);
+    const past = parseDbDate(isoString);
     const diffInMins = Math.floor((now.getTime() - past.getTime()) / 60000);
     
     if (diffInMins < 1) return 'baru saja';
@@ -231,7 +233,7 @@ export default function AdminDashboard() {
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
       case 'pending_payment':
-        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1 whitespace-nowrap">● Menunggu Pembayaran</span>;
+        return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1 whitespace-nowrap">● Belum Bayar</span>;
       case 'confirmed':
         return <span className="bg-indigo-500/10 text-indigo-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-indigo-500/20 flex items-center gap-1 whitespace-nowrap">● Dikonfirmasi</span>;
       case 'preparing':
@@ -247,8 +249,8 @@ export default function AdminDashboard() {
 
   // Human date display helper
   const formatTime = (isoString: string) => {
-    const timeValue = new Date(isoString);
-    return timeValue.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const timeValue = parseDbDate(isoString);
+    return timeValue.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
   };
 
   if (loading && orders.length === 0) {
@@ -293,7 +295,7 @@ export default function AdminDashboard() {
             </div>
             <div className="divide-y divide-slate-50">
               {orders.slice(0, 5).map(order => (
-                <div key={order.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 hover:bg-slate-50/50 transition-colors overflow-hidden">
+                <div key={order.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 hover:bg-slate-50/50 transition-colors">
                   <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-x-2 gap-y-1 sm:gap-x-4 min-w-0 flex-1">
                     <div className="h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600 px-3 min-w-[40px] shrink-0 whitespace-nowrap">
                       {order.tableId === 'Walk-in' ? (
@@ -303,7 +305,7 @@ export default function AdminDashboard() {
                       )}
                     </div>
                     <div className="contents sm:flex sm:flex-col sm:min-w-0 sm:flex-1">
-                      <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                      <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                         <span className="font-bold text-slate-900 text-sm whitespace-nowrap">Order #{order.id.slice(0, 5).toUpperCase()}</span>
                         <span className="ml-auto sm:ml-0 shrink-0">{getStatusBadge(order.status)}</span>
                       </div>
