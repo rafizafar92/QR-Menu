@@ -19,10 +19,124 @@ import {
   PackageCheck,
   ArrowUpRight,
   Printer,
+  AlertCircle,
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { theme } from '../config/theme';
+
+const SHOW_ORDIO_BRANDING = true;
+
+interface ReceiptInfo {
+  venueName: string;
+  address?: string;
+  openingHours?: string;
+  cashier: string;
+  tableLabel: string;
+}
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+const formatRupiah = (amount: number) => `Rp ${amount.toLocaleString('id-ID')}`;
+
+const formatReceiptDate = (isoString: string) => {
+  const date = parseDbDate(isoString);
+  const day = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+  const time = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+  return `${day} ${time}`;
+};
+
+// Shared receipt styles + markup so the printed receipt and the on-screen preview stay identical.
+const RECEIPT_CSS = `
+  .receipt {
+    width: 72mm;
+    max-width: 100%;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #000;
+    background: #fff;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  .receipt .center { text-align: center; }
+  .receipt .venue-name { font-size: 16px; font-weight: 700; text-transform: uppercase; }
+  .receipt .meta { font-size: 11px; }
+  .receipt .divider { border-top: 1px dashed #000; margin: 6px 0; }
+  .receipt .row { display: flex; justify-content: space-between; gap: 8px; }
+  .receipt .row .label { flex-shrink: 0; }
+  .receipt .row .value { text-align: right; min-width: 0; }
+  .receipt .item + .item { margin-top: 4px; }
+  .receipt .item-name { font-weight: 700; }
+  .receipt .item-detail { display: flex; justify-content: space-between; gap: 8px; }
+  .receipt .item-detail .qty { flex: 1; min-width: 0; }
+  .receipt .item-detail .line-total { flex-shrink: 0; text-align: right; white-space: nowrap; }
+  .receipt .total-row { font-size: 14px; font-weight: 700; }
+  .receipt .paid { text-align: center; font-weight: 700; }
+  .receipt .thanks { text-align: center; font-weight: 700; }
+  .receipt .small { font-size: 10px; }
+  .receipt .spacer { height: 20px; }
+`;
+
+const buildReceiptMarkup = (order: Order, info: ReceiptInfo) => {
+  const isPaid = ['confirmed', 'preparing', 'ready', 'completed'].includes(order.status);
+  const grandTotal = order.totalPrice;
+  const orderNumber = order.id.slice(0, 5).toUpperCase();
+
+  const itemsHtml = order.items.map(item => `
+    <div class="item">
+      <div class="item-name">${escapeHtml(item.menuItemName)}</div>
+      <div class="item-detail">
+        <span class="qty">${item.quantity} x ${formatRupiah(item.price)}</span>
+        <span class="line-total">${formatRupiah(item.price * item.quantity)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="center venue-name">${escapeHtml(info.venueName)}</div>
+    ${info.address ? `<div class="center meta">${escapeHtml(info.address)}</div>` : ''}
+    ${info.openingHours ? `<div class="center meta">${escapeHtml(info.openingHours)}</div>` : ''}
+    <div class="divider"></div>
+    <div class="row"><span class="label">No. Order</span><span class="value">#${orderNumber}</span></div>
+    <div class="row"><span class="label">Meja</span><span class="value">${escapeHtml(info.tableLabel)}</span></div>
+    <div class="row"><span class="label">Tanggal</span><span class="value">${formatReceiptDate(order.createdAt)}</span></div>
+    <div class="row"><span class="label">Kasir</span><span class="value">${escapeHtml(info.cashier)}</span></div>
+    <div class="divider"></div>
+    ${itemsHtml}
+    <div class="divider"></div>
+    <div class="row total-row"><span class="label">TOTAL</span><span class="value">${formatRupiah(grandTotal)}</span></div>
+    <div class="paid">${isPaid ? '** LUNAS **' : '** BELUM BAYAR **'}</div>
+    <div class="divider"></div>
+    <div class="thanks">Terima kasih!</div>
+    <div class="center">Selamat menikmati</div>
+    ${SHOW_ORDIO_BRANDING ? `<div class="center small">Powered by ${theme.brandName}</div>` : ''}
+    <div class="spacer"></div>
+  `;
+};
+
+const buildReceiptDocument = (order: Order, info: ReceiptInfo) => `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Struk #${order.id.slice(0, 5).toUpperCase()}</title>
+    <style>
+      @page { size: 80mm auto; margin: 0; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; background: #fff; color: #000; }
+      body { width: 72mm; margin: 0 auto; padding: 4mm 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      ${RECEIPT_CSS}
+    </style>
+  </head>
+  <body>
+    <div class="receipt">${buildReceiptMarkup(order, info)}</div>
+  </body>
+</html>`;
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -37,6 +151,9 @@ export default function AdminDashboard() {
   const [popularItems, setPopularItems] = useState<{ name: string; count: number }[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  const [receiptPreviewOrder, setReceiptPreviewOrder] = useState<Order | null>(null);
+  const [venueMeta, setVenueMeta] = useState({ address: '', openingHours: '' });
+  const [alertConfig, setAlertConfig] = useState<{ title: string; message: string } | null>(null);
 
   const formatCurrency = (amount: number | string) => {
     const value = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -143,71 +260,52 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [selectedOrder]);
 
+  // Venue address / opening hours for the receipt header
+  useEffect(() => {
+    if (!user?.venueId) return;
+    let cancelled = false;
+
+    supabase
+      .from('venues')
+      .select('description, opening_hours')
+      .eq('id', user.venueId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        setVenueMeta({
+          address: data.description || '',
+          openingHours: data.opening_hours || '',
+        });
+      });
+
+    return () => { cancelled = true; };
+  }, [user?.venueId]);
+
   const formatTableLabel = (tableId: string) => {
     if (tableId === 'Walk-in') return 'Walk-in';
     return /^meja\b/i.test(tableId) ? tableId : `Meja ${tableId.replace(/^table\s+/i, '')}`;
   };
 
+  const getReceiptInfo = (order: Order): ReceiptInfo => ({
+    venueName: user?.venueName || `${theme.brandName} Admin`,
+    address: venueMeta.address,
+    openingHours: venueMeta.openingHours,
+    cashier: 'Kasir',
+    tableLabel: formatTableLabel(order.tableId),
+  });
+
   // Modify order status dynamically in memory
   const handlePrintReceipt = (order: Order) => {
-    const venueName = user?.venueName || `${theme.brandName} Admin`;
-    const grandTotal = Math.round(order.totalPrice * 1.08);
-    const itemsHtml = order.items.map(item => `
-      <tr>
-        <td style="text-align: left; padding: 4px 0;">${item.menuItemName}</td>
-        <td style="text-align: center;">${item.quantity}</td>
-        <td style="text-align: right;">${'Rp ' + item.price.toLocaleString('id-ID')}</td>
-        <td style="text-align: right;">${'Rp ' + (item.price * item.quantity).toLocaleString('id-ID')}</td>
-      </tr>
-    `).join('');
-
     const printWindow = window.open('', '_blank', 'width=350,height=600');
-    if (!printWindow) return alert('Pop-up blocked! Please allow pop-ups to print receipts.');
+    if (!printWindow) {
+      setAlertConfig({
+        title: 'Pop-up Diblokir',
+        message: 'Pop-up diblokir browser. Izinkan pop-up untuk mencetak struk.',
+      });
+      return;
+    }
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Struk #${order.id.slice(-5).toUpperCase()}</title>
-          <style>
-            body { font-family: monospace; width: 72mm; margin: 0 auto; padding: 4mm 0; font-size: 12px; line-height: 1.4; }
-            .center { text-align: center; }
-            .bold { font-weight: bold; }
-            .divider { border-bottom: 1px dashed black; margin: 10px 0; }
-            table { width: 100%; border-collapse: collapse; }
-            @page { size: 80mm auto; margin: 0; }
-          </style>
-        </head>
-        <body>
-          <div class="center bold" style="font-size: 16px;">${venueName}</div>
-          <div class="divider"></div>
-          <div class="bold">ORDER: ${order.id.toUpperCase()}</div>
-          <div>TABLE: ${order.tableId}</div>
-          <div>DATE: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</div>
-          <div class="divider"></div>
-          <table>
-            <thead>
-              <tr style="border-bottom: 1px dashed black;">
-                <th align="left">ITEM</th>
-                <th align="center">QTY</th>
-                <th align="right">PRICE</th>
-                <th align="right">TOTAL</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-          <div class="divider"></div>
-          <div class="bold" style="display: flex; justify-content: space-between; font-size: 14px;">
-            <span>TOTAL PAID</span>
-            <span>${'Rp ' + grandTotal.toLocaleString('id-ID')}</span>
-          </div>
-          <div class="divider" style="margin-top: 20px;"></div>
-          <div class="center bold">THANK YOU!</div>
-          <div class="center" style="font-size: 10px; margin-top: 5px;">Powered by ${theme.brandName}</div>
-        </body>
-      </html>
-    `);
+    printWindow.document.write(buildReceiptDocument(order, getReceiptInfo(order)));
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
@@ -491,7 +589,7 @@ export default function AdminDashboard() {
                   <span className="text-xs font-black uppercase tracking-widest text-slate-400">Total</span>
                   <span className="text-2xl font-black text-slate-900">{'Rp ' + selectedOrder.totalPrice.toLocaleString('id-ID')}</span>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
                     disabled={isProcessingOrder}
@@ -519,6 +617,13 @@ export default function AdminDashboard() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => setReceiptPreviewOrder(selectedOrder)}
+                    className="shrink-0 h-11 px-2 text-xs font-black text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+                  >
+                    Lihat Struk
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setSelectedOrder(null)}
                     className="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-xs font-black hover:bg-slate-50 transition-all active:scale-95"
                   >
@@ -526,6 +631,89 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {receiptPreviewOrder && (
+          <motion.div
+            key="receipt-preview-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
+            onClick={() => setReceiptPreviewOrder(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.2 }}
+              role="dialog"
+              aria-modal="true"
+              className="flex flex-col items-center gap-4 max-h-[90vh]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <style>{RECEIPT_CSS}</style>
+              <div className="w-[302px] max-w-full bg-white rounded-t-md shadow-2xl flex flex-col min-h-0 max-h-[75vh]">
+                <div className="flex-1 overflow-y-auto px-[15px] py-4">
+                  <div
+                    className="receipt"
+                    dangerouslySetInnerHTML={{ __html: buildReceiptMarkup(receiptPreviewOrder, getReceiptInfo(receiptPreviewOrder)) }}
+                  />
+                </div>
+              </div>
+              <div
+                aria-hidden="true"
+                className="w-[302px] max-w-full h-3"
+                style={{
+                  backgroundImage: 'linear-gradient(-45deg, transparent 8px, #fff 8px), linear-gradient(45deg, transparent 8px, #fff 8px)',
+                  backgroundSize: '16px 16px',
+                  backgroundRepeat: 'repeat-x',
+                  backgroundPosition: 'bottom',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setReceiptPreviewOrder(null)}
+                className="px-8 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-black border border-white/20 transition-colors"
+              >
+                Tutup
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* General Alert Modal */}
+      <AnimatePresence>
+        {alertConfig && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[130] flex items-center justify-center p-4"
+            onClick={() => setAlertConfig(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-sm overflow-hidden shadow-2xl p-8 text-center"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertCircle size={32} />
+              </div>
+              <h3 className="text-xl font-black text-white italic uppercase tracking-tighter mb-2">{alertConfig.title}</h3>
+              <p className="text-sm text-slate-400 mb-8 leading-relaxed">{alertConfig.message}</p>
+              <button
+                onClick={() => setAlertConfig(null)}
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest transition-all"
+              >
+                Tutup
+              </button>
             </motion.div>
           </motion.div>
         )}
