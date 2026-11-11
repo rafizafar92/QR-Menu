@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
 import { Order } from '../types';
 import { supabase } from '../lib/supabase';
@@ -10,15 +11,20 @@ import {
   UtensilsCrossed, 
   ChefHat,
   ArrowRight,
+  ArrowLeft,
   Check,
-  Inbox
+  Inbox,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 
 export default function AdminKitchen() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Live Clock
   useEffect(() => {
@@ -27,6 +33,22 @@ export default function AdminKitchen() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Fullscreen state
+  useEffect(() => {
+    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+    handleFullscreenChange();
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  };
 
   const fetchData = async (silent = false) => {
     if (!user?.venueId) return;
@@ -195,7 +217,14 @@ export default function AdminKitchen() {
     <div className="min-h-screen bg-[#0F172A] p-6 lg:p-8 flex flex-col gap-8">
       {/* KDS Custom Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-8">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            onClick={() => navigate('/admin/dashboard')}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl px-3 py-2.5 font-bold flex items-center gap-2 transition-colors cursor-pointer"
+          >
+            <ArrowLeft size={20} />
+            <span className="hidden sm:inline">Kembali</span>
+          </button>
           <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white">
             <ChefHat size={32} />
           </div>
@@ -208,11 +237,21 @@ export default function AdminKitchen() {
           </div>
         </div>
 
-        <div className="bg-[#1E293B] px-8 py-4 rounded-3xl border border-slate-800 flex flex-col items-center">
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Waktu Stasiun</span>
-          <span className="text-3xl font-black text-white font-mono">
-            {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta' })}
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="bg-[#1E293B] px-8 py-4 rounded-3xl border border-slate-800 flex flex-col items-center">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Waktu Stasiun</span>
+            <span className="text-3xl font-black text-white font-mono">
+              {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta' })}
+            </span>
+          </div>
+          <button
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+            title={isFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl p-3 transition-colors cursor-pointer"
+          >
+            {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
+          </button>
         </div>
       </header>
 
@@ -230,7 +269,7 @@ export default function AdminKitchen() {
                 <OrderCard key={order.id} order={order} nextStatus="preparing" nextLabel="TERIMA" icon={ChefHat} accentColor="bg-orange-600" />
               ))
             ) : (
-              <EmptyState message="No New Tickets" />
+              <EmptyState message="Belum Ada Pesanan" />
             )}
           </div>
         </div>
@@ -247,7 +286,7 @@ export default function AdminKitchen() {
                 <OrderCard key={order.id} order={order} nextStatus="ready" nextLabel="SIAP" icon={ArrowRight} accentColor="bg-blue-600" />
               ))
             ) : (
-              <EmptyState message="Clean Rail" />
+              <EmptyState message="Tidak Ada Yang Diproses" />
             )}
           </div>
         </div>
@@ -264,7 +303,7 @@ export default function AdminKitchen() {
                 <ReadyOrderCard key={order.id} order={order} />
               ))
             ) : (
-              <EmptyState message="Nothing Ready" />
+              <EmptyState message="Belum Ada Yang Siap" />
             )}
           </div>
         </div>
