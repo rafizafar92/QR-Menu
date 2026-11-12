@@ -21,13 +21,71 @@ import {
   SlidersHorizontal,
   Sparkles,
   ChevronRight,
-  Banknote
+  Banknote,
+  Download
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { MenuItem, Venue } from '../types';
 import { supabase } from '../lib/supabase';
 import { makeDynamicQris } from '../lib/qris';
 import { theme } from '../config/theme';
+
+const loadQrImage = (src: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('Gagal memuat gambar QR.'));
+    image.src = src;
+  });
+
+const createQrisCardBlob = async (qrSource: string, venueName: string, totalText: string): Promise<Blob> => {
+  const image = await loadQrImage(qrSource);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 1080;
+  canvas.height = 1350;
+
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Canvas tidak didukung.');
+
+  context.fillStyle = '#FFFFFF';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+
+  context.fillStyle = '#0F172A';
+  context.font = 'bold 56px sans-serif';
+  context.fillText(venueName, canvas.width / 2, 92, 940);
+
+  const qrBox = 800;
+  const qrY = 155;
+  const scale = Math.min(qrBox / image.naturalWidth, qrBox / image.naturalHeight);
+  const qrWidth = image.naturalWidth * scale;
+  const qrHeight = image.naturalHeight * scale;
+  context.drawImage(
+    image,
+    (canvas.width - qrWidth) / 2,
+    qrY + (qrBox - qrHeight) / 2,
+    qrWidth,
+    qrHeight
+  );
+
+  context.fillStyle = '#0F172A';
+  context.font = 'bold 64px sans-serif';
+  context.fillText(`Total ${totalText}`, canvas.width / 2, 1070, 940);
+
+  context.fillStyle = '#64748B';
+  context.font = '30px sans-serif';
+  context.fillText('Scan dari Galeri di aplikasi bank / e-wallet', canvas.width / 2, 1160, 940);
+
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Gagal membuat gambar QR.'));
+    }, 'image/png');
+  });
+};
 
 export default function CustomerMenu() {
   const { venueId, tableId } = useParams<{ venueId: string; tableId: string }>();
@@ -50,6 +108,7 @@ export default function CustomerMenu() {
   const [isClaimingQris, setIsClaimingQris] = useState(false);
   const [isQrisEnlarged, setIsQrisEnlarged] = useState(false);
   const [dynamicQrisDataUrl, setDynamicQrisDataUrl] = useState<string | null>(null);
+  const [qrisSaveStatus, setQrisSaveStatus] = useState<{ type: 'working' | 'success' | 'error'; message: string } | null>(null);
   const [activeItemDetails, setActiveItemDetails] = useState<MenuItem | null>(null);
   const [activeItemNotes, setActiveItemNotes] = useState('');
   const [loading, setLoading] = useState(true);
@@ -188,6 +247,8 @@ export default function CustomerMenu() {
     };
   }, [dynamicQrisPayload]);
 
+  const activeQrisSrc = dynamicQrisDataUrl || venue?.qrisImageUrl || '';
+
   const addToCart = (item: MenuItem, notes: string = '') => {
     setCart(prev => {
       const existing = prev.find(i => i.item.id === item.id && i.notes === notes);
@@ -311,6 +372,73 @@ export default function CustomerMenu() {
       return;
     }
     setPaymentClaimed(true);
+  };
+
+  const showQrisSaveSuccess = () => {
+    setQrisSaveStatus({ type: 'success', message: 'QR tersimpan' });
+    window.setTimeout(() => {
+      setQrisSaveStatus(current => (current?.type === 'success' ? null : current));
+    }, 3000);
+  };
+
+  const handleSaveQrisToGallery = async () => {
+    if (!activeQrisSrc || qrisSaveStatus?.type === 'working') return;
+
+    setQrisSaveStatus({ type: 'working', message: 'Menyiapkan QR...' });
+
+    const safeVenueName = venueName.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'Venue';
+    const fileName = `QRIS-${safeVenueName}-${Math.round(orderTotal)}.png`;
+
+    try {
+      let qrBlob: Blob;
+
+      try {
+        qrBlob = await createQrisCardBlob(activeQrisSrc, venueName, formatPrice(orderTotal));
+      } catch (canvasError) {
+        console.error('Gagal membuat kartu QR, mengunduh gambar asli:', canvasError);
+        const fallbackLink = document.createElement('a');
+        fallbackLink.href = activeQrisSrc;
+        fallbackLink.download = fileName;
+        document.body.appendChild(fallbackLink);
+        fallbackLink.click();
+        fallbackLink.remove();
+        showQrisSaveSuccess();
+        return;
+      }
+
+      const file = new File([qrBlob], fileName, { type: 'image/png' });
+
+      if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'QRIS',
+            text: `QRIS ${venueName} - ${formatPrice(orderTotal)}`
+          });
+          showQrisSaveSuccess();
+          return;
+        } catch (shareError) {
+          if (shareError instanceof DOMException && shareError.name === 'AbortError') {
+            setQrisSaveStatus(null);
+            return;
+          }
+          console.error('Gagal membagikan QR, mengunduh file:', shareError);
+        }
+      }
+
+      const downloadUrl = URL.createObjectURL(qrBlob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = fileName;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+      showQrisSaveSuccess();
+    } catch (error) {
+      console.error('Gagal menyimpan QR:', error);
+      setQrisSaveStatus({ type: 'error', message: 'Gagal menyimpan QR. Silakan coba lagi.' });
+    }
   };
 
   if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400">Memuat Menu...</div>;
@@ -506,7 +634,8 @@ export default function CustomerMenu() {
                               alt="QRIS nominal otomatis"
                               width={240}
                               height={240}
-                              className="w-60 h-60 mx-auto bg-white rounded-lg border border-slate-100"
+                              onClick={() => setIsQrisEnlarged(true)}
+                              className="w-60 h-60 mx-auto bg-white rounded-lg border border-slate-100 cursor-zoom-in"
                             />
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scan & bayar</p>
                             <p className="text-xs font-bold text-emerald-700 leading-relaxed">
@@ -527,6 +656,31 @@ export default function CustomerMenu() {
                             </p>
                           </>
                         )}
+
+                        <button
+                          type="button"
+                          onClick={handleSaveQrisToGallery}
+                          disabled={qrisSaveStatus?.type === 'working'}
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
+                        >
+                          <Download className="w-4 h-4" />
+                          {qrisSaveStatus?.type === 'working' ? 'Menyiapkan...' : 'Simpan QR ke Galeri'}
+                        </button>
+
+                        <div className="text-[10px] text-slate-500 leading-relaxed text-left space-y-0.5">
+                          <p>1. Simpan QR ke galeri</p>
+                          <p>2. Buka aplikasi bank atau e-wallet, pilih Scan</p>
+                          <p>3. Pilih gambar dari Galeri, lalu bayar</p>
+                        </div>
+
+                        {qrisSaveStatus && qrisSaveStatus.type !== 'working' && (
+                          <p className={`text-[10px] font-bold ${
+                            qrisSaveStatus.type === 'success' ? 'text-emerald-700' : 'text-rose-600'
+                          }`}>
+                            {qrisSaveStatus.message}
+                          </p>
+                        )}
+
                         <p className="text-[10px] text-slate-500 leading-relaxed">
                           Setelah membayar, klik tombol di bawah dan tunjukkan layar ini ke kasir
                         </p>
@@ -565,7 +719,7 @@ export default function CustomerMenu() {
 
       {/* Enlarged QRIS image */}
       <AnimatePresence>
-        {isQrisEnlarged && venue?.qrisImageUrl && (
+        {isQrisEnlarged && activeQrisSrc && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -574,7 +728,7 @@ export default function CustomerMenu() {
             className="fixed inset-0 z-[60] bg-slate-950/90 flex items-center justify-center p-6 cursor-zoom-out"
           >
             <img
-              src={venue.qrisImageUrl}
+              src={activeQrisSrc}
               alt="QRIS diperbesar"
               className="max-w-full max-h-full object-contain bg-white rounded-xl p-2"
             />
