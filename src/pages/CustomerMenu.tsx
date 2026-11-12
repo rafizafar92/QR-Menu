@@ -41,6 +41,12 @@ export default function CustomerMenu() {
   const [isOrdering, setIsOrdering] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [placedOrderId, setPlacedOrderId] = useState('');
+  const [orderTotal, setOrderTotal] = useState(0);
+  const [paymentChoice, setPaymentChoice] = useState<'cash' | 'qris'>('cash');
+  const [paymentClaimed, setPaymentClaimed] = useState(false);
+  const [isClaimingQris, setIsClaimingQris] = useState(false);
+  const [isQrisEnlarged, setIsQrisEnlarged] = useState(false);
   const [activeItemDetails, setActiveItemDetails] = useState<MenuItem | null>(null);
   const [activeItemNotes, setActiveItemNotes] = useState('');
   const [loading, setLoading] = useState(true);
@@ -66,7 +72,14 @@ export default function CustomerMenu() {
       
       if (vData) {
         console.log('DEBUG: Venue data successfully retrieved:', vData);
-        setVenue({ id: vData.id, name: vData.name, description: vData.description, logoUrl: vData.logo_url });
+        setVenue({
+          id: vData.id,
+          name: vData.name,
+          description: vData.description,
+          logoUrl: vData.logo_url,
+          acceptQris: vData.accept_qris || false,
+          qrisImageUrl: vData.qris_image_url || ''
+        });
       }
 
       // Fetch menu items
@@ -207,6 +220,10 @@ export default function CustomerMenu() {
       if (itemsError) console.error('Non-critical error inserting order items:', itemsError);
 
       setOrderId(order.id.slice(0, 8).toUpperCase());
+      setPlacedOrderId(order.id);
+      setOrderTotal(cartTotal);
+      setPaymentChoice('cash');
+      setPaymentClaimed(false);
       setOrderSuccess(true);
       setCart([]);
       setIsCartOpen(false);
@@ -218,10 +235,53 @@ export default function CustomerMenu() {
     }
   };
 
+  // QRIS (phase 1, manual confirmation). The order is created as cash by default.
+  const handleChooseQris = async () => {
+    setPaymentChoice('qris');
+    if (!placedOrderId) return;
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ payment_method: 'qris' })
+      .eq('id', placedOrderId);
+
+    if (error) console.error('Failed to set payment method to QRIS:', error);
+  };
+
+  const handleChooseCash = async () => {
+    setPaymentChoice('cash');
+    if (!placedOrderId) return;
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ payment_method: 'cash' })
+      .eq('id', placedOrderId);
+
+    if (error) console.error('Failed to set payment method to cash:', error);
+  };
+
+  const handleClaimQrisPayment = async () => {
+    if (!placedOrderId || isClaimingQris) return;
+    setIsClaimingQris(true);
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ payment_method: 'qris', payment_claimed: true })
+      .eq('id', placedOrderId);
+
+    setIsClaimingQris(false);
+    if (error) {
+      alert('Gagal memperbarui status pembayaran. Silakan coba lagi.');
+      return;
+    }
+    setPaymentClaimed(true);
+  };
+
   if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400">Memuat Menu...</div>;
 
   // Human descriptive names (now that loading is complete and venue is available)
   const venueName = venue?.name || 'Venue Not Found';
+  const canPayQris = Boolean(venue?.acceptQris && venue?.qrisImageUrl);
   const tableDisplay = activeTable?.table_number || (
     tableId 
       ? (tableId.toLowerCase().startsWith('table') ? tableId : `Table ${tableId.replace(/\D/g, '') || tableId}`) 
@@ -354,12 +414,88 @@ export default function CustomerMenu() {
                 </div>
               </div>
 
-              <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6 flex flex-col items-center gap-2">
-                <Banknote className="w-6 h-6 text-amber-600" />
-                <p className="text-xs font-bold text-amber-900 leading-snug">
-                  Silakan bayar ke kasir untuk memproses pesanan Anda. Terima kasih!
-                </p>
-              </div>
+              {canPayQris ? (
+                paymentClaimed ? (
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 mb-6 flex flex-col items-center gap-2">
+                    <Check className="w-6 h-6 text-emerald-600" />
+                    <p className="text-xs font-bold text-emerald-900 leading-snug">
+                      Terima kasih! Kasir akan memeriksa pembayaran Anda.
+                    </p>
+                    <p className="text-[11px] font-semibold text-emerald-700">
+                      Order <span className="font-mono font-bold">{orderId}</span> • Meja {tableDisplay}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      <button
+                        type="button"
+                        onClick={handleChooseCash}
+                        className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[11px] font-black transition-all border ${
+                          paymentChoice === 'cash'
+                            ? 'border-amber-500 bg-amber-50 text-amber-900'
+                            : 'border-slate-200 bg-white text-slate-500'
+                        }`}
+                      >
+                        <Banknote className="w-4 h-4" />
+                        Bayar di Kasir
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleChooseQris}
+                        className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[11px] font-black transition-all border ${
+                          paymentChoice === 'qris'
+                            ? 'border-indigo-500 bg-indigo-50 text-indigo-900'
+                            : 'border-slate-200 bg-white text-slate-500'
+                        }`}
+                      >
+                        <QrCode className="w-4 h-4" />
+                        Bayar dengan QRIS
+                      </button>
+                    </div>
+
+                    {paymentChoice === 'cash' ? (
+                      <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6 flex flex-col items-center gap-2">
+                        <Banknote className="w-6 h-6 text-amber-600" />
+                        <p className="text-xs font-bold text-amber-900 leading-snug">
+                          Silakan bayar ke kasir untuk memproses pesanan Anda. Terima kasih!
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 space-y-3">
+                        <img
+                          src={venue?.qrisImageUrl}
+                          alt="QRIS"
+                          onClick={() => setIsQrisEnlarged(true)}
+                          className="w-full max-h-56 object-contain bg-white rounded-lg border border-slate-100 cursor-zoom-in"
+                        />
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scan & bayar</p>
+                        <p className="text-xl font-black text-slate-900 leading-tight">
+                          Bayar tepat {formatPrice(orderTotal)}
+                        </p>
+                        <p className="text-[10px] text-slate-500 leading-relaxed">
+                          Setelah membayar, klik tombol di bawah dan tunjukkan layar ini ke kasir
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleClaimQrisPayment}
+                          disabled={isClaimingQris}
+                          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded-lg text-xs transition-all shadow-sm"
+                        >
+                          {isClaimingQris ? 'Memproses...' : 'Saya Sudah Bayar'}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )
+              ) : (
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6 flex flex-col items-center gap-2">
+                  <Banknote className="w-6 h-6 text-amber-600" />
+                  <p className="text-xs font-bold text-amber-900 leading-snug">
+                    Silakan bayar ke kasir untuk memproses pesanan Anda. Terima kasih!
+                  </p>
+                </div>
+              )}
 
               <button
                 id="btn-close-success"
@@ -369,6 +505,25 @@ export default function CustomerMenu() {
                 Oke, Terima Kasih!
               </button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Enlarged QRIS image */}
+      <AnimatePresence>
+        {isQrisEnlarged && venue?.qrisImageUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsQrisEnlarged(false)}
+            className="fixed inset-0 z-[60] bg-slate-950/90 flex items-center justify-center p-6 cursor-zoom-out"
+          >
+            <img
+              src={venue.qrisImageUrl}
+              alt="QRIS diperbesar"
+              className="max-w-full max-h-full object-contain bg-white rounded-xl p-2"
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -467,13 +622,9 @@ export default function CustomerMenu() {
                     <span>Subtotal</span> {/* No currency here */}
                     <span>{formatPrice(cartTotal)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Pajak (8%)</span>
-                    <span>{formatPrice(cartTotal * 0.08)}</span>
-                  </div>
                   <div className="flex justify-between font-black text-[#2C1810] border-t border-[#2C1810]/5 pt-3 text-sm">
                     <span>Total Tagihan</span> {/* No currency here */}
-                    <span>{formatPrice(cartTotal * 1.08)}</span>
+                    <span>{formatPrice(cartTotal)}</span>
                   </div>
                 </div>
 
@@ -488,7 +639,7 @@ export default function CustomerMenu() {
                       <span>Memproses...</span>
                     </>
                   ) : (
-                    <span>Pesan Sekarang • {formatPrice(cartTotal * 1.08)}</span>
+                    <span>Pesan Sekarang • {formatPrice(cartTotal)}</span>
                   )}
                 </button>
               </div>

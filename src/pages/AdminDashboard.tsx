@@ -33,6 +33,7 @@ interface ReceiptInfo {
   openingHours?: string;
   cashier: string;
   tableLabel: string;
+  paymentLabel: string;
 }
 
 const escapeHtml = (value: string) =>
@@ -107,6 +108,7 @@ const buildReceiptMarkup = (order: Order, info: ReceiptInfo) => {
     <div class="row"><span class="label">Meja</span><span class="value">${escapeHtml(info.tableLabel)}</span></div>
     <div class="row"><span class="label">Tanggal</span><span class="value">${formatReceiptDate(order.createdAt)}</span></div>
     <div class="row"><span class="label">Kasir</span><span class="value">${escapeHtml(info.cashier)}</span></div>
+    <div class="row"><span class="label">Bayar</span><span class="value">${info.paymentLabel}</span></div>
     <div class="divider"></div>
     ${itemsHtml}
     <div class="divider"></div>
@@ -191,6 +193,8 @@ export default function AdminDashboard() {
           totalPrice: o.items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0),
           notes: o.note || '',
           createdAt: o.created_at,
+          paymentMethod: o.payment_method || 'cash',
+          paymentClaimed: o.payment_claimed || false,
           items: o.items.map((i: any) => ({
             id: i.id,
             orderId: i.order_id,
@@ -292,6 +296,7 @@ export default function AdminDashboard() {
     openingHours: venueMeta.openingHours,
     cashier: 'Kasir',
     tableLabel: formatTableLabel(order.tableId),
+    paymentLabel: order.paymentMethod === 'qris' ? 'QRIS' : 'Tunai',
   });
 
   // Modify order status dynamically in memory
@@ -361,11 +366,32 @@ export default function AdminDashboard() {
     }
   };
 
+  // QRIS payment badge: amber + pulsing once the customer claims they have paid
+  const getPaymentBadge = (order: Order) => {
+    if (order.paymentMethod !== 'qris') return null;
+
+    if (order.paymentClaimed) {
+      return <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1 whitespace-nowrap animate-pulse">QRIS · Sudah Bayar?</span>;
+    }
+
+    return <span className="bg-blue-500/10 text-blue-500 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-blue-500/20 flex items-center gap-1 whitespace-nowrap">QRIS</span>;
+  };
+
   // Human date display helper
   const formatTime = (isoString: string) => {
     const timeValue = parseDbDate(isoString);
     return timeValue.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
   };
+
+  // QRIS orders the customer has already claimed payment for rise to the top of the pending list
+  const sortedRecentOrders = useMemo(() => {
+    const pendingPriority = (order: Order) =>
+      order.paymentClaimed && order.status === 'pending_payment' ? 1 : 0;
+
+    return [...orders]
+      .sort((a, b) => pendingPriority(b) - pendingPriority(a))
+      .slice(0, 5);
+  }, [orders]);
 
   if (loading && orders.length === 0) {
     return <AdminLayout title="Dashboard" subtitle="Loading..."><div className="h-96 flex items-center justify-center text-slate-400 font-bold">Warming up the kitchen...</div></AdminLayout>;
@@ -408,7 +434,7 @@ export default function AdminDashboard() {
               </h3>
             </div>
             <div className="divide-y divide-slate-50">
-              {orders.slice(0, 5).map(order => (
+              {sortedRecentOrders.map(order => (
                 <div key={order.id} onClick={() => { setIsProcessingOrder(false); setSelectedOrder(order); }} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 hover:bg-slate-50/50 transition-colors cursor-pointer">
                   <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-x-2 gap-y-1 sm:gap-x-4 min-w-0 flex-1">
                     <div className="h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600 px-3 min-w-[40px] shrink-0 whitespace-nowrap">
@@ -422,6 +448,7 @@ export default function AdminDashboard() {
                       <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                         <span className="font-bold text-slate-900 text-sm whitespace-nowrap">Order #{order.id.slice(0, 5).toUpperCase()}</span>
                         <span className="ml-auto sm:ml-0 shrink-0">{getStatusBadge(order.status)}</span>
+                        {getPaymentBadge(order)}
                       </div>
                       <p className="w-full sm:w-auto text-xs text-slate-400 mt-1 truncate min-w-0">
                         {order.items.map(i => `${i.quantity}x ${i.menuItemName}`).join(', ')}
@@ -546,6 +573,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-black text-slate-900 text-lg">Order #{selectedOrder.id.slice(0, 5).toUpperCase()}</h3>
                     {getStatusBadge(selectedOrder.status)}
+                    {getPaymentBadge(selectedOrder)}
                   </div>
                   <p className="text-xs font-bold text-slate-400 mt-1">
                     {formatTableLabel(selectedOrder.tableId)} · {parseDbDate(selectedOrder.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Jakarta' })}
@@ -589,6 +617,14 @@ export default function AdminDashboard() {
                   <span className="text-xs font-black uppercase tracking-widest text-slate-400">Total</span>
                   <span className="text-2xl font-black text-slate-900">{'Rp ' + selectedOrder.totalPrice.toLocaleString('id-ID')}</span>
                 </div>
+                {selectedOrder.paymentMethod === 'qris' && (
+                  <div className="rounded-xl bg-blue-50 border border-blue-100 p-3">
+                    <p className="text-[11px] font-black text-blue-700 uppercase tracking-widest">Metode: QRIS</p>
+                    <p className="text-[11px] font-medium text-blue-600 mt-0.5">
+                      Cek notifikasi pembayaran QRIS sebelum konfirmasi
+                    </p>
+                  </div>
+                )}
                 <div className="flex items-center gap-3">
                   <button
                     type="button"

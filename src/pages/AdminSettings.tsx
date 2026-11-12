@@ -8,7 +8,9 @@ import {
   Lock, 
   User,
   Check,
-  AlertCircle
+  AlertCircle,
+  QrCode,
+  Upload
 } from 'lucide-react';
 
 export default function AdminSettings() {
@@ -16,6 +18,7 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [uploadingQris, setUploadingQris] = useState(false);
   
   // Form States
   const [venueData, setVenueData] = useState({
@@ -23,7 +26,9 @@ export default function AdminSettings() {
     description: '',
     logo_url: '',
     currency: '$',
-    opening_hours: ''
+    opening_hours: '',
+    accept_qris: false,
+    qris_image_url: ''
   });
   
   const [newPassword, setNewPassword] = useState('');
@@ -35,7 +40,7 @@ export default function AdminSettings() {
       setLoading(true);
       const { data, error } = await supabase
         .from('venues')
-        .select('name, description, logo_url, currency, opening_hours')
+        .select('name, description, logo_url, currency, opening_hours, accept_qris, qris_image_url')
         .eq('id', user.venueId)
         .single();
 
@@ -45,7 +50,9 @@ export default function AdminSettings() {
           description: data.description || '',
           logo_url: data.logo_url || '',
           currency: data.currency || '$',
-          opening_hours: data.opening_hours || ''
+          opening_hours: data.opening_hours || '',
+          accept_qris: data.accept_qris || false,
+          qris_image_url: data.qris_image_url || ''
         });
       }
       setLoading(false);
@@ -90,6 +97,54 @@ export default function AdminSettings() {
     if (error) alert(error.message);
     else {
       setSuccess('preferences');
+      setTimeout(() => setSuccess(null), 2000);
+    }
+    setSaving(null);
+  };
+
+  const handleQrisImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploadingQris(true);
+      if (!e.target.files || e.target.files.length === 0) return;
+      if (!user?.venueId) throw new Error('Venue tidak ditemukan.');
+
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.venueId}/qris-${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('menu-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('menu-images')
+        .getPublicUrl(fileName);
+
+      setVenueData(prev => ({ ...prev, qris_image_url: data.publicUrl }));
+    } catch (error: any) {
+      alert('Error uploading image: ' + error.message);
+    } finally {
+      setUploadingQris(false);
+    }
+  };
+
+  const handleSaveQris = async () => {
+    if (!user?.venueId) return;
+    setSaving('qris');
+
+    const { error } = await supabase
+      .from('venues')
+      .update({
+        accept_qris: venueData.accept_qris,
+        qris_image_url: venueData.qris_image_url
+      })
+      .eq('id', user.venueId);
+
+    if (error) alert(error.message);
+    else {
+      setSuccess('qris');
       setTimeout(() => setSuccess(null), 2000);
     }
     setSaving(null);
@@ -166,6 +221,67 @@ export default function AdminSettings() {
           <button onClick={handleSavePreferences} disabled={saving === 'preferences'} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all">
             {success === 'preferences' ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
             {saving === 'preferences' ? 'Saving...' : success === 'preferences' ? 'Preferences Saved' : 'Save Preferences'}
+          </button>
+        </div>
+
+        {/* QRIS Payment Section */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-3xs p-6 space-y-6 lg:col-span-2">
+          <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
+            <QrCode className="w-5 h-5 text-indigo-600" />
+            <h3 className="font-extrabold text-slate-900">Pembayaran QRIS</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <label className="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl p-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={venueData.accept_qris}
+                  onChange={(e) => setVenueData({ ...venueData, accept_qris: e.target.checked })}
+                  className="h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>
+                  <span className="block text-xs font-bold text-slate-700">Terima pembayaran QRIS</span>
+                  <span className="block text-[10px] text-slate-400 mt-0.5">Pelanggan bisa memilih QRIS di halaman pesanan.</span>
+                </span>
+              </label>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gambar QRIS</label>
+                <label className="flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-lg py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
+                  <Upload size={14} className="text-slate-400" />
+                  <span className="text-[10px] font-black text-slate-500 uppercase">
+                    {uploadingQris ? 'Mengunggah...' : 'Unggah Gambar QRIS'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleQrisImageUpload}
+                    className="hidden"
+                    disabled={uploadingQris || saving === 'qris'}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Pratinjau QRIS</span>
+              {venueData.qris_image_url ? (
+                <img
+                  src={venueData.qris_image_url}
+                  alt="Pratinjau QRIS"
+                  className="max-h-56 w-auto max-w-full rounded-xl border border-slate-200 bg-slate-50 object-contain mx-auto"
+                />
+              ) : (
+                <div className="h-40 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center gap-2 text-slate-300">
+                  <QrCode size={36} strokeWidth={1.5} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Belum ada gambar</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <button onClick={handleSaveQris} disabled={saving === 'qris' || uploadingQris} className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all">
+            {success === 'qris' ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+            {saving === 'qris' ? 'Menyimpan...' : success === 'qris' ? 'Tersimpan' : 'Simpan Pembayaran'}
           </button>
         </div>
 

@@ -3,6 +3,8 @@ export interface Venue {
   name: string;
   description?: string;
   logoUrl?: string;
+  acceptQris?: boolean;
+  qrisImageUrl?: string;
   createdAt?: string;
 }
 
@@ -39,6 +41,8 @@ export interface Order {
   notes?: string;
   createdAt: string;
   items: OrderItem[];
+  paymentMethod?: string;
+  paymentClaimed?: boolean;
 }
 
 export interface Table {
