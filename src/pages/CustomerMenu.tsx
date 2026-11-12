@@ -23,8 +23,10 @@ import {
   ChevronRight,
   Banknote
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import { MenuItem, Venue } from '../types';
 import { supabase } from '../lib/supabase';
+import { makeDynamicQris } from '../lib/qris';
 import { theme } from '../config/theme';
 
 export default function CustomerMenu() {
@@ -47,6 +49,7 @@ export default function CustomerMenu() {
   const [paymentClaimed, setPaymentClaimed] = useState(false);
   const [isClaimingQris, setIsClaimingQris] = useState(false);
   const [isQrisEnlarged, setIsQrisEnlarged] = useState(false);
+  const [dynamicQrisDataUrl, setDynamicQrisDataUrl] = useState<string | null>(null);
   const [activeItemDetails, setActiveItemDetails] = useState<MenuItem | null>(null);
   const [activeItemNotes, setActiveItemNotes] = useState('');
   const [loading, setLoading] = useState(true);
@@ -78,7 +81,9 @@ export default function CustomerMenu() {
           description: vData.description,
           logoUrl: vData.logo_url,
           acceptQris: vData.accept_qris || false,
-          qrisImageUrl: vData.qris_image_url || ''
+          qrisImageUrl: vData.qris_image_url || '',
+          qrisPayload: vData.qris_payload || '',
+          qrisDynamic: vData.qris_dynamic || false
         });
       }
 
@@ -151,6 +156,37 @@ export default function CustomerMenu() {
   const cartItemCount = useMemo(() => {
     return cart.reduce((acc, current) => acc + current.quantity, 0);
   }, [cart]);
+
+  const dynamicQrisPayload = useMemo(() => {
+    if (!venue?.qrisDynamic || !venue?.qrisPayload || orderTotal <= 0) return null;
+    return makeDynamicQris(venue.qrisPayload, orderTotal);
+  }, [venue?.qrisDynamic, venue?.qrisPayload, orderTotal]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!dynamicQrisPayload) {
+      setDynamicQrisDataUrl(null);
+      return;
+    }
+
+    QRCode.toDataURL(dynamicQrisPayload, {
+      width: 240,
+      margin: 4,
+      color: { dark: '#000000', light: '#FFFFFF' }
+    })
+      .then(url => {
+        if (!cancelled) setDynamicQrisDataUrl(url);
+      })
+      .catch(error => {
+        console.error('Failed to generate dynamic QRIS:', error);
+        if (!cancelled) setDynamicQrisDataUrl(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dynamicQrisPayload]);
 
   const addToCart = (item: MenuItem, notes: string = '') => {
     setCart(prev => {
@@ -463,16 +499,34 @@ export default function CustomerMenu() {
                       </div>
                     ) : (
                       <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 space-y-3">
-                        <img
-                          src={venue?.qrisImageUrl}
-                          alt="QRIS"
-                          onClick={() => setIsQrisEnlarged(true)}
-                          className="w-full max-h-56 object-contain bg-white rounded-lg border border-slate-100 cursor-zoom-in"
-                        />
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scan & bayar</p>
-                        <p className="text-xl font-black text-slate-900 leading-tight">
-                          Bayar tepat {formatPrice(orderTotal)}
-                        </p>
+                        {dynamicQrisDataUrl ? (
+                          <>
+                            <img
+                              src={dynamicQrisDataUrl}
+                              alt="QRIS nominal otomatis"
+                              width={240}
+                              height={240}
+                              className="w-60 h-60 mx-auto bg-white rounded-lg border border-slate-100"
+                            />
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scan & bayar</p>
+                            <p className="text-xs font-bold text-emerald-700 leading-relaxed">
+                              Nominal {formatPrice(orderTotal)} sudah terisi otomatis saat di-scan
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <img
+                              src={venue?.qrisImageUrl}
+                              alt="QRIS"
+                              onClick={() => setIsQrisEnlarged(true)}
+                              className="w-full max-h-56 object-contain bg-white rounded-lg border border-slate-100 cursor-zoom-in"
+                            />
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scan & bayar</p>
+                            <p className="text-xl font-black text-slate-900 leading-tight">
+                              Bayar tepat {formatPrice(orderTotal)}
+                            </p>
+                          </>
+                        )}
                         <p className="text-[10px] text-slate-500 leading-relaxed">
                           Setelah membayar, klik tombol di bawah dan tunjukkan layar ini ke kasir
                         </p>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import jsQR from 'jsqr';
 import AdminLayout from '../components/AdminLayout';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
@@ -13,12 +14,45 @@ import {
   Upload
 } from 'lucide-react';
 
+const decodeQrisFromFile = (file: File): Promise<string | null> =>
+  new Promise((resolve) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+
+        const context = canvas.getContext('2d');
+        if (!context) {
+          resolve(null);
+          return;
+        }
+
+        context.drawImage(image, 0, 0);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        resolve(code?.data || null);
+      };
+
+      image.onerror = () => resolve(null);
+      image.src = reader.result as string;
+    };
+
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+
 export default function AdminSettings() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [uploadingQris, setUploadingQris] = useState(false);
+  const [qrisDecodeWarning, setQrisDecodeWarning] = useState(false);
   
   // Form States
   const [venueData, setVenueData] = useState({
@@ -28,7 +62,9 @@ export default function AdminSettings() {
     currency: '$',
     opening_hours: '',
     accept_qris: false,
-    qris_image_url: ''
+    qris_image_url: '',
+    qris_payload: '',
+    qris_dynamic: false
   });
   
   const [newPassword, setNewPassword] = useState('');
@@ -40,7 +76,7 @@ export default function AdminSettings() {
       setLoading(true);
       const { data, error } = await supabase
         .from('venues')
-        .select('name, description, logo_url, currency, opening_hours, accept_qris, qris_image_url')
+        .select('name, description, logo_url, currency, opening_hours, accept_qris, qris_image_url, qris_payload, qris_dynamic')
         .eq('id', user.venueId)
         .single();
 
@@ -52,7 +88,9 @@ export default function AdminSettings() {
           currency: data.currency || '$',
           opening_hours: data.opening_hours || '',
           accept_qris: data.accept_qris || false,
-          qris_image_url: data.qris_image_url || ''
+          qris_image_url: data.qris_image_url || '',
+          qris_payload: data.qris_payload || '',
+          qris_dynamic: data.qris_dynamic || false
         });
       }
       setLoading(false);
@@ -105,6 +143,7 @@ export default function AdminSettings() {
   const handleQrisImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploadingQris(true);
+      setQrisDecodeWarning(false);
       if (!e.target.files || e.target.files.length === 0) return;
       if (!user?.venueId) throw new Error('Venue tidak ditemukan.');
 
@@ -122,7 +161,14 @@ export default function AdminSettings() {
         .from('menu-images')
         .getPublicUrl(fileName);
 
-      setVenueData(prev => ({ ...prev, qris_image_url: data.publicUrl }));
+      const qrisPayload = await decodeQrisFromFile(file);
+
+      setVenueData(prev => ({
+        ...prev,
+        qris_image_url: data.publicUrl,
+        qris_payload: qrisPayload || ''
+      }));
+      setQrisDecodeWarning(!qrisPayload);
     } catch (error: any) {
       alert('Error uploading image: ' + error.message);
     } finally {
@@ -138,7 +184,9 @@ export default function AdminSettings() {
       .from('venues')
       .update({
         accept_qris: venueData.accept_qris,
-        qris_image_url: venueData.qris_image_url
+        qris_image_url: venueData.qris_image_url,
+        qris_payload: venueData.qris_payload || null,
+        qris_dynamic: venueData.qris_dynamic
       })
       .eq('id', user.venueId);
 
@@ -245,6 +293,21 @@ export default function AdminSettings() {
                 </span>
               </label>
 
+              {venueData.qris_payload && (
+                <label className="flex items-start gap-3 bg-slate-50 border border-slate-100 rounded-xl p-4 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={venueData.qris_dynamic}
+                    onChange={(e) => setVenueData({ ...venueData, qris_dynamic: e.target.checked })}
+                    className="mt-0.5 h-4 w-4 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span>
+                    <span className="block text-xs font-bold text-slate-700">Nominal otomatis (QRIS dinamis)</span>
+                    <span className="block text-[10px] text-slate-400 mt-0.5">Aktifkan hanya setelah Anda mencoba bayar sungguhan dan nominal terisi otomatis di aplikasi bank/e-wallet.</span>
+                  </span>
+                </label>
+              )}
+
               <div>
                 <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gambar QRIS</label>
                 <label className="flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-lg py-2.5 hover:bg-slate-50 cursor-pointer transition-colors">
@@ -261,6 +324,20 @@ export default function AdminSettings() {
                   />
                 </label>
               </div>
+
+              {qrisDecodeWarning && (
+                <div className="flex items-start gap-2 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-lg p-2.5">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                  <span>QR tidak terbaca, QRIS akan ditampilkan sebagai gambar biasa</span>
+                </div>
+              )}
+
+              {venueData.qris_payload && (
+                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg p-2.5">
+                  <Check className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>Nominal otomatis aktif</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

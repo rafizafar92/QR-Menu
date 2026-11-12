@@ -5,6 +5,8 @@ export interface Venue {
   logoUrl?: string;
   acceptQris?: boolean;
   qrisImageUrl?: string;
+  qrisPayload?: string;
+  qrisDynamic?: boolean;
   createdAt?: string;
 }
 
